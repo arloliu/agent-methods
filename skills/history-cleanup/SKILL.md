@@ -93,6 +93,9 @@ If the range is empty, report that there is nothing to squash and stop.
 Group by behavioral cohesion and diff/dependency evidence.
 Keep implementation, completing tests, and required documentation together when they form one review and rollback unit.
 Atomicity is behavioral, not directory-based.
+A separate documentation file, directory, or commit is not a standalone change
+when it only explains the behavior introduced by the same implementation.
+Treat documentation as standalone only when its purpose and rollback are independent of that behavior.
 Keep unrelated refactors, dependencies, generated artifacts, configuration, delivery changes,
 and standalone documentation separate unless evidence proves they are integral to the same behavior.
 
@@ -149,9 +152,13 @@ Table every original commit oldest first with these columns:
 
 | Resulting subject | Commits | Action | Diff evidence | Open concern |
 | --- | --- | --- | --- | --- |
+| <group subject> | <full original commit object ID, without abbreviation or ellipsis> → <group ID> | <action> | <patch evidence> | <concern or none> |
 
 Use one row per original commit so non-adjacent members remain visible in chronological order.
 In `Commits`, show its full hash and an explicit resulting group identifier.
+Check the completed table against the original inventory:
+every object ID exactly once, with no omissions or abbreviations.
+Use the repository's full object IDs; do not assume a particular hash algorithm or length.
 Repeat the group's proposed subject for its members and separately list the resulting group order.
 For merges, also show the planned parent relationships and rewrite strategy.
 Counts include every commit in the selected range, including merges and side-branch commits.

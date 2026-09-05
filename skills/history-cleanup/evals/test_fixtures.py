@@ -77,6 +77,7 @@ class FixtureTests(unittest.TestCase):
     def test_all_graphs_have_expected_counts_and_parent_order(self):
         expected = {
             "fixup-chain": ("M", 4),
+            "independent-documentation": ("M", 5),
             "non-adjacent-correction": ("M", 3),
             "revert-safe": ("M", 4),
             "revert-dependent": ("M", 4),
@@ -129,6 +130,33 @@ class FixtureTests(unittest.TestCase):
         repo.git("checkout", repo.commits["C"], "--", "checks.py")
         result = self.check_program(repo, succeeds=False)
         self.assertIn("AssertionError", result.stderr)
+
+    def test_independent_documentation_has_separate_rollback_boundaries(self):
+        repo = self.fixture("independent-documentation")
+        self.check_program(repo)
+        self.prepare_rewrite(repo)
+        feature = self.group(repo, "G", ["A", "B", "C", "D"])
+        self.check_program(repo)
+        self.assertEqual(
+            (repo.path / "endpoint.md").read_text(),
+            "The default endpoint uses API v1.\n",
+        )
+        docs = self.group(repo, "DOCS", ["E"])
+        self.assert_final_tree(repo, 2)
+        self.assertEqual(repo.git("diff", "--name-only", feature, docs), "endpoint.md")
+        self.assertEqual(
+            repo.git("show", "-s", "--format=%s"),
+            "Correct default endpoint documentation",
+        )
+        repo.git("revert", "--no-edit", docs)
+        self.check_program(repo)
+        repo.git("revert", "--no-edit", "HEAD")
+        repo.git("revert", "--no-edit", feature)
+        self.assertFalse((repo.path / "client/retry.py").exists())
+        self.assertEqual(
+            (repo.path / "endpoint.md").read_text(),
+            "The default endpoint uses API v2.\n",
+        )
 
     def rebase_with_update_refs_config(self, disable_updates):
         repo = self.fixture("fixup-chain")

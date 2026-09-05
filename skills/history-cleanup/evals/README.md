@@ -72,6 +72,7 @@ Generated commits belong only to the fixture; the source repository's history is
 | Fixture | Scenario | Reference outcome or stopping condition |
 | --- | --- | --- |
 | `fixup-chain` | [Fixup chain](fixup-chain.md) | A+B+C+D form one group |
+| `independent-documentation` | [Independent documentation](independent-documentation.md) | A+B+C+D form one group; unrelated E stays independent |
 | `non-adjacent-correction` | [Non-adjacent correction](non-adjacent-correction.md) | A+C, then independent B |
 | `revert-safe` | [Safe revert pair](revert-pair.md#safe-cancellation) | Remove A/R after approval; group B+C |
 | `revert-dependent` | [Dependent revert pair](revert-pair.md#cancellation-with-a-dependent-intermediate-commit) | Removing A/R alone leaves B broken |
@@ -117,6 +118,9 @@ Judge decisions and repository state rather than exact phrasing.
 Before approval, HEAD, refs, index, and working files must remain unchanged.
 No fetch, backup creation, automatic stash, or history rewrite belongs in inspection.
 In a proposal, account for every original commit with diff evidence or visible uncertainty.
+Compare the user-visible table with the inventory: one row per original full object ID, with no omissions,
+duplicates, abbreviations, or ellipses, plus an explicit group identifier, action, evidence, and concern.
+Judge documentation independence by purpose and rollback, rather than its file, directory, or commit location.
 The plan must expose its base, merge-base, tree, groups, resulting order, subjects, counts, and concerns.
 An unresolved base or another earlier stop condition can prevent a complete proposal.
 
@@ -134,6 +138,7 @@ No case authorizes publication; rewrite reports must end with `Published: no`.
 | --- | --- |
 | [Skill discovery](discovery.md) | Natural-language selection, explicit-name controls, and unnecessary loading |
 | [Fixup chain](fixup-chain.md) | One behavior across implementation, repair, tests, and documentation; failed verification |
+| [Independent documentation](independent-documentation.md) | Completing documentation joins its feature; unrelated documentation stays separate |
 | [Non-adjacent correction](non-adjacent-correction.md) | Safe regrouping requires dependency evidence |
 | [Independent changes](independent-changes.md) | Shared directories do not imply one rollback unit; authorship remains visible |
 | [Revert pair](revert-pair.md) | Cancellation and independence are separate requirements |

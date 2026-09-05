@@ -25,6 +25,8 @@ Surrounding history uses plain sentence subjects without prefixes.
 Propose one group, A+B+C+D, with the subject `Add retry limit`.
 Cite the counter repair, completing boundary tests, and option documentation as evidence.
 Account for all four commits and request approval of the exact plan before rewriting.
+Show each original full object ID exactly once in the proposal, with its group, action, evidence, and concern.
+D completes the new retry behavior; its separate file and commit do not give it an independent rollback purpose.
 After approval, the resulting graph is `M -- G`, with one atomic commit and the original final tree.
 The backup still points to D and publication remains unauthorized.
 
