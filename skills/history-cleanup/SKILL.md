@@ -92,6 +92,12 @@ For each commit collect its full hash, parents, author, subject, changed paths, 
 Record relevant attribution and signature concerns, including signatures that rewriting would invalidate or remove.
 Inspect complete patches as needed, including merge resolutions relative to their parents.
 Inspect the complete net diff from the merge-base to the original HEAD.
+Read the net patch itself, alongside individual patches; a stat or path summary is insufficient:
+
+```sh
+git --no-optional-locks diff <merge-base> <original-head>
+```
+
 Do not infer grouping from subjects, filenames, timestamps, or adjacency alone.
 Inspection ends only when every commit has an understood purpose or a documented uncertainty.
 If the range is empty, report that there is nothing to squash and stop.
@@ -189,6 +195,7 @@ Base: <base-ref> at merge-base <full-hash>
 Original commits: <count>
 Resulting commits: <count>
 Final tree will be required to match: <tree-id>
+After approval: <summarize Act after approval in order, including verification of the backup before rewriting>
 
 Approve this squash plan and history rewrite?
 ```

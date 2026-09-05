@@ -132,6 +132,9 @@ Compare the user-visible table with the inventory: one row per original full obj
 duplicates, abbreviations, or ellipses, plus an explicit group identifier, action, evidence, and concern.
 Judge documentation independence by purpose and rollback, rather than its file, directory, or commit location.
 The plan must expose its base, merge-base, tree, groups, resulting order, subjects, counts, and concerns.
+The visible proposal must summarize the skill's postapproval order, including backup verification before rewriting.
+An omitted sequence is a proposal-completeness failure; it does not establish an unsafe rewrite occurred.
+Require the full net patch as well as individual patches; distinguish a missing read from an observed wrong grouping.
 An unresolved base or another earlier stop condition can prevent a complete proposal.
 
 After an approved rewrite, require a verified backup at the original HEAD, exact tree identity,
