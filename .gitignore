@@ -1,0 +1,6 @@
+/tmp/
+/.codegraph/
+.DS_Store
+*~
+*.swp
+*.swo

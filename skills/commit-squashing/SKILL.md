@@ -1,0 +1,270 @@
+---
+name: commit-squashing
+description: >
+  Analyze and rewrite a Git branch into the fewest atomic commits while
+  preserving its final tree. Use before review, merge, or publication when
+  branch history contains WIP commits, fixups, partial changes, retries,
+  reverts, or commits that should be regrouped into coherent review and
+  rollback units.
+---
+
+# Commit Squashing
+
+Turn a branch's commit series into the fewest atomic commits that accurately represent the work.
+An atomic commit is one coherent change a reviewer can understand independently,
+forming a meaningful review and rollback unit that can be reverted without unintentionally undoing unrelated work.
+Do not minimize commit count at the expense of reviewability, dependency correctness, attribution, or rollback safety.
+
+## Invariants
+
+The rewrite may change commit boundaries, subjects, justified ordering, and commit IDs.
+It must not change the final Git tree:
+
+```text
+original HEAD^{tree} == rewritten HEAD^{tree}
+```
+
+The net `<merge-base>..HEAD` change is the source of truth.
+Tree equality proves the final snapshot is unchanged; it does not prove that intermediate groups are atomic.
+Verify both the tree and the approved grouping.
+
+Inspection and planning are read-only.
+Never rewrite until the user explicitly approves the exact displayed plan.
+Rewriting requires a clean worktree, unchanged inspected branch/base/HEAD, and a verified local backup branch.
+Publishing is separate: do not push automatically or force-push without authorization for the exact remote and branch.
+Use `--force-with-lease` when authorized; never silently substitute unconditional `--force`.
+
+## Inspect
+
+Record repository state and the original tree ID:
+
+```sh
+git status --short
+git branch --show-current
+git rev-parse HEAD
+git rev-parse HEAD^{tree}
+```
+
+Record the upstream when present, or `none`.
+A dirty worktree or detached HEAD may still be analyzed and planned.
+Report those conditions; require a clean worktree and an explicitly agreed branch attachment before rewriting.
+Do not automatically stash, discard, or commit uncommitted changes to satisfy the gate.
+If HEAD does not resolve to a commit, report that there is no history to squash and stop.
+
+Choose the integration base in this order:
+
+1. The user-supplied base.
+2. An unambiguous configured remote default branch from existing local repository state.
+3. Local `main` or `master` when exactly one is plausible.
+4. Otherwise, ask the user to choose before proposing a rewrite base.
+
+Do not fetch merely to discover the base unless requested.
+Do not mistake the current branch's upstream for the integration base.
+If a user-supplied base does not resolve, report the error and request direction instead of silently falling back.
+Record the base ref and its resolved commit ID, then resolve the fork point:
+
+```sh
+git rev-parse <base-ref>^{commit}
+git merge-base --all <base-ref> HEAD
+```
+
+Require exactly one merge-base.
+If none exists, stop rather than silently using `--root`.
+If multiple merge-bases exist, request direction rather than selecting one arbitrarily.
+Distinguish the base ref, such as `origin/main`, from the merge-base commit.
+The merge-base defines the inventory range and rewrite boundary; the base tip does not.
+
+Inventory every commit in `<merge-base>..HEAD` oldest first, with parents before children:
+
+```sh
+git rev-list --reverse --topo-order <merge-base>..HEAD
+```
+
+For each commit collect its full hash, parents, author, subject, changed paths, diff summary, and merge status.
+Record relevant attribution and signature concerns, including signatures that rewriting would invalidate or remove.
+Inspect complete patches as needed, including merge resolutions relative to their parents.
+Inspect the complete net diff from the merge-base to the original HEAD.
+Do not infer grouping from subjects, filenames, timestamps, or adjacency alone.
+Inspection ends only when every commit has an understood purpose or a documented uncertainty.
+If the range is empty, report that there is nothing to squash and stop.
+
+## Reason about atomic groups
+
+Group by behavioral cohesion and diff/dependency evidence.
+Keep implementation, completing tests, and required documentation together when they form one review and rollback unit.
+Atomicity is behavioral, not directory-based.
+Keep unrelated refactors, dependencies, generated artifacts, configuration, delivery changes,
+and standalone documentation separate unless evidence proves they are integral to the same behavior.
+
+Subjects such as `fixup!`, `squash!`, `WIP`, `oops`, `fix tests`, `retry`, and `cleanup` are investigation hints.
+The diff decides.
+A non-adjacent correction may join an earlier commit only when they form one atomic behavior,
+intervening commits remain independent, and dependency ordering remains correct.
+Do not reorder for aesthetics.
+
+A reverted commit and its revert are drop candidates only when their combined surviving effect is empty
+and later history does not depend on either commit.
+Check dependent commits between the pair as well as after the revert.
+Patch cancellation alone is insufficient evidence.
+
+Surface meaningful attribution loss from grouping different authors as an open concern.
+Do not invent attribution trailers.
+Follow established repository conventions when preservation is appropriate, respecting any prohibition on trailers.
+If attribution cannot be preserved under those conventions, request direction before rewriting the affected group.
+
+Preserve the repository's commit-message convention, using surrounding history as evidence.
+Do not introduce Conventional Commits, scopes, issue prefixes, or another style unless history demonstrates it
+or the user explicitly requests it.
+Preserved commits keep their subjects.
+For a squashed group, retain the earliest useful subject if it still describes the result accurately;
+otherwise propose the smallest necessary improvement.
+
+Treat merge commits as hard boundaries.
+Identify every merge and do not group across it or combine independent parent histories.
+Explain that ordinary interactive rebase may flatten topology.
+Require explicit approval of a merge-aware rewrite strategy for any range containing a merge.
+Do not recreate or restructure merges without explicit direction.
+
+Check proposed groups in their resulting order for coherent purpose, required dependencies, and rollback boundaries.
+Every original commit must belong to exactly one group or be a drop candidate.
+Record unresolved intent, dependencies, attribution, signatures, or topology as visible concerns.
+Resolve any concern that prevents a concrete safe transformation before acting.
+
+## Display the plan and obtain approval
+
+Show inspected state:
+
+```text
+Branch: <branch, or detached>
+Inspected HEAD: <full-hash>
+Base ref: <base-ref>
+Base tip: <full-hash>
+Merge-base: <full-hash>
+Original commits: <count>
+Proposed commits: <count>
+Upstream: <remote/branch or none>
+```
+
+Table every original commit oldest first with these columns:
+
+| Resulting subject | Commits | Action | Diff evidence | Open concern |
+| --- | --- | --- | --- | --- |
+
+Use one row per original commit so non-adjacent members remain visible in chronological order.
+In `Commits`, show its full hash and an explicit resulting group identifier.
+Repeat the group's proposed subject for its members and separately list the resulting group order.
+For merges, also show the planned parent relationships and rewrite strategy.
+Counts include every commit in the selected range, including merges and side-branch commits.
+
+Allowed proposal actions:
+
+- `squash`: members become one atomic commit.
+- `preserve`: the commit stays independent with its existing subject; its ID may change if its parent changes.
+- `drop candidate`: proposed removal, with an empty resulting subject.
+  Never label it simply `drop` before approval.
+
+Give concrete patch/dependency evidence for every decision and make uncertainty visible.
+Show any required authorship or message-body preservation as part of the plan.
+If every commit is preserved and no transformation is needed, report the unchanged inventory and stop.
+Do not request rewrite approval or create a backup for a no-op.
+Close with:
+
+```text
+Base: <base-ref> at merge-base <full-hash>
+Original commits: <count>
+Resulting commits: <count>
+Final tree will be required to match: <tree-id>
+
+Approve this squash plan and history rewrite?
+```
+
+Approval applies only to this displayed plan, including any proposed removals and merge strategy.
+Any material change to groups, subjects, order, base, attribution, or strategy requires a new plan and approval.
+
+## Act after approval
+
+Revalidate immediately before rewriting:
+
+```sh
+git status --short
+git branch --show-current
+git rev-parse HEAD
+git rev-parse <approved-base-ref>^{commit}
+git merge-base --all <approved-base-ref> HEAD
+```
+
+Require a clean worktree, the approved branch, original HEAD, unchanged base tip, and the same single merge-base.
+Confirm no merge, rebase, cherry-pick, or other history operation is already in progress.
+If inspected state differs, stop and re-inspect; obtain approval of an updated plan before acting.
+
+Create a new local backup branch at the original HEAD, for example:
+
+```text
+backup/commit-squashing/<branch>-<YYYYMMDD-HHMMSS>-<short-head>
+```
+
+Choose a valid unused ref name; never overwrite an existing backup.
+Verify that it resolves to the original HEAD and record its exact name.
+Stop if backup creation or verification fails; do not rely solely on reflog recovery.
+
+Rewrite from the approved merge-base using a mechanism appropriate to the approved topology.
+For a linear range, interactive rebase is suitable.
+Perform only the approved picks, squashes/fixups, justified moves, subject edits, and explicitly approved removals.
+Do not broaden the range or opportunistically clean unrelated history.
+Resolve conflicts only when the resolution clearly preserves both the approved net change and grouping.
+If a conflict requires a behavioral decision or changes the planned result, stop for user direction.
+
+## Verify and stop
+
+Compare the recorded original tree with both trees below:
+
+```sh
+git rev-parse HEAD^{tree}
+git rev-parse <backup-branch>^{tree}
+git diff --exit-code <backup-branch> HEAD
+```
+
+All tree IDs must match exactly; tree identity is primary and the diff is a secondary check.
+Verify the history from the approved merge-base to rewritten HEAD against the inventory and plan:
+
+- Expected commit count and resulting order/parent relationships.
+- Every approved group exactly once, with its intended patch content.
+- Preserved commits still independent and approved drops absent.
+- Correct subjects and agreed attribution handling.
+- No unapproved history changes, including outside the rewrite range.
+
+Inspect resulting patches and dependencies, not only log subjects and counts.
+Confirm the worktree is clean and the rewrite operation has finished.
+If any check fails, report failure, retain the backup, and stop for recovery direction.
+Do not claim success, publish, or silently reset away the failed result.
+
+Report:
+
+```text
+Rewrite: verified | failed
+Tree identity: match | mismatch
+Original tree: <tree-id>
+Rewritten tree: <tree-id>
+Resulting commits: <count>
+Backup branch: <backup-branch>
+Published: no
+```
+
+If verification cannot run, report it as incomplete with the failing check rather than inventing tree values.
+Then stop.
+
+## Publishing on a separate request
+
+Rewrite approval does not authorize publication.
+On a separate publishing request, identify the exact remote and destination branch,
+determine whether the branch may be shared, and explain that commit IDs changed.
+Obtain explicit authorization for that target before force-pushing.
+Refresh remote state where appropriate and inspect the expected destination tip so the lease is meaningful.
+If remote state changed unexpectedly, stop; do not simply refresh the lease and overwrite it.
+Use an explicit destination and expected remote object ID, for example:
+
+```sh
+git push --force-with-lease=refs/heads/<branch>:<expected-remote-oid> <remote> HEAD:refs/heads/<branch>
+```
+
+Never silently fall back to unconditional `--force` after a rejected lease.
