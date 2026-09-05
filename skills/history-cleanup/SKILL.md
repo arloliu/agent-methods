@@ -106,10 +106,13 @@ If the range is empty, report that there is nothing to squash and stop.
 
 Group by behavioral cohesion and diff/dependency evidence.
 Keep implementation, completing tests, and required documentation together when they form one review and rollback unit.
-Atomicity is behavioral, not directory-based.
-A separate documentation file, directory, or commit is not a standalone change
-when it only explains the behavior introduced by the same implementation.
-Treat documentation as standalone only when its purpose and rollback are independent of that behavior.
+For each documentation change, identify its changed claims and the behavior they describe.
+Reason from the inspected patches about what would remain if the associated implementation change were reverted:
+if the document would describe a capability or contract no longer present, group it with that implementation.
+Preserve documentation separately only with evidence that it retains an accurate, useful purpose without that change
+and can itself be reverted without undoing the implementation's purpose.
+For example, a correction describing behavior already present at the merge-base can be independent of a new feature.
+A separate file or a mechanically clean revert does not establish independent purpose.
 Keep unrelated refactors, dependencies, generated artifacts, configuration, delivery changes,
 and standalone documentation separate unless evidence proves they are integral to the same behavior.
 
@@ -166,7 +169,7 @@ Table every original commit oldest first with these columns:
 
 | Resulting subject | Commits | Action | Diff evidence | Open concern |
 | --- | --- | --- | --- | --- |
-| `<group subject>` | `<full original commit object ID, without abbreviation or ellipsis>` → `<group ID>` | `<action>` | `<patch evidence>` | `<concern or none>` |
+| `<group subject>` | `<full original commit object ID, without abbreviation or ellipsis>` → `<group ID>` | `<action>` | `<patch/dependency evidence; for documentation: Claim: what it describes; Rollback: what remains if the associated implementation is reverted>` | `<concern or none>` |
 
 Use one row per original commit so non-adjacent members remain visible in chronological order.
 In `Commits`, show its full hash and an explicit resulting group identifier.
@@ -188,21 +191,29 @@ Give concrete patch/dependency evidence for every decision and make uncertainty 
 Show any required authorship or message-body preservation as part of the plan.
 If every commit is preserved and no transformation is needed, report the unchanged inventory and stop.
 Do not request rewrite approval or create a backup for a no-op.
-Close with:
+Complete the displayed state, every table column, and the closing fields below, using `none` for absent concerns.
+For documentation rows, give both the claim and rollback consequence in the same evidence cell.
+Compare every displayed Git object ID with its corresponding recorded command output, including the closing tree ID;
+correct any mismatch before asking for approval.
+Use this closing template to display the sequence required by [Act after approval](#act-after-approval):
 
 ```text
 Base: <base-ref> at merge-base <full-hash>
 Original commits: <count>
 Resulting commits: <count>
-Final tree will be required to match: <tree-id>
-After approval: <summarize Act after approval in order, including verification of the backup before rewriting>
+Final tree will be required to match: <recorded original tree ID, copied exactly>
+After approval:
+1. Complete applicable required precommit checks; stop if any fail or cannot complete.
+2. Revalidate the approved branch, HEAD, base tip, merge-base, and clean worktree; confirm no history operation is in progress.
+3. Create a new local backup at the original HEAD, verify its commit ID, and record the ref snapshot.
+4. Reconfirm unchanged state and backup identity, then perform only the approved rewrite.
+5. Verify final tree, backup commit, other refs, grouping, subjects, clean worktree, and completed rewrite operation.
 
 Approve this squash plan and history rewrite?
 ```
 
 Approval applies only to this displayed plan, including any proposed removals and merge strategy.
 Any material change to groups, subjects, order, base, attribution, or strategy requires a new plan and approval.
-Describe the execution order by referring to [Act after approval](#act-after-approval).
 
 ## Act after approval
 

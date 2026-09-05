@@ -213,9 +213,36 @@ class FixtureTests(unittest.TestCase):
         )
         repo.git("revert", "--no-edit", docs)
         self.check_program(repo)
+        self.assertTrue((repo.path / "retry.md").exists())
+        self.assertEqual(
+            (repo.path / "endpoint.md").read_text(),
+            "The default endpoint uses API v1.\n",
+        )
         repo.git("revert", "--no-edit", "HEAD")
         repo.git("revert", "--no-edit", feature)
         self.assertFalse((repo.path / "client/retry.py").exists())
+        self.assertFalse((repo.path / "retry.md").exists())
+        self.assertEqual(
+            (repo.path / "endpoint.md").read_text(),
+            "The default endpoint uses API v2.\n",
+        )
+
+    def test_separate_retry_documentation_exposes_orphaned_claim(self):
+        repo = self.fixture("independent-documentation")
+        self.prepare_rewrite(repo)
+        feature = self.group(repo, "G", ["A", "B", "C"])
+        self.group(repo, "RETRY-DOCS", ["D"])
+        self.group(repo, "ENDPOINT-DOCS", ["E"])
+        self.assert_final_tree(repo, 3)
+
+        repo.git("revert", "--no-edit", feature)
+
+        self.assertFalse((repo.path / "client/retry.py").exists())
+        self.assertFalse((repo.path / "checks.py").exists())
+        self.assertEqual(
+            (repo.path / "retry.md").read_text(),
+            "The retry limit excludes the initial attempt.\nZero disables retries.\n",
+        )
         self.assertEqual(
             (repo.path / "endpoint.md").read_text(),
             "The default endpoint uses API v2.\n",
