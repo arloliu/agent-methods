@@ -1,7 +1,8 @@
 # Repository instructions
 
 Preserve the portable Agent Skills philosophy and the [quality bar](README.md#quality-bar).
-Read [commit-squashing](skills/commit-squashing/SKILL.md) as the initial quality reference when creating or changing a skill.
+Read [history-cleanup](skills/history-cleanup/SKILL.md) as the initial quality reference
+when creating or changing a skill.
 
 - Add methods with concrete procedural value; do not bulk-create generic skills.
 - Introduce dependencies only with strong justification.

@@ -12,11 +12,11 @@ Install a skill in your coding agent, ask for the task, and follow a workflow wi
 - **Check the result:** each method defines what success looks like and how to verify it.
 - **Use your preferred agent:** installation instructions below cover Claude Code, OpenCode, Codex, and agy.
 
-[Skills](#available-skills) · [Install](#install) · [Usage](#use-commit-squashing) · [Evaluations](#evaluations)
+[Skills](#available-skills) · [Install](#install) · [Usage](#use-history-cleanup) · [Evaluations](#evaluations)
 
 ## Available skills
 
-### [commit-squashing](skills/commit-squashing/SKILL.md)
+### [history-cleanup](skills/history-cleanup/SKILL.md)
 
 **Turn WIP commits and fixups into a history that is easier to review and revert.**
 Use it before opening a pull request or merging a branch.
@@ -42,66 +42,95 @@ The grouping depends on the actual changes, not just these commit messages.
 ## Install
 
 You need **Git** and an installed coding agent with local skill support.
-The commands below use a POSIX shell on macOS, Linux, or WSL.
 Python is only needed if you want to run the fixture tests.
 
-### 1. Get the skills
+### Install with Skills CLI
+
+With Node.js 22.20.0 or newer and npm, run this from your target project:
+
+```sh
+npx skills add arloliu/agent-methods --skill history-cleanup
+```
+
+The default scope is the current project.
+When running interactively, choose your agent from the prompts.
+Add `--global` to install for your user account across projects.
+For agy, use the [manual installation](#agy--antigravity-cli) below.
+
+The installation was checked with Skills CLI `1.5.23`.
+See the [Skills CLI documentation](https://github.com/vercel-labs/skills#readme) for agent selection and copy/symlink options.
+Keep any local customizations before reinstalling or updating; the CLI replaces existing skill files.
+Start a new agent session in your target project after installation.
+
+To update a CLI-managed installation, run this from the same project:
+
+```sh
+npx skills update history-cleanup
+```
+
+Add `--global` when updating a user-level installation.
+
+### Manual install
+
+The commands below use a POSIX shell on macOS, Linux, or WSL and require no Node.js installation.
+
+#### 1. Get the skills
 
 ```sh
 git clone https://github.com/arloliu/agent-methods.git
 cd agent-methods
 ```
 
-### 2. Install for your agent
+#### 2. Install for your agent
 
 Run **one** of the following blocks from the cloned repository.
 These install for your user account, making the skill available across projects.
 The copy commands ask before replacing existing files; keep any local customizations you need.
 
-#### Claude Code
+##### Claude Code
 
 ```sh
 mkdir -p "$HOME/.claude/skills"
-cp -Ri skills/commit-squashing "$HOME/.claude/skills/"
+cp -Ri skills/history-cleanup "$HOME/.claude/skills/"
 ```
 
-In Claude Code, invoke it with `/commit-squashing`.
+In Claude Code, invoke it with `/history-cleanup`.
 See [Claude Code skill documentation](https://code.claude.com/docs/en/skills).
 
-#### OpenCode
+##### OpenCode
 
 ```sh
 mkdir -p "$HOME/.config/opencode/skills"
-cp -Ri skills/commit-squashing "$HOME/.config/opencode/skills/"
+cp -Ri skills/history-cleanup "$HOME/.config/opencode/skills/"
 ```
 
-Ask OpenCode to use the `commit-squashing` skill.
+Ask OpenCode to use the `history-cleanup` skill.
 OpenCode also discovers `~/.agents/skills/` and `~/.claude/skills/`, so an existing installation there can be reused.
 See [OpenCode skill documentation](https://opencode.ai/docs/skills).
 
-#### Codex
+##### Codex
 
 ```sh
 mkdir -p "$HOME/.agents/skills"
-cp -Ri skills/commit-squashing "$HOME/.agents/skills/"
+cp -Ri skills/history-cleanup "$HOME/.agents/skills/"
 ```
 
-In Codex CLI or the IDE extension, select it through `/skills` or mention `$commit-squashing` in your prompt.
+In Codex CLI or the IDE extension, select it through `/skills` or mention `$history-cleanup` in your prompt.
 See [Codex skill documentation](https://learn.chatgpt.com/docs/build-skills).
 
-#### agy — Antigravity CLI
+##### agy — Antigravity CLI
 
 ```sh
 mkdir -p "$HOME/.gemini/antigravity-cli/skills"
-cp -i skills/commit-squashing/SKILL.md "$HOME/.gemini/antigravity-cli/skills/commit-squashing.md"
+cp -i skills/history-cleanup/SKILL.md "$HOME/.gemini/antigravity-cli/skills/history-cleanup.md"
 ```
 
 This follows agy's documented CLI installation using a named Markdown file.
 The current skill is self-contained; its evaluation files are not required to use it.
-Launch `agy` and invoke `/commit-squashing`.
+Launch `agy` and invoke `/history-cleanup`.
 See [Antigravity CLI skill documentation](https://www.antigravity.google/docs/cli/plugins/).
 
-### Install for one project instead
+#### Install for one project instead
 
 Use the following locations inside the repository where you want to use the skill.
 Copy the skill directory for Claude Code, OpenCode, and Codex; for agy, copy `SKILL.md` to the named file.
@@ -109,31 +138,53 @@ You can commit the installation to share it with your team.
 
 | Agent | Project installation path |
 | --- | --- |
-| Claude Code | `.claude/skills/commit-squashing/SKILL.md` |
-| OpenCode | `.opencode/skills/commit-squashing/SKILL.md` |
-| Codex | `.agents/skills/commit-squashing/SKILL.md` |
-| agy CLI | `.agents/skills/commit-squashing.md` |
+| Claude Code | `.claude/skills/history-cleanup/SKILL.md` |
+| OpenCode | `.opencode/skills/history-cleanup/SKILL.md` |
+| Codex | `.agents/skills/history-cleanup/SKILL.md` |
+| agy CLI | `.agents/skills/history-cleanup.md` |
 
 These paths follow the agent documentation linked above.
 Start a new agent session in your target repository after installation.
 If the skill is missing, check the installation path and filename against the instructions for your agent.
 
-### Update an installation
+#### Update a manual installation
 
 Run `git pull --ff-only` in your `agent-methods` clone, review the changes, and repeat your agent's copy command.
 Installed copies do not update automatically.
 
-## Use commit-squashing
+#### Migrate from commit-squashing
+
+If you installed the former `commit-squashing` skill, preserve any local customizations first.
+Install `history-cleanup` using the instructions above and confirm it is available in a new agent session.
+Then remove the old `commit-squashing` installation from the same scope and agent location
+so both versions are not discovered together.
+For CLI-managed installations, use the CLI's `remove` command for the old skill name;
+for manual installations, remove only the old skill directory (or agy's old `commit-squashing.md` file).
+Updating `history-cleanup` does not migrate an installation registered under the old name.
+
+## Use history-cleanup
 
 Open the repository whose branch you want to clean up, then send your agent:
 
 ```text
-Use the commit-squashing skill to review this branch against main.
+Use the history-cleanup skill to review this branch against main.
 Group related WIP commits and fixups into atomic commits.
 Show me the exact plan before rewriting anything.
 ```
 
 Replace `main` with your intended integration base, such as `origin/main`.
+
+The skill's description also covers ordinary requests without its name, such as:
+
+- "Squash commits into fewer commits on this branch; use main as the base."
+- "Clean up this branch's commit history before review; use main as the base."
+- "把這個分支的 WIP commits 和 fixups 整理成幾個合理的提交，以 main 為基準。"
+
+These requests should select the same workflow, including its approval and verification steps.
+Automatic selection depends on the host and model; naming `history-cleanup` makes the intended skill explicit.
+Merely listing commits, explaining Git squash, or cleaning source files is outside this skill's purpose.
+The [discovery evaluation](skills/history-cleanup/evals/discovery.md) covers both matching and non-matching prompts.
+Those scenarios are separate from the automated fixture tests.
 
 **What to expect:**
 
@@ -165,7 +216,7 @@ Review the proposed actions and verification results as you work.
 
 ## Evaluations
 
-The commit-squashing suite includes reproducible Git fixtures for:
+The history-cleanup suite includes reproducible Git fixtures for:
 
 - Fixup chains and non-adjacent corrections.
 - Safe and dependent revert pairs.
@@ -175,13 +226,13 @@ The commit-squashing suite includes reproducible Git fixtures for:
 Run the fixture tests from this repository's root with Git and Python 3.10 or newer:
 
 ```sh
-python3 -B skills/commit-squashing/evals/test_fixtures.py
+python3 -B skills/history-cleanup/evals/test_fixtures.py
 ```
 
 [CI](https://github.com/arloliu/agent-methods/actions/workflows/ci.yml) runs the fixtures on Linux and macOS.
 The tests check fixture histories and reference transformations.
 Evaluating an agent's decisions and approval handling requires an actual agent run.
-See the [evaluation guide](skills/commit-squashing/evals/README.md) to build a fixture and assess a run.
+See the [evaluation guide](skills/history-cleanup/evals/README.md) to build a fixture and assess a run.
 
 ## Contributing
 

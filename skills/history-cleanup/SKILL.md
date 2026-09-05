@@ -1,14 +1,14 @@
 ---
-name: commit-squashing
+name: history-cleanup
 description: >
-  Analyze and rewrite a Git branch into the fewest atomic commits while
-  preserving its final tree. Use before review, merge, or publication when
-  branch history contains WIP commits, fixups, partial changes, retries,
-  reverts, or commits that should be regrouped into coherent review and
-  rollback units.
+  Clean up a Git branch's commit history while preserving its final tree.
+  Use when asked to squash commits into fewer commits, clean up branch history,
+  or group related WIP commits, fixups, partial changes, retries, and reverts
+  into atomic review and rollback units before review, merge, or publication.
+  Not for merely listing history, explaining Git concepts, or cleaning source files.
 ---
 
-# Commit Squashing
+# History Cleanup
 
 Turn a branch's commit series into the fewest atomic commits that accurately represent the work.
 An atomic commit is one coherent change a reviewer can understand independently,
@@ -200,7 +200,7 @@ If inspected state differs, stop and re-inspect; obtain approval of an updated p
 Create a new local backup branch at the original HEAD, for example:
 
 ```text
-backup/commit-squashing/<branch>-<YYYYMMDD-HHMMSS>-<short-head>
+backup/history-cleanup/<branch>-<YYYYMMDD-HHMMSS>-<short-head>
 ```
 
 Choose a valid unused ref name; never overwrite an existing backup.

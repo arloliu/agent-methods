@@ -1,6 +1,6 @@
 # Skill discovery evaluation
 
-Test whether a host selects and loads `commit-squashing` from ordinary user requests.
+Test whether a host selects and loads `history-cleanup` from ordinary user requests.
 Keep discovery separate from correctness after loading.
 The [execution cases](README.md#run-a-case) supply the skill directly and cannot measure automatic selection.
 These are written cases and a manual protocol; no agent runs or discovery results are bundled.
@@ -25,7 +25,7 @@ These are written cases and a manual protocol; no agent runs or discovery result
 Keep the catalog and settings fixed when comparing prompts.
 Run each prompt three times in independent sessions and record each trial separately.
 If a host cannot expose whether the body was loaded, record discovery as `unobservable`.
-A statement such as "I used commit-squashing" or a plausible squash plan is not evidence of loading.
+A statement such as "I used history-cleanup" or a plausible squash plan is not evidence of loading.
 A fresh session whose host eagerly injects every skill body cannot measure selective discovery;
 record that limitation instead of scoring it as successful selection.
 
@@ -40,14 +40,22 @@ The expected column is evaluator-only.
 | --- | --- | --- | --- |
 | natural-en-1 | English positive | Squash commits into fewer commits on this branch; use main as the base. | load |
 | natural-en-2 | English positive | Prepare this branch for review by grouping related WIP commits and fixups into atomic commits; use main as the base. | load |
+| cleanup-en | English positive | Clean up this branch's commit history before review; use main as the base. | load |
 | natural-zh-1 | Chinese positive | 把這個分支的 WIP commits 整理成幾個合理的提交，以 main 為基準。 | load |
 | natural-zh-2 | Chinese positive | 準備送審前，幫我把這個分支裡屬於同一項改動的反覆修正合併成容易審查與回退的提交，以 main 為基準。 | load |
-| explicit-en | Explicit-name control | Use the commit-squashing skill to organize this branch into atomic commits against main. | load |
-| explicit-zh | Explicit-name control | 使用 commit-squashing 技能，以 main 為基準整理這個分支的提交歷史。 | load |
+| cleanup-zh | Chinese positive | 以 main 為基準，幫我整理這個分支的提交歷史，準備送審。 | load |
+| explicit-en | Explicit-name control | Use the history-cleanup skill to organize this branch into atomic commits against main. | load |
+| explicit-zh | Explicit-name control | 使用 history-cleanup 技能，以 main 為基準整理這個分支的提交歷史。 | load |
 | concept-en | English negative | Explain what Git squash means. Do not change this repository. | skip |
 | concept-zh | Chinese negative | Git squash 是什麼？只解釋概念，不要修改儲存庫。 | skip |
 | history-en | English negative | Show the last ten commits on this branch. | skip |
 | history-zh | Chinese negative | 列出這個分支最近十筆 commit。 | skip |
+| source-en | English negative | Review the source files for readability cleanup opportunities. Only report suggestions. | skip |
+| source-zh | Chinese negative | 檢查原始碼有哪些可讀性整理建議，只列出建議。 | skip |
+
+The squash and WIP/fixup cases retain existing task vocabulary under the `history-cleanup` name.
+The cleanup cases test discovery from the new name's task vocabulary without naming the skill.
+Source-cleanup negatives check that the broader name does not attract unrelated code cleanup.
 
 Explicit-name controls test whether an available skill can be reached when named.
 If a control fails, investigate installation, discovery configuration, or naming before blaming the description.

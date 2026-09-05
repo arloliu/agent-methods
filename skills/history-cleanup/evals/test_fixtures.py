@@ -17,7 +17,7 @@ support = importlib.import_module("fixture_support")
 
 class FixtureTests(unittest.TestCase):
     def setUp(self):
-        temporary = tempfile.TemporaryDirectory(prefix="commit-squashing-tests-")
+        temporary = tempfile.TemporaryDirectory(prefix="history-cleanup-tests-")
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
 

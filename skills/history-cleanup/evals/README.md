@@ -1,6 +1,6 @@
-# Evaluating commit-squashing
+# Evaluating history-cleanup
 
-These are human-readable behavioral scenarios for [commit-squashing](../SKILL.md).
+These are human-readable behavioral scenarios for [history-cleanup](../SKILL.md).
 The [fixtures](fixtures/) turn the base cases into reproducible local Git repositories.
 The scripts use Python's standard library and Git; no packages or agent-specific runner are required.
 The fixture tests check graphs and reference transformations, not whether an agent follows the skill.
@@ -17,7 +17,7 @@ The ref-update regressions require Git with `git rebase --no-update-refs` suppor
 From the repository root:
 
 ```sh
-python3 -B skills/commit-squashing/evals/test_fixtures.py
+python3 -B skills/history-cleanup/evals/test_fixtures.py
 ```
 
 The script uses `unittest` and creates disposable repositories in the operating system's temporary directory.
@@ -33,7 +33,7 @@ The test script cannot rewrite a supplied repository.
 Run one test with the standard `unittest` selector, for example:
 
 ```sh
-python3 -B skills/commit-squashing/evals/test_fixtures.py FixtureTests.test_safe_revert_pair_can_be_removed
+python3 -B skills/history-cleanup/evals/test_fixtures.py FixtureTests.test_safe_revert_pair_can_be_removed
 ```
 
 ## Build a fixture for an agent
@@ -43,7 +43,7 @@ These are trusted repository scripts, not data files or package installers.
 Use [build_fixture.py](build_fixture.py) to construct one:
 
 ```sh
-python3 -B skills/commit-squashing/evals/build_fixture.py fixup-chain /tmp/commit-squashing-example
+python3 -B skills/history-cleanup/evals/build_fixture.py fixup-chain /tmp/history-cleanup-example
 ```
 
 The destination must not exist, and its parent must already exist.

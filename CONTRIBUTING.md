@@ -2,7 +2,7 @@
 
 Quality matters more than skill count.
 A contribution should encode an engineering method that changes an agent's decisions in a useful, observable way.
-Use the [quality bar](README.md#quality-bar) and [commit-squashing](skills/commit-squashing/SKILL.md) as references.
+Use the [quality bar](README.md#quality-bar) and [history-cleanup](skills/history-cleanup/SKILL.md) as references.
 
 ## Propose a method
 
@@ -35,7 +35,7 @@ Never weaken an approval or verification boundary to make a workflow shorter.
 ## Evaluate behavior
 
 Add meaningful eval scenarios for every non-trivial skill and update them whenever behavior changes.
-Use the [commit-squashing evals](skills/commit-squashing/evals/README.md) as the initial format.
+Use the [history-cleanup evals](skills/history-cleanup/evals/README.md) as the initial format.
 Include realistic inputs, relevant evidence, a user request, expected behavior, and the failure the case detects.
 Cover successful execution as well as ambiguity, adverse inputs, and stop conditions.
 Evaluate decisions and observable postconditions, not exact wording.
