@@ -39,7 +39,7 @@ Use `--force-with-lease` when authorized; never silently substitute unconditiona
 Record repository state and the original tree ID:
 
 ```sh
-git status --short
+git status --porcelain=v1 --untracked-files=all
 git branch --show-current
 git rev-parse HEAD
 git rev-parse HEAD^{tree}
@@ -186,7 +186,7 @@ Any material change to groups, subjects, order, base, attribution, or strategy r
 Revalidate immediately before rewriting:
 
 ```sh
-git status --short
+git status --porcelain=v1 --untracked-files=all
 git branch --show-current
 git rev-parse HEAD
 git rev-parse <approved-base-ref>^{commit}
@@ -206,15 +206,36 @@ backup/commit-squashing/<branch>-<YYYYMMDD-HHMMSS>-<short-head>
 Choose a valid unused ref name; never overwrite an existing backup.
 Verify that it resolves to the original HEAD and record its exact name.
 Stop if backup creation or verification fails; do not rely solely on reflog recovery.
+Record the ref names and object IDs after creating the backup:
+
+```sh
+git for-each-ref --format='%(refname) %(objectname)'
+```
 
 Rewrite from the approved merge-base using a mechanism appropriate to the approved topology.
 For a linear range, interactive rebase is suitable.
+Pass `--no-update-refs` when starting any rebase to override `rebase.updateRefs=true`,
+which could otherwise move the backup and other branches along with rewritten commits.
+For example: `git rebase --interactive --no-update-refs <approved-merge-base>`.
+If Git rejects that option, stop and select a supported strategy before rewriting.
 Perform only the approved picks, squashes/fixups, justified moves, subject edits, and explicitly approved removals.
 Do not broaden the range or opportunistically clean unrelated history.
 Resolve conflicts only when the resolution clearly preserves both the approved net change and grouping.
 If a conflict requires a behavioral decision or changes the planned result, stop for user direction.
 
 ## Verify and stop
+
+Verify the backup commit independently of tree equality:
+
+```sh
+git rev-parse <backup-branch>^{commit}
+git for-each-ref --format='%(refname) %(objectname)'
+```
+
+The backup must still resolve to the recorded original HEAD commit ID.
+Compare refs with the recorded snapshot: only the approved target branch may move;
+all other refs must retain their names and object IDs, with no unexpected additions or deletions.
+A moved backup is a verification failure even when its tree matches.
 
 Compare the recorded original tree with both trees below:
 
@@ -234,7 +255,8 @@ Verify the history from the approved merge-base to rewritten HEAD against the in
 - No unapproved history changes, including outside the rewrite range.
 
 Inspect resulting patches and dependencies, not only log subjects and counts.
-Confirm the worktree is clean and the rewrite operation has finished.
+Confirm the worktree is clean with `git status --porcelain=v1 --untracked-files=all`
+and the rewrite operation has finished.
 If any check fails, report failure, retain the backup, and stop for recovery direction.
 Do not claim success, publish, or silently reset away the failed result.
 
@@ -247,6 +269,8 @@ Original tree: <tree-id>
 Rewritten tree: <tree-id>
 Resulting commits: <count>
 Backup branch: <backup-branch>
+Backup commit: original HEAD | mismatch
+Other refs: unchanged | changed
 Published: no
 ```
 

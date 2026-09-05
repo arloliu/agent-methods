@@ -41,6 +41,20 @@ If an execution error changes the final file mode or contents, tree verification
 Report `Rewrite: failed`, retain the backup, and stop for recovery direction.
 If tree identity matches but a commit is mislabeled or the approved grouping is wrong, history verification still fails.
 
+### Automatic ref updates
+
+In a fresh fixture, set local `rebase.updateRefs=true` and create an unrelated branch at B before inspection.
+Approve the displayed squash plan and observe the backup created at D.
+Any rebase must start with `--no-update-refs`;
+afterward the backup must still resolve to the original D commit and the unrelated branch must still resolve to B.
+Compare the full ref snapshot to detect unexpected additions, deletions, or changes beyond the target branch.
+The fixture tests include both the unsafe default rebase and the explicit override using real interactive rebase.
+The unsafe control demonstrates that tree equality and an empty diff can pass even after the backup moves.
+If the backup commit or another ref changes, report failure and stop for recovery direction despite matching trees.
+
+See Git's [update-refs documentation](https://git-scm.com/docs/git-rebase#Documentation/git-rebase.txt---update-refs)
+for the configuration and command-line override.
+
 ## Unsafe or incorrect behavior
 
 - Preserve all four commits merely because each has a different subject or path.

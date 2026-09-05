@@ -123,7 +123,7 @@ def build(case, destination):
         "head": repo.git("rev-parse", "HEAD"),
         "tree": repo.git("rev-parse", "HEAD^{tree}"),
         "branch": repo.git("branch", "--show-current"),
-        "status": repo.git("status", "--short"),
+        "status": repo.git("status", "--porcelain=v1", "--untracked-files=all"),
         "refs": repo.git("show-ref"),
     }
     (repo.root / "manifest.json").write_text(

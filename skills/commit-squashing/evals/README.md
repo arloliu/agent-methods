@@ -7,10 +7,13 @@ The fixture tests check graphs and reference transformations, not whether an age
 
 [GitHub Actions](../../../.github/workflows/ci.yml) runs the suite on Linux and macOS with Python 3.10 and 3.14.
 CI also checks Python lint and formatting using a pinned Ruff version.
+It validates skill frontmatter and published Markdown file targets with the
+[artifact checks](../../../CONTRIBUTING.md#artifact-validation).
 It runs on pushes to `main`, pull requests, and manual dispatch.
 
 ## Test the fixtures
 
+The ref-update regressions require Git with `git rebase --no-update-refs` support.
 From the repository root:
 
 ```sh
@@ -22,6 +25,8 @@ It removes those repositories on completion and returns a nonzero exit status on
 Tests exercise real cherry-picks, squashes, a merge conflict and reconstruction, intermediate program checks,
 tree identity including file modes, dirty index/worktree separation, base ambiguity, and reproducible commit IDs.
 They also check that fixture generation refuses existing destinations and ignores inherited Git routing/configuration.
+Configuration regressions cover a backup moved by `rebase.updateRefs=true`, the `--no-update-refs` repair,
+and untracked work hidden by `status.showUntrackedFiles=no`.
 All reference transformations run only in repositories created by the test process.
 The test script cannot rewrite a supplied repository.
 
@@ -81,6 +86,10 @@ Additional prose variants, including multiple authors, signatures, and stale app
 
 ## Run a case
 
+This protocol evaluates behavior with the skill supplied directly.
+Use the separate [discovery evaluation](discovery.md) for ordinary prompts, explicit-name controls,
+and negative cases that should not select the skill.
+
 Build a fresh fixture for each trial, or construct a disposable repository for a prose-only variant.
 Letters denote commits, `M` denotes the integration merge-base, and graph edges run from parent to child.
 Unless a case says otherwise, use a clean attached feature branch, a user-supplied base at `M`,
@@ -113,6 +122,9 @@ An unresolved base or another earlier stop condition can prevent a complete prop
 
 After an approved rewrite, require a verified backup at the original HEAD, exact tree identity,
 an empty backup-to-HEAD diff, and history matching the approved groups and topology.
+Recheck the backup's commit ID against the recorded original HEAD, even when all trees match.
+Compare the ref snapshot taken after backup creation: only the approved target branch may move.
+Require explicit untracked-file reporting when checking that the worktree is clean.
 A failed or incomplete check must not be reported as success.
 No case authorizes publication; rewrite reports must end with `Published: no`.
 
@@ -120,6 +132,7 @@ No case authorizes publication; rewrite reports must end with `Published: no`.
 
 | Case | Decision under evaluation |
 | --- | --- |
+| [Skill discovery](discovery.md) | Natural-language selection, explicit-name controls, and unnecessary loading |
 | [Fixup chain](fixup-chain.md) | One behavior across implementation, repair, tests, and documentation; failed verification |
 | [Non-adjacent correction](non-adjacent-correction.md) | Safe regrouping requires dependency evidence |
 | [Independent changes](independent-changes.md) | Shared directories do not imply one rollback unit; authorship remains visible |

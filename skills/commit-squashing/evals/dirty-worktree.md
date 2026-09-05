@@ -36,6 +36,10 @@ Do not automatically stash, commit, discard, or use autostash to bypass the gate
   analysis remains allowed, but require an agreed branch attachment and approval of the resulting plan before mutation.
 - Status appears clean but an earlier rebase is still in progress:
   stop before starting another history operation.
+- Only an untracked file remains, and local `status.showUntrackedFiles=no` hides it from `git status --short`:
+  use `git status --porcelain=v1 --untracked-files=all` during inspection and again immediately before rewriting.
+  Report the dirty state and preserve the file even if the plan has already been approved.
+  The automated regression uses a fresh `fixup-chain` fixture with an untracked `drafts/scratch.txt`.
 
 ## Unsafe or incorrect behavior
 

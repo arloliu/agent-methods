@@ -3,6 +3,7 @@
 import importlib
 import json
 import os
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -35,7 +36,9 @@ class FixtureTests(unittest.TestCase):
         return json.loads((repo.root / "manifest.json").read_text())
 
     def prepare_rewrite(self, repo):
-        self.assertEqual(repo.git("status", "--short"), "")
+        self.assertEqual(
+            repo.git("status", "--porcelain=v1", "--untracked-files=all"), ""
+        )
         repo.git("branch", "backup/fixture-original", self.baseline(repo)["head"])
         self.assertEqual(
             repo.git("rev-parse", "backup/fixture-original"),
@@ -51,6 +54,10 @@ class FixtureTests(unittest.TestCase):
 
     def assert_final_tree(self, repo, count):
         self.assertEqual(
+            repo.git("rev-parse", "backup/fixture-original^{commit}"),
+            self.baseline(repo)["head"],
+        )
+        self.assertEqual(
             repo.git("rev-parse", "HEAD^{tree}"), self.baseline(repo)["tree"]
         )
         self.assertEqual(
@@ -63,7 +70,9 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(
             int(repo.git("rev-list", "--count", f"{repo.commits['M']}..HEAD")), count
         )
-        self.assertEqual(repo.git("status", "--short"), "")
+        self.assertEqual(
+            repo.git("status", "--porcelain=v1", "--untracked-files=all"), ""
+        )
 
     def test_all_graphs_have_expected_counts_and_parent_order(self):
         expected = {
@@ -120,6 +129,83 @@ class FixtureTests(unittest.TestCase):
         repo.git("checkout", repo.commits["C"], "--", "checks.py")
         result = self.check_program(repo, succeeds=False)
         self.assertIn("AssertionError", result.stderr)
+
+    def rebase_with_update_refs_config(self, disable_updates):
+        repo = self.fixture("fixup-chain")
+        repo.git("config", "--local", "rebase.updateRefs", "true")
+        repo.git("branch", "backup/fixture-original")
+        repo.git("branch", "unrelated", repo.commits["B"])
+        repo.git("tag", "original-tip")
+        before = repo.git("for-each-ref", "--format=%(refname) %(objectname)")
+        editor = repo.root / "sequence editor.py"
+        editor.write_text(
+            "import pathlib, sys\n"
+            "todo = pathlib.Path(sys.argv[1])\n"
+            "lines = todo.read_text().splitlines(keepends=True)\n"
+            "picked = False\n"
+            "for i, line in enumerate(lines):\n"
+            "    if line.startswith('pick '):\n"
+            "        if picked:\n"
+            "            lines[i] = 'fixup ' + line[5:]\n"
+            "        picked = True\n"
+            "todo.write_text(''.join(lines))\n"
+        )
+        # Preserve non-pick commands so Git's generated update-ref commands run.
+        repo.env["GIT_SEQUENCE_EDITOR"] = shlex.join([sys.executable, str(editor)])
+        options = ["--no-update-refs"] if disable_updates else []
+        repo.git("rebase", "--interactive", *options, repo.commits["M"])
+        self.assertNotEqual(repo.git("rev-parse", "HEAD"), self.baseline(repo)["head"])
+        self.assertEqual(repo.git("rev-list", "--count", "main..HEAD"), "1")
+        self.assertEqual(
+            repo.git("rev-parse", "HEAD^{tree}"), self.baseline(repo)["tree"]
+        )
+        self.assertEqual(
+            repo.git("diff", "--exit-code", "backup/fixture-original", "HEAD"), ""
+        )
+        return repo, before
+
+    def test_update_refs_moves_backup_despite_matching_trees(self):
+        repo, before = self.rebase_with_update_refs_config(disable_updates=False)
+        self.assertEqual(
+            repo.git("rev-parse", "backup/fixture-original"),
+            repo.git("rev-parse", "HEAD"),
+        )
+        self.assertNotEqual(repo.git("rev-parse", "unrelated"), repo.commits["B"])
+        self.assertNotEqual(
+            repo.git("for-each-ref", "--format=%(refname) %(objectname)"), before
+        )
+        with self.assertRaises(AssertionError):
+            self.assert_final_tree(repo, 1)
+
+    def test_no_update_refs_preserves_backup_and_other_refs(self):
+        repo, before = self.rebase_with_update_refs_config(disable_updates=True)
+        self.assert_final_tree(repo, 1)
+        after = repo.git("for-each-ref", "--format=%(refname) %(objectname)")
+        self.assertEqual(
+            after,
+            before.replace(
+                "refs/heads/feature " + self.baseline(repo)["head"],
+                "refs/heads/feature " + repo.git("rev-parse", "HEAD"),
+            ),
+        )
+        self.check_program(repo)
+
+    def test_explicit_status_exposes_config_hidden_untracked_work(self):
+        repo = self.fixture("fixup-chain")
+        repo.git("config", "--local", "status.showUntrackedFiles", "no")
+        repo.write({"drafts/scratch.txt": "Uncommitted work.\n"})
+        before = repo.git("show-ref")
+        index = repo.git("write-tree")
+        self.assertEqual(repo.git("status", "--short"), "")
+        self.assertEqual(
+            repo.git("status", "--porcelain=v1", "--untracked-files=all"),
+            "?? drafts/scratch.txt",
+        )
+        self.assertEqual(repo.git("show-ref"), before)
+        self.assertEqual(repo.git("write-tree"), index)
+        self.assertEqual(
+            (repo.path / "drafts/scratch.txt").read_text(), "Uncommitted work.\n"
+        )
 
     def test_non_adjacent_correction_moves_without_its_neighbor(self):
         repo = self.fixture("non-adjacent-correction")
@@ -306,7 +392,10 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(created.git("show", "-s", "--format=%an"), "Fixture Author")
         self.assertEqual(other.git("rev-parse", "HEAD"), original["head"])
         self.assertEqual(other.git("show-ref"), original["refs"])
-        self.assertEqual(other.git("status", "--short"), original["status"])
+        self.assertEqual(
+            other.git("status", "--porcelain=v1", "--untracked-files=all"),
+            original["status"],
+        )
 
     def test_cli_builds_and_rejects_reuse(self):
         destination = self.root / "cli fixture"

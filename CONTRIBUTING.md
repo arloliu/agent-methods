@@ -45,6 +45,33 @@ Use disposable local fixtures for destructive operations and record any approval
 Report what actually ran, what passed or failed, and what remains unevaluated.
 A written scenario alone is not a passed behavioral test.
 
+## Artifact validation
+
+From the repository root, use a virtual environment with Python 3.10 or newer:
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r scripts/requirements-validation.txt
+.venv/bin/python -B scripts/test_validate_artifacts.py
+.venv/bin/python -B scripts/validate_artifacts.py
+```
+
+The validator checks required skill metadata, field types and limits, name/directory consistency,
+duplicate YAML keys, and unsupported frontmatter fields against the
+[Agent Skills specification](https://agentskills.io/specification).
+It checks local Markdown link and image file targets, including reference links and links in tables,
+against tracked and non-ignored untracked repository files.
+Ignored local files cannot satisfy published links.
+Code examples are excluded; URL availability, fragments/heading anchors, raw HTML links,
+and unresolved Markdown reference labels are outside this check.
+Review those separately when changing them.
+
+Pinned PyYAML and markdown-it-py provide YAML and Markdown parsers for these checks.
+This handles nested syntax and code blocks without maintaining custom parsers.
+These are development dependencies for artifact validation;
+using the skill and running its Git fixture suite require neither package.
+CI runs both validator tests and artifact checks alongside the fixture suite.
+
 ## Before submitting
 
 Review every changed file for consistency with the method's evidence, approval, and verification rules.
