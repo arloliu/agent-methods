@@ -162,6 +162,22 @@ class FixtureTests(unittest.TestCase):
                     self.assertEqual(result.returncode, 3)
                     self.assertIn("Required check failed", result.stdout)
 
+    def test_planning_status_does_not_refresh_index_metadata(self):
+        repo = self.fixture("fixup-chain")
+        path = repo.path / "checks.py"
+        original = path.stat()
+        os.utime(path, ns=(original.st_atime_ns, original.st_mtime_ns + 2_000_000_000))
+        before = observation.snapshot(repo.path)
+        self.assertEqual(
+            repo.git("--no-optional-locks", "status", "--porcelain=v1"), ""
+        )
+        self.assertEqual(observation.snapshot(repo.path), before)
+        self.assertEqual(repo.git("status", "--porcelain=v1"), "")
+        self.assertNotEqual(
+            observation.snapshot(repo.path)["files"][".git/index"],
+            before["files"][".git/index"],
+        )
+
     def test_fixup_chain_squashes_to_one_behavior(self):
         repo = self.fixture("fixup-chain")
         self.check_program(repo)

@@ -37,6 +37,7 @@ Use `--force-with-lease` when authorized; never silently substitute unconditiona
 ## Inspect
 
 Use read-only Git queries and file reads for inspection and planning.
+Use `git --no-optional-locks` for planning queries so status checks do not refresh and write index metadata.
 Identify repository-required validation commands by reading its instructions and configuration;
 identifying a command is not permission to execute it during planning.
 Defer validation commands that may create caches, bytecode, reports, or build output until after approval.
@@ -46,7 +47,7 @@ Keep generated and ignored files intact; do not delete outputs or weaken the app
 Record repository state and the original tree ID:
 
 ```sh
-git status --porcelain=v1 --untracked-files=all
+git --no-optional-locks status --porcelain=v1 --untracked-files=all
 git branch --show-current
 git rev-parse HEAD
 git rev-parse HEAD^{tree}
@@ -159,7 +160,7 @@ Table every original commit oldest first with these columns:
 
 | Resulting subject | Commits | Action | Diff evidence | Open concern |
 | --- | --- | --- | --- | --- |
-| <group subject> | <full original commit object ID, without abbreviation or ellipsis> → <group ID> | <action> | <patch evidence> | <concern or none> |
+| `<group subject>` | `<full original commit object ID, without abbreviation or ellipsis>` → `<group ID>` | `<action>` | `<patch evidence>` | `<concern or none>` |
 
 Use one row per original commit so non-adjacent members remain visible in chronological order.
 In `Commits`, show its full hash and an explicit resulting group identifier.
@@ -229,7 +230,7 @@ Record the ref names and object IDs after creating the backup:
 git for-each-ref --format='%(refname) %(objectname)'
 ```
 
-Immediately before each actual rewrite, confirm that the branch, HEAD, base, merge-base, and worktree match the approved state.
+Before starting the approved rewrite operation, confirm that branch, HEAD, base, merge-base, and worktree are unchanged.
 Confirm that the verified backup still resolves to the original HEAD.
 Any intervening change triggers the same stop and re-inspection rule; a prior clean result is not sufficient.
 
