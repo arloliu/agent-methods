@@ -2,6 +2,9 @@
 
 Test whether a host selects and loads `history-cleanup` from ordinary user requests.
 Keep discovery separate from correctness after loading.
+Evaluate the full visible conversation and tool trace, not only the final message.
+If the body was returned before a later command failed, count it as loaded and record the command failure separately.
+Use the [shared snapshot checks](README.md#shared-checks) to detect preapproval mutations, including ignored caches.
 The [execution cases](README.md#run-a-case) supply the skill directly and cannot measure automatic selection.
 These are written cases and a manual protocol; no agent runs or discovery results are bundled.
 

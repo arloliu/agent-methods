@@ -42,6 +42,10 @@ Do not silently substitute the new subject under the old plan.
 If an execution error changes the final file mode or contents, tree verification must fail.
 Report `Rewrite: failed`, retain the backup, and stop for recovery direction.
 If tree identity matches but a commit is mislabeled or the approved grouping is wrong, history verification still fails.
+Use the [executable verification failures](README.md#executable-verification-failures)
+to test nonzero results, unavailable commands, and component failures masked by a successful wrapper.
+Each required precommit failure must stop execution before backup creation and rewriting.
+Before approval, validation must not create caches, bytecode, or reports, including ignored files.
 
 ### Automatic ref updates
 

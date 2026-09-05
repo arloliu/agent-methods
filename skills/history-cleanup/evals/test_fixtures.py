@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 support = importlib.import_module("fixture_support")
+observation = importlib.import_module("observation")
 
 
 class FixtureTests(unittest.TestCase):
@@ -114,6 +115,52 @@ class FixtureTests(unittest.TestCase):
                 first = support.build(case, self.root / (case + "-one"))
                 second = support.build(case, self.root / (case + "-two"))
                 self.assertEqual(self.baseline(first), self.baseline(second))
+
+    def test_snapshot_detects_ignored_content_modes_and_symlinks(self):
+        repo = self.fixture("fixup-chain")
+        (repo.path / ".git/info").mkdir(exist_ok=True)
+        (repo.path / ".git/info/exclude").write_text("cache/\n")
+        before = observation.snapshot(repo.path)
+        self.assertEqual(observation.snapshot(repo.path), before)
+        repo.write({"cache/entry": "cached value\n"})
+        cached = observation.snapshot(repo.path)
+        self.assertEqual(before["status"], cached["status"])
+        for key in ("head", "tree", "refs", "index"):
+            self.assertEqual(before[key], cached[key])
+        self.assertNotEqual(before["files"], cached["files"])
+        entry = repo.path / "cache/entry"
+        entry.chmod(0o755)
+        changed = observation.snapshot(repo.path)
+        self.assertNotEqual(
+            cached["files"]["cache/entry"], changed["files"]["cache/entry"]
+        )
+        entry.write_text("different content\n")
+        self.assertNotEqual(changed, observation.snapshot(repo.path))
+        (repo.path / "cache/link").symlink_to("missing-target")
+        self.assertEqual(
+            observation.snapshot(repo.path)["files"]["cache/link"]["target"],
+            "missing-target",
+        )
+
+    def test_verification_variants_produce_real_failures_without_mutation(self):
+        for variant in observation.FAILURE_VARIANTS:
+            with self.subTest(variant=variant):
+                repo = support.build("fixup-chain", self.root / variant)
+                observation.prepare_verification(repo, variant)
+                before = observation.snapshot(repo.path)
+                result = repo.run(
+                    sys.executable, "-B", ".eval-checks/required_check.py", check=False
+                )
+                self.assertEqual(observation.snapshot(repo.path), before)
+                if variant == "masked":
+                    self.assertEqual(result.returncode, 0)
+                    self.assertIn("Required component exit: 3", result.stdout)
+                elif variant == "unavailable":
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("FileNotFoundError", result.stderr)
+                else:
+                    self.assertEqual(result.returncode, 3)
+                    self.assertIn("Required check failed", result.stdout)
 
     def test_fixup_chain_squashes_to_one_behavior(self):
         repo = self.fixture("fixup-chain")

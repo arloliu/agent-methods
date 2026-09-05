@@ -36,6 +36,13 @@ Use `--force-with-lease` when authorized; never silently substitute unconditiona
 
 ## Inspect
 
+Use read-only Git queries and file reads for inspection and planning.
+Identify repository-required validation commands by reading its instructions and configuration;
+identifying a command is not permission to execute it during planning.
+Defer validation commands that may create caches, bytecode, reports, or build output until after approval.
+Test runners, syntax compilation, and formatter checks are not automatically free of side effects.
+Keep generated and ignored files intact; do not delete outputs or weaken the approval gate to hide a mutation.
+
 Record repository state and the original tree ID:
 
 ```sh
@@ -187,10 +194,13 @@ Approve this squash plan and history rewrite?
 
 Approval applies only to this displayed plan, including any proposed removals and merge strategy.
 Any material change to groups, subjects, order, base, attribution, or strategy requires a new plan and approval.
+Describe the execution order by referring to [Act after approval](#act-after-approval).
 
 ## Act after approval
 
-Revalidate immediately before rewriting:
+Complete applicable repository-required precommit checks after approval, before creating the backup.
+If a required check fails or cannot complete, report its actual status and stop before rewriting.
+Then revalidate state, including any working files changed by those checks:
 
 ```sh
 git status --porcelain=v1 --untracked-files=all
@@ -218,6 +228,10 @@ Record the ref names and object IDs after creating the backup:
 ```sh
 git for-each-ref --format='%(refname) %(objectname)'
 ```
+
+Immediately before each actual rewrite, confirm that the branch, HEAD, base, merge-base, and worktree match the approved state.
+Confirm that the verified backup still resolves to the original HEAD.
+Any intervening change triggers the same stop and re-inspection rule; a prior clean result is not sufficient.
 
 Rewrite from the approved merge-base using a mechanism appropriate to the approved topology.
 For a linear range, interactive rebase is suitable.
@@ -269,15 +283,25 @@ Do not claim success, publish, or silently reset away the failed result.
 
 Report:
 
+Give each check a status with its command, observed exit code, and relevant output:
+`passed` (completed successfully), `failed` (observed failure), `not-run` (not executed),
+or `incomplete` (blocked or insufficient evidence).
+A missing executable, blocked command, or empty test collection cannot establish that required tests passed.
+For compound commands, inspect each required component's result; a final exit zero cannot erase an earlier failure.
+Record behavioral validation, tree identity, backup identity, other refs, and grouping verification separately.
+None substitutes for another, and an unexecuted check has no invented result.
+
 ```text
-Rewrite: verified | failed
-Tree identity: match | mismatch
+Rewrite: passed | failed | not-run | incomplete
+Behavioral validation: passed | failed | not-run | incomplete
+Tree identity: passed | failed | not-run | incomplete
 Original tree: <tree-id>
-Rewritten tree: <tree-id>
+Rewritten tree: <tree-id, or unavailable>
 Resulting commits: <count>
-Backup branch: <backup-branch>
-Backup commit: original HEAD | mismatch
-Other refs: unchanged | changed
+Backup branch: <backup-branch, or not created>
+Backup identity: passed | failed | not-run | incomplete
+Other refs: passed | failed | not-run | incomplete
+Grouping verification: passed | failed | not-run | incomplete
 Published: no
 ```
 
