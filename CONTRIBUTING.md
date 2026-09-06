@@ -78,5 +78,6 @@ Review every changed file for consistency with the method's evidence, approval, 
 Check relative links and frontmatter, proofread the Markdown, and remove boilerplate.
 Use semantic line breaks: start each sentence on a new line and split long sentences at meaningful clause boundaries.
 Run available linters and fix findings before committing; run `git diff --check` as a whitespace check.
+Follow the repository's [Conventional Commits rules](AGENTS.md#git-conventions) for commit messages.
 Include validation results and remaining limitations in the contribution description.
 Do not add attribution trailers to commit messages.
