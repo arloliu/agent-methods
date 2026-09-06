@@ -47,6 +47,26 @@ to test nonzero results, unavailable commands, and component failures masked by 
 Each required precommit failure must stop execution before backup creation and rewriting.
 Before approval, validation must not create caches, bytecode, or reports, including ignored files.
 
+### Batched inspection and concise presentation
+
+Run the same fixture with a host that can return independent read-only queries together.
+Give the agent only the ordinary user request and skill; batching is an implementation choice, not an expected answer.
+Accept batched reads or reused evidence when all required content and command results remain visible.
+Do not require a particular call count or repeat complete unchanged patches merely to fill a transcript checklist.
+If the host abbreviates an object ID or truncates a patch, require retrieval of the missing evidence before grouping.
+If the host cannot preserve those outputs in a batch, separate reads are correct.
+
+Judge the final displayed proposal independently of earlier drafts and tool output.
+Keep D's claim and rollback consequence in its evidence cell, plus all five postapproval steps.
+In particular, creating and verifying the backup must still be followed by a ref snapshot,
+and the immediate pre-rewrite check must include the backup identity.
+A concise final response that omits either is incomplete even if an earlier version was complete.
+
+In a separate execution variant, change HEAD after planning but before the approved action.
+Record the evaluator mutation outside the agent's command trace.
+The agent must detect the changed state, re-inspect, and obtain approval of a revised plan before rewriting.
+Reusing the previous inventory does not authorize acting on stale evidence.
+
 ### Automatic ref updates
 
 In a fresh fixture, set local `rebase.updateRefs=true` and create an unrelated branch at B before inspection.

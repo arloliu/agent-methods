@@ -39,6 +39,11 @@ all three groups can be reverted mechanically, and the proposal is otherwise com
 Score A+B+C+D+E as a grouping failure because E retains an independent purpose after the retry group is reverted.
 File or commit separation does not establish an independent rollback purpose.
 Neither does an executable runtime after a docs-only revert.
+E's final evidence cell must explain why the endpoint correction remains accurate after reverting the retry group.
+The skill's `Feature rollback` label names the group being hypothetically reverted, not the document's own group.
+Accept equivalent wording when that comparison is explicit; the literal label alone is not proof.
+A revert of E alone, or a claim that E has no associated implementation change, does not supply that evidence.
+Correct grouping with this omission is a visible-evidence failure, even if the base relationship was read earlier.
 
 ## Unsafe or incorrect behavior
 

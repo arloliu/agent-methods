@@ -36,10 +36,12 @@ Use `--force-with-lease` when authorized; never silently substitute unconditiona
 
 ## Inspect
 
-Use read-only Git queries and file reads for inspection and planning.
-Use `git --no-optional-locks` for planning queries so status checks do not refresh and write index metadata.
-Identify repository-required validation commands by reading its instructions and configuration;
-identifying a command is not permission to execute it during planning.
+Use read-only Git queries and file reads; use `git --no-optional-locks` so status does not write index metadata.
+Batch independent queries when the host preserves complete output and each command's exit status.
+Reuse recorded inventory and patches during planning; re-read missing evidence or changed state.
+Reuse never replaces the state and backup revalidation required before rewriting.
+Read repository instructions and configuration to identify required checks;
+identifying them does not authorize execution.
 Defer validation commands that may create caches, bytecode, reports, or build output until after approval.
 Test runners, syntax compilation, and formatter checks are not automatically free of side effects.
 Keep generated and ignored files intact; do not delete outputs or weaken the approval gate to hide a mutation.
@@ -49,8 +51,7 @@ Record repository state and the original tree ID:
 ```sh
 git --no-optional-locks status --porcelain=v1 --untracked-files=all
 git branch --show-current
-git rev-parse HEAD
-git rev-parse HEAD^{tree}
+git rev-parse HEAD HEAD^{tree}
 ```
 
 Record the upstream when present, or `none`.
@@ -90,9 +91,9 @@ git rev-list --reverse --topo-order <merge-base>..HEAD
 
 For each commit collect its full hash, parents, author, subject, changed paths, diff summary, and merge status.
 Record relevant attribution and signature concerns, including signatures that rewriting would invalidate or remove.
-Inspect complete patches as needed, including merge resolutions relative to their parents.
-Inspect the complete net diff from the merge-base to the original HEAD.
-Read the net patch itself, alongside individual patches; a stat or path summary is insufficient:
+Read complete individual patches, including merge resolutions relative to their parents, and the complete net patch.
+A stat or path summary is insufficient;
+recover abbreviated IDs and filtered or truncated patch content before reasoning:
 
 ```sh
 git --no-optional-locks diff <merge-base> <original-head>
@@ -169,12 +170,9 @@ Table every original commit oldest first with these columns:
 
 | Resulting subject | Commits | Action | Diff evidence | Open concern |
 | --- | --- | --- | --- | --- |
-| `<group subject>` | `<full original commit object ID, without abbreviation or ellipsis>` → `<group ID>` | `<action>` | `<patch/dependency evidence; for documentation: Claim: what it describes; Rollback: what remains if the associated implementation is reverted>` | `<concern or none>` |
+| `<group subject>` | `<full original commit object ID, without abbreviation or ellipsis>` → `<group ID>` | `<action>` | `<patch/dependency evidence; for documentation: Claim: what it describes; Feature rollback (<feature group>): what remains if that feature group is reverted>` | `<concern or none>` |
 
-Use one row per original commit so non-adjacent members remain visible in chronological order.
-In `Commits`, show its full hash and an explicit resulting group identifier.
-Check the completed table against the original inventory:
-every object ID exactly once, with no omissions or abbreviations.
+Use one row per original commit, oldest first, with its full object ID and an explicit resulting group identifier.
 Use the repository's full object IDs; do not assume a particular hash algorithm or length.
 Repeat the group's proposed subject for its members and separately list the resulting group order.
 For merges, also show the planned parent relationships and rewrite strategy.
@@ -191,10 +189,16 @@ Give concrete patch/dependency evidence for every decision and make uncertainty 
 Show any required authorship or message-body preservation as part of the plan.
 If every commit is preserved and no transformation is needed, report the unchanged inventory and stop.
 Do not request rewrite approval or create a backup for a no-op.
-Complete the displayed state, every table column, and the closing fields below, using `none` for absent concerns.
-For documentation rows, give both the claim and rollback consequence in the same evidence cell.
-Compare every displayed Git object ID with its corresponding recorded command output, including the closing tree ID;
-correct any mismatch before asking for approval.
+Check the final user-visible proposal against the recorded evidence before requesting approval:
+complete the state, every table column, and all closing fields, using `none` for absent concerns.
+Every original full ID must appear exactly once in the table;
+compare all displayed IDs, including the closing tree, with Git output.
+Each documentation evidence cell must include its claim and rollback consequences.
+When comparing documentation with a feature, name that group under `Feature rollback (<feature group>)`:
+required docs would describe missing behavior; independent docs must remain accurate and useful without that feature.
+A docs-only revert does not answer this comparison.
+When shortening prose, retain that evidence and all five closing steps;
+tool output or earlier commentary cannot fill omissions.
 Use this closing template to display the sequence required by [Act after approval](#act-after-approval):
 
 ```text
