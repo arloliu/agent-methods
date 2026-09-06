@@ -16,6 +16,11 @@ when creating or changing a skill.
 - Verify links, frontmatter, and consistency between instructions and evals.
   Distinguish written scenarios from executed evaluations when reporting validation.
 
+## Releases
+
+Before choosing versions, creating release tags, or preparing or publishing releases,
+read and follow [RELEASING.md](RELEASING.md).
+
 ## Git conventions
 
 Use [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) for every repository commit,

@@ -81,3 +81,7 @@ Run available linters and fix findings before committing; run `git diff --check`
 Follow the repository's [Conventional Commits rules](AGENTS.md#git-conventions) for commit messages.
 Include validation results and remaining limitations in the contribution description.
 Do not add attribution trailers to commit messages.
+
+## Releases
+
+Follow [the release policy](RELEASING.md) when versioning a skill or preparing a release.
