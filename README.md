@@ -18,10 +18,10 @@ Install a skill in your coding agent, ask for the task, and follow a workflow wi
 
 ### [history-cleanup](skills/history-cleanup/SKILL.md)
 
-**Turn WIP commits and fixups into a history that is easier to review and revert.**
+**Prepare a history-cleanup proposal for human review.**
 Use it before opening a pull request or merging a branch.
 
-- Groups related implementation, fixes, tests, and documentation into coherent commits.
+- Proposes grouping related implementation, fixes, tests, and documentation into coherent commits.
 - Uses patches and dependencies to decide what belongs together, including non-adjacent corrections.
 - Keeps independent work separate and checks dependencies before removing revert pairs.
 - Requires your approval of the exact rewrite plan, creates a backup, and verifies the final Git tree is unchanged.
@@ -196,6 +196,13 @@ Those scenarios are separate from the automated fixture tests.
 5. **Report:** you get the outcome, verification results, and backup reference.
    Publishing requires separate authorization.
 
+Before approving, check:
+
+- Whether each group has one coherent purpose, including the reasoning for keeping or separating documentation.
+- Whether every original commit is accounted for, with the intended resulting subjects and order.
+- Which checks actually ran, which remain pending, and how the backup and rewritten history will be verified.
+
+The proposal is an aid to your judgment; the agent can misgroup changes or omit required evidence and steps.
 A dirty worktree can be analyzed, but must be clean before rewriting.
 An unclear base or a merge requiring a topology decision may need your input.
 If the history is already coherent, the correct outcome may be to leave it as it is.

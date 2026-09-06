@@ -10,7 +10,8 @@ description: >
 
 # History Cleanup
 
-Turn a branch's commit series into the fewest atomic commits that accurately represent the work.
+Propose the fewest atomic commits that accurately represent a branch's work.
+The user reviews the proposal's evidence, grouping, and checks before approving a rewrite.
 An atomic commit is one coherent change a reviewer can understand independently,
 forming a meaningful review and rollback unit that can be reverted without unintentionally undoing unrelated work.
 Do not minimize commit count at the expense of reviewability, dependency correctness, attribution, or rollback safety.
@@ -36,15 +37,15 @@ Use `--force-with-lease` when authorized; never silently substitute unconditiona
 
 ## Inspect
 
-Use read-only Git queries and file reads; use `git --no-optional-locks` so status does not write index metadata.
-Batch independent queries when the host preserves complete output and each command's exit status.
-Reuse recorded inventory and patches during planning; re-read missing evidence or changed state.
-Reuse never replaces the state and backup revalidation required before rewriting.
-Read repository instructions and configuration to identify required checks;
-identifying them does not authorize execution.
-Defer validation commands that may create caches, bytecode, reports, or build output until after approval.
-Test runners, syntax compilation, and formatter checks are not automatically free of side effects.
-Keep generated and ignored files intact; do not delete outputs or weaken the approval gate to hide a mutation.
+- Use read-only Git queries and file reads; use `git --no-optional-locks` so status does not write index metadata.
+- Batch independent queries when the host preserves complete output and each command's exit status.
+- Reuse recorded inventory and patches during planning; re-read missing evidence or changed state.
+  Reuse never replaces the state and backup revalidation required before rewriting.
+- Read repository instructions and configuration to identify required checks;
+  identifying them does not authorize execution.
+- Defer validation commands that may create caches, bytecode, reports, or build output until after approval.
+  Test runners, syntax compilation, and formatter checks are not automatically free of side effects.
+- Keep generated and ignored files intact; do not delete outputs or weaken the approval gate to hide a mutation.
 
 Record repository state and the original tree ID:
 
@@ -108,11 +109,14 @@ If the range is empty, report that there is nothing to squash and stop.
 Group by behavioral cohesion and diff/dependency evidence.
 Keep implementation, completing tests, and required documentation together when they form one review and rollback unit.
 For each documentation change, identify its changed claims and the behavior they describe.
-Reason from the inspected patches about what would remain if the associated implementation change were reverted:
-if the document would describe a capability or contract no longer present, group it with that implementation.
+From the inspected patches, consider retaining the documentation while reverting the associated implementation change:
+if its claims would describe a capability or contract no longer present, group it with that implementation.
 Preserve documentation separately only with evidence that it retains an accurate, useful purpose without that change
 and can itself be reverted without undoing the implementation's purpose.
-For example, a correction describing behavior already present at the merge-base can be independent of a new feature.
+Support claims of pre-existing behavior with source or equivalent evidence tied to the merge-base.
+Reuse sufficient evidence; otherwise read the missing source at the merge-base.
+If the relevant source or evidence is unavailable, make that uncertainty visible.
+Do not treat the behavior as established.
 A separate file or a mechanically clean revert does not establish independent purpose.
 Keep unrelated refactors, dependencies, generated artifacts, configuration, delivery changes,
 and standalone documentation separate unless evidence proves they are integral to the same behavior.
@@ -190,15 +194,19 @@ Show any required authorship or message-body preservation as part of the plan.
 If every commit is preserved and no transformation is needed, report the unchanged inventory and stop.
 Do not request rewrite approval or create a backup for a no-op.
 Check the final user-visible proposal against the recorded evidence before requesting approval:
-complete the state, every table column, and all closing fields, using `none` for absent concerns.
-Every original full ID must appear exactly once in the table;
-compare all displayed IDs, including the closing tree, with Git output.
-Each documentation evidence cell must include its claim and rollback consequences.
-When comparing documentation with a feature, name that group under `Feature rollback (<feature group>)`:
-required docs would describe missing behavior; independent docs must remain accurate and useful without that feature.
-A docs-only revert does not answer this comparison.
-When shortening prose, retain that evidence and all five closing steps;
-tool output or earlier commentary cannot fill omissions.
+
+- Complete the state, every table column, and all closing fields, using `none` for absent concerns.
+- Every original full ID must appear exactly once in the table;
+  compare all displayed IDs, including the closing tree, with Git output.
+- Each documentation evidence cell must include its claim and rollback consequences.
+  Name the feature group under `Feature rollback (<feature group>)`.
+  Explain whether retained documentation stays accurate and useful after that implementation is reverted.
+  Reverting the document alone or removing it with the feature does not answer this comparison.
+- When shortening prose, retain that evidence and all five closing steps;
+  tool output or earlier commentary cannot fill omissions.
+- Before approval, report each executed validation check's command, observed exit code, and relevant outcome.
+- Identify required checks still not-run or incomplete; inspection results do not establish that those checks passed.
+
 Use this closing template to display the sequence required by [Act after approval](#act-after-approval):
 
 ```text
@@ -206,6 +214,8 @@ Base: <base-ref> at merge-base <full-hash>
 Original commits: <count>
 Resulting commits: <count>
 Final tree will be required to match: <recorded original tree ID, copied exactly>
+Checks run: <command; observed exit code; outcome, or none run>
+Checks pending: <required check; not-run or incomplete; reason, or none>
 After approval:
 1. Complete applicable required precommit checks; stop if any fail or cannot complete.
 2. Revalidate the approved branch, HEAD, base tip, merge-base, and clean worktree; confirm no history operation is in progress.
