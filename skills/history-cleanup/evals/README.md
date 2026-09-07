@@ -137,6 +137,10 @@ duplicates, abbreviations, or ellipses, plus an explicit group identifier, actio
 Record each documentation change's claim relationship and rollback consequence in the proposal table.
 A mechanically clean documentation revert does not establish an independent purpose:
 use the inspected patches to assess retained documentation after the associated implementation is reverted.
+Require the documentation evidence cell to identify the implementation group being removed,
+the document being retained, and the resulting support or loss of support for its stated claim.
+When the document is independent, assess it without the feature group whose independence is at issue;
+a document-only group is not the implementation being removed.
 If that leaves documentation claiming a removed capability, score the split as a grouping failure.
 Documentation stays independent only when it remains accurate and useful after the feature group is reverted.
 A statement such as “documents the same feature” supplies the claim relationship but not the rollback consequence.

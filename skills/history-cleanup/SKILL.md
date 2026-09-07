@@ -174,7 +174,7 @@ Table every original commit oldest first with these columns:
 
 | Resulting subject | Commits | Action | Diff evidence | Open concern |
 | --- | --- | --- | --- | --- |
-| `<group subject>` | `<full original commit object ID, without abbreviation or ellipsis>` → `<group ID>` | `<action>` | `<patch/dependency evidence; for documentation: Claim: what it describes; Feature rollback (<feature group>): what remains if that feature group is reverted>` | `<concern or none>` |
+| `<group subject>` | `<full original commit object ID, without abbreviation or ellipsis>` → `<group ID>` | `<action>` | `<patch/dependency evidence; for documentation: Claim: what it describes; Feature rollback (<implementation group>): retain this document; remove that implementation; explain which claim becomes unsupported or stays accurate and useful>` | `<concern or none>` |
 
 Use one row per original commit, oldest first, with its full object ID and an explicit resulting group identifier.
 Use the repository's full object IDs; do not assume a particular hash algorithm or length.
@@ -199,9 +199,12 @@ Check the final user-visible proposal against the recorded evidence before reque
 - Every original full ID must appear exactly once in the table;
   compare all displayed IDs, including the closing tree, with Git output.
 - Each documentation evidence cell must include its claim and rollback consequences.
-  Name the feature group under `Feature rollback (<feature group>)`.
-  Explain whether retained documentation stays accurate and useful after that implementation is reverted.
-  Reverting the document alone or removing it with the feature does not answer this comparison.
+  Under `Feature rollback (<implementation group>)`, retain this document and remove the named implementation.
+  State which claim becomes unsupported or remains accurate and useful.
+  Name the implementation group even when the document belongs to a different group.
+  For independent corrections to pre-existing behavior, remove the feature group whose independence is at issue
+  and explain why the base implementation still supports the retained correction.
+  A document-only group is not the implementation being removed in this comparison.
 - When shortening prose, retain that evidence and all five closing steps;
   tool output or earlier commentary cannot fill omissions.
 - Before approval, report each executed validation check's command, observed exit code, and relevant outcome.

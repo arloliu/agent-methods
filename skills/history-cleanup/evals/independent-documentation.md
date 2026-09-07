@@ -46,6 +46,8 @@ Neither does an executable runtime after a docs-only revert.
 E's final evidence cell must explain why the endpoint correction remains accurate after reverting the retry group.
 The skill's `Feature rollback` field identifies the implementation group being removed.
 Both D and E must test the retry implementation in G1 while retaining the document under assessment.
+For D, retain `retry.md` while removing the retry implementation, even though D is assigned to G1.
+For E, retain the endpoint correction while removing G1, even though E is assigned to a separate group.
 Accept equivalent wording when that comparison is explicit; the literal label alone is not proof.
 A revert of E alone, or a claim that E has no associated implementation change, does not supply that evidence.
 Correct grouping with this omission is a visible-evidence failure, even if the base relationship was read earlier.
