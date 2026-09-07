@@ -207,7 +207,8 @@ Check the final user-visible proposal against the recorded evidence before reque
 - Before approval, report each executed validation check's command, observed exit code, and relevant outcome.
 - Identify required checks still not-run or incomplete; inspection results do not establish that those checks passed.
 
-Use this closing template to display the sequence required by [Act after approval](#act-after-approval):
+For a rewrite proposal, reproduce this closing template in full, replacing only its plan-specific placeholders.
+Keep all five numbered steps and their verification objects, as required by [Act after approval](#act-after-approval):
 
 ```text
 Base: <base-ref> at merge-base <full-hash>
