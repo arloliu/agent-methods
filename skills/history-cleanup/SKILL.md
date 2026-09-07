@@ -247,6 +247,14 @@ git rev-parse <approved-base-ref>^{commit}
 git merge-base --all <approved-base-ref> HEAD
 ```
 
+Keep the displayed branch, HEAD, base ref, base-tip ID, and unique merge-base ID as the immutable approved record.
+Compare each current value with that record using an executed equality predicate before creating the backup.
+Observe the Git query and comparison results; every query and every predicate must succeed.
+Printing values, matching trees, or asserting equality in prose does not establish these comparisons.
+Stop on a failed query or unequal value, including a changed base commit with the same tree.
+Do not replace approved values with current observations to make a comparison pass.
+Re-inspect and obtain approval of an updated plan before proceeding after a mismatch.
+
 Require a clean worktree, the approved branch, original HEAD, unchanged base tip, and the same single merge-base.
 Confirm no merge, rebase, cherry-pick, or other history operation is already in progress.
 If inspected state differs, stop and re-inspect; obtain approval of an updated plan before acting.
@@ -268,6 +276,9 @@ git for-each-ref --format='%(refname) %(objectname)'
 
 Before starting the approved rewrite operation, confirm that branch, HEAD, base, merge-base, and worktree are unchanged.
 Confirm that the verified backup still resolves to the original HEAD.
+Repeat the executed comparisons against the immutable approved record.
+Also compare the backup commit ID with the approved HEAD.
+Require successful queries and equality predicates immediately before starting the rewrite; otherwise stop.
 Any intervening change triggers the same stop and re-inspection rule; a prior clean result is not sufficient.
 
 Rewrite from the approved merge-base using a mechanism appropriate to the approved topology.

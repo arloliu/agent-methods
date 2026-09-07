@@ -193,6 +193,13 @@ Record token usage, cache usage, elapsed time, and tool traffic separately from 
 Do not treat fewer calls or shorter output as a passing result when required evidence or proposal fields are missing.
 An unresolved base or another earlier stop condition can prevent a complete proposal.
 
+For approved execution, inspect predicates against the immutable approved branch, HEAD, base tip, and unique merge-base.
+Require successful Git queries and comparisons before backup creation and immediately before rewriting.
+Include backup identity at the latter boundary.
+Printed values, matching trees, or a prose claim of equality are insufficient evidence.
+A changed base commit with the same tree must stop before backup creation or rewrite.
+Do not replace the approved value.
+
 After an approved rewrite, require a verified backup at the original HEAD, exact tree identity,
 an empty backup-to-HEAD diff, and history matching the approved groups and topology.
 Recheck the backup's commit ID against the recorded original HEAD, even when all trees match.
