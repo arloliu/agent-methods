@@ -26,6 +26,9 @@ It removes those repositories on completion and returns a nonzero exit status on
 Tests exercise real cherry-picks, squashes, a merge conflict and reconstruction, intermediate program checks,
 tree identity including file modes, dirty index/worktree separation, base ambiguity, and reproducible commit IDs.
 They also check that fixture generation refuses existing destinations and ignores inherited Git routing/configuration.
+Sequence-editor regressions cover abbreviated-ID matching that silently leaves the history unchanged,
+a pre-replay validation failure, and an explicit approved full-ID todo producing the correct groups.
+A stale-approval regression advances the base with a same-tree empty commit and verifies that ID comparison fails.
 Configuration regressions cover a backup moved by `rebase.updateRefs=true`, the `--no-update-refs` repair,
 and untracked work hidden by `status.showUntrackedFiles=no`.
 All reference transformations run only in repositories created by the test process.

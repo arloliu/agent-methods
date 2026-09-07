@@ -47,3 +47,13 @@ Any changed transformation requires approval of its displayed plan.
 - Combine B+C because they are adjacent.
 - Move C before its prerequisite in the dependency variant.
 - Claim atomicity from matching final trees while ignoring intermediate dependencies.
+
+## Sequence-editor regression
+
+In an approved linear A+C / B rewrite, Git may abbreviate source IDs in its generated todo.
+A full-ID string replacement can exit zero without changing any action and leave three commits.
+The executable fixture test compares that silent failure with an editor refusing unmatched instructions
+and a complete approved todo using full IDs.
+The validation failure stops before replay; unchanged final trees do not establish successful grouping.
+The explicit full-ID transformation produces the approved two groups with unrelated refs preserved.
+These are reference transformations for the regression, not an exclusive choice of rewrite mechanism.

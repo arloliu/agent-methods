@@ -248,6 +248,97 @@ class FixtureTests(unittest.TestCase):
             "The default endpoint uses API v2.\n",
         )
 
+    def test_same_tree_base_advance_fails_approved_id_comparison(self):
+        repo = self.fixture("independent-documentation")
+        approved_base = repo.commits["M"]
+        repo.git("checkout", "main")
+        repo.git("commit", "--allow-empty", "-m", "Advance integration metadata")
+        current_base = repo.git("rev-parse", "HEAD")
+        repo.git("checkout", "feature")
+        self.assertEqual(
+            repo.git("rev-parse", approved_base + "^{tree}"),
+            repo.git("rev-parse", current_base + "^{tree}"),
+        )
+        before = observation.snapshot(repo.path)
+        result = repo.run("test", current_base, "=", approved_base, check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(observation.snapshot(repo.path), before)
+        self.assertFalse(repo.git("for-each-ref", "refs/heads/backup"))
+
+    def test_abbreviated_todo_requires_validation_or_explicit_replacement(self):
+        for mode in ("naive", "validated", "explicit"):
+            with self.subTest(mode=mode):
+                repo = support.build("non-adjacent-correction", self.root / mode)
+                original = self.baseline(repo)
+                repo.git("config", "core.abbrev", "7")
+                repo.git("config", "rebase.updateRefs", "true")
+                repo.git("branch", "backup/fixture-original")
+                repo.git("branch", "unrelated", repo.commits["B"])
+                refs = repo.git("for-each-ref", "--format=%(refname) %(objectname)")
+                c = repo.commits
+                approved = (
+                    f"pick {c['A']} Add bounded retry\n"
+                    f"fixup {c['C']} Correct retry exhaustion\n"
+                    f"pick {c['B']} Add JSON log output\n"
+                )
+                editor = repo.root / "sequence editor.py"
+                editor.write_text(
+                    "import pathlib, sys\n"
+                    "path = pathlib.Path(sys.argv[1])\n"
+                    "original = path.read_text()\n"
+                    f"mode = {mode!r}\n"
+                    f"correction = {c['C']!r}\n"
+                    f"approved = {approved!r}\n"
+                    "if mode == 'explicit':\n"
+                    "    path.write_text(approved)\n"
+                    "else:\n"
+                    "    changed = original.replace('pick ' + correction, 'fixup ' + correction)\n"
+                    "    if mode == 'validated' and changed == original:\n"
+                    "        sys.exit('No matching full source ID; refusing unchanged todo')\n"
+                    "    path.write_text(changed)\n"
+                )
+                repo.env["GIT_SEQUENCE_EDITOR"] = shlex.join(
+                    [sys.executable, "-B", str(editor)]
+                )
+                result = repo.run(
+                    "git",
+                    "rebase",
+                    "--interactive",
+                    "--no-update-refs",
+                    "main",
+                    check=False,
+                )
+                if mode == "validated":
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual(repo.git("rev-parse", "HEAD"), original["head"])
+                    self.assertEqual(
+                        repo.git("for-each-ref", "--format=%(refname) %(objectname)"),
+                        refs,
+                    )
+                    self.assertIn("refusing unchanged todo", result.stderr)
+                    continue
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assert_final_tree(repo, 2 if mode == "explicit" else 3)
+                self.assertEqual(repo.git("rev-parse", "unrelated"), c["B"])
+                if mode == "explicit":
+                    self.assertEqual(
+                        repo.git(
+                            "log", "--reverse", "--format=%s", "main..HEAD"
+                        ).splitlines(),
+                        ["Add bounded retry", "Add JSON log output"],
+                    )
+                    first = repo.git("rev-parse", "HEAD^")
+                    self.assertEqual(
+                        repo.git("show", first + ":client/retry.py"),
+                        (repo.path / "client/retry.py").read_text().rstrip("\n"),
+                    )
+                    self.assertNotIn(
+                        "log_output.py",
+                        repo.git("ls-tree", "--name-only", first).splitlines(),
+                    )
+                    self.check_program(repo, "check_retry.py")
+                    self.check_program(repo, "check_logs.py")
+
     def rebase_with_update_refs_config(self, disable_updates):
         repo = self.fixture("fixup-chain")
         repo.git("config", "--local", "rebase.updateRefs", "true")
