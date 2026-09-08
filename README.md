@@ -74,12 +74,27 @@ Add `--global` when updating a user-level installation.
 
 The commands below use a POSIX shell on macOS, Linux, or WSL and require no Node.js installation.
 
-#### 1. Get the skills
+#### 1. Get the skills from main
+
+This default checkout follows `main` and receives future main updates when you run `git pull --ff-only`.
 
 ```sh
 git clone https://github.com/arloliu/agent-methods.git
 cd agent-methods
 ```
+
+#### Install the pinned history-cleanup v0.1.2 release instead
+
+Use this checkout when you want the reviewed `history-cleanup/v0.1.2` release rather than future main updates.
+
+```sh
+git clone --branch history-cleanup/v0.1.2 --depth 1 https://github.com/arloliu/agent-methods.git
+cd agent-methods
+git rev-parse HEAD
+# fa4d430205e9a6663a35f3e582d867430a210e07
+```
+
+This checkout remains on that release tag until you deliberately select another version.
 
 #### 2. Install for your agent
 
@@ -149,8 +164,11 @@ If the skill is missing, check the installation path and filename against the in
 
 #### Update a manual installation
 
-Run `git pull --ff-only` in your `agent-methods` clone, review the changes, and repeat your agent's copy command.
-Installed copies do not update automatically.
+For the default main checkout, run `git pull --ff-only` in your `agent-methods` clone.
+Review the changes, then repeat your agent's copy command.
+For a pinned release checkout, choose and verify a newer release tag.
+Then repeat the copy command instead of pulling main.
+Installed copies do not update automatically in either case.
 
 #### Migrate from commit-squashing
 

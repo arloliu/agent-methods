@@ -32,6 +32,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Test fixture graphs and reference rewrites
         run: python -B skills/history-cleanup/evals/test_fixtures.py
+      - name: Test portable evaluation preparation
+        run: python -B scripts/test_prepare_history_evaluation.py
       - name: Install artifact validation dependencies
         run: python -m pip install -r scripts/requirements-validation.txt
       - name: Test artifact validator

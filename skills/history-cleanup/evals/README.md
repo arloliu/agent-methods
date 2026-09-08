@@ -5,6 +5,8 @@ The [fixtures](fixtures/) turn the base cases into reproducible local Git reposi
 The scripts use Python's standard library and Git; no packages or agent-specific runner are required.
 The fixture tests check graphs and reference transformations, not whether an agent follows the skill.
 Evaluate the proposal's correctness and completeness before human approval; score subsequent execution separately.
+Use the [behavioral rubric](behavioral-rubric.md) for a future frozen model evaluation.
+It adds to the shared checks and scenario-specific requirements; it does not replace them.
 
 [GitHub Actions](../../../.github/workflows/ci.yml) runs the suite on Linux and macOS with Python 3.10 and 3.14.
 CI also checks Python lint and formatting using a pinned Ruff version.
@@ -90,6 +92,32 @@ Generated commits belong only to the fixture; the source repository's history is
 Fixture paths use small Python examples; some differ from the conceptual paths in the scenario prose.
 The graph and behavioral relationships are the contract.
 Additional prose variants, including multiple authors, signatures, and stale approval, remain manual cases.
+
+## Prepare a portable evaluation batch
+
+From the repository root, use [prepare_history_evaluation.py](../../../scripts/prepare_history_evaluation.py)
+with a new output directory whose parent already exists:
+
+```sh
+python3 -B scripts/prepare_history_evaluation.py prepare <new-directory>
+python3 -B scripts/prepare_history_evaluation.py verify <new-directory>
+python3 -B scripts/test_prepare_history_evaluation.py
+```
+
+`prepare` creates independent documentation, safe revert, non-adjacent correction, and dirty-worktree cases.
+It refuses to reuse an output directory.
+It writes ignored per-cell `.method/SKILL.md` files, inline task text, an exact workspace working-directory registry,
+snapshots, hashes, and evaluator-only `batch.json`, `registry.json`, metadata, and prompts.
+It also sets local `rebase.updateRefs=true` and creates sentinel refs with before/after baselines.
+Pass `--candidate <self-contained-SKILL.md>` to prepare another self-contained candidate;
+otherwise it uses the checked-in skill.
+
+The helper creates planning prompts only and never manufactures rewrite approval.
+Freeze a separately supplied exact approval before an execution trial.
+It has no model, host, authentication, or configuration launcher.
+`verify` checks unchanged prepared inputs and workspaces before host setup.
+After approved adapter setup, capture a fresh post-setup baseline and freeze the evaluation context.
+The batch is a mutable preparation record until that future freeze binds it.
 
 ## Run a case
 
