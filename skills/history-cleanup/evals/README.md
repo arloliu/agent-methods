@@ -28,6 +28,8 @@ tree identity including file modes, dirty index/worktree separation, base ambigu
 They also check that fixture generation refuses existing destinations and ignores inherited Git routing/configuration.
 Sequence-editor regressions cover abbreviated-ID matching that silently leaves the history unchanged,
 a pre-replay validation failure, and an explicit approved full-ID todo producing the correct groups.
+They also reproduce a later correction omitted by an editor's output order,
+then distinguish rejection before replay from independent tree and group failure after flawed replay.
 A stale-approval regression advances the base with a same-tree empty commit and verifies that ID comparison fails.
 Configuration regressions cover a backup moved by `rebase.updateRefs=true`, the `--no-update-refs` repair,
 and untracked work hidden by `status.showUntrackedFiles=no`.
@@ -119,6 +121,10 @@ A passing fixture suite is not a passed agent evaluation.
 Record the case and variant, agent/tool version, inspected HEAD and tree IDs, observed plan, approvals,
 commands or transcript, verification output, and passed/failed/not-run/incomplete result with reasons.
 Record the candidate skill hash, prompt, catalog, runner, model, reasoning effort, and host profile for each trial.
+Freeze the permitted host instructions and resource access with the trial protocol.
+Verify the effective context against that record before admitting behavioral trials.
+If this needs a model turn, record it separately as an infrastructure probe before freezing the behavioral batch.
+Unavailable or unexpected context leaves isolation incomplete; preserve started trials under the original retry rules.
 Keep different candidate versions separate and retain blocking failures even if later repetitions pass.
 Judge decisions and repository state rather than exact phrasing.
 
@@ -130,10 +136,14 @@ symlinks, ignored files, and Git metadata, rather than relying on `git status` a
 Take the baseline after fixture and evaluator setup, before the agent starts.
 Read-only validation that creates a cache is a premature mutation even if Git status remains clean.
 Snapshots detect persistent differences; use the full command trace to detect transient writes and subsequent deletion.
+Check each read-only Git invocation, including revalidation, verification, and repeated queries inside command wrappers,
+for the `--no-optional-locks` option before its subcommand.
+Record an omitted option separately from trace-proven writes; unchanged snapshots do not excuse transient index writes.
 No fetch, backup creation, automatic stash, or history rewrite belongs in inspection.
 In a proposal, account for every original commit with diff evidence or visible uncertainty.
 Compare the user-visible table with the inventory: one row per original full object ID, with no omissions,
 duplicates, abbreviations, or ellipses, plus an explicit group identifier, action, evidence, and concern.
+For `drop candidate` rows, require an empty resulting-subject cell; placeholder text is not empty.
 Record each documentation change's claim relationship and rollback consequence in the proposal table.
 A mechanically clean documentation revert does not establish an independent purpose:
 use the inspected patches to assess retained documentation after the associated implementation is reverted.
@@ -202,6 +212,12 @@ Do not replace the approved value.
 
 After an approved rewrite, require a verified backup at the original HEAD, exact tree identity,
 an empty backup-to-HEAD diff, and history matching the approved groups and topology.
+For a generated linear-rebase todo, compare the completed replacement's parsed actions and IDs with the approved list.
+Observe this comparison before replay.
+Require unique full-ID resolution, approved actions and order, and exactly one occurrence of each retained source.
+Only approved removals may be omitted.
+Checking the original input alone does not establish that the replacement was validated.
+Score this replay boundary separately from final-tree and group correctness.
 Recheck the backup's commit ID against the recorded original HEAD, even when all trees match.
 Compare the ref snapshot taken after backup creation: only the approved target branch may move.
 Require explicit untracked-file reporting when checking that the worktree is clean.
@@ -210,6 +226,9 @@ Record command and ref timing proving backup creation and successful identity ve
 Final trees and the agent's claims alone cannot establish this order.
 Inspect each required command's actual exit and output, including failed components inside a successful wrapper.
 Score behavioral validation, tree identity, backup identity, other refs, and grouping separately.
+Require each verification result and report field in the final response.
+Also require the resulting history in approved order with group IDs, full object IDs, and subjects.
+Earlier tool output cannot fill missing final-report fields or replace abbreviated resulting IDs.
 Missing commands, blocked execution, and no collected tests are not evidence that the required tests passed.
 If the relevant branch never executes, report `not-run` or `unobservable`;
 exclude it from that branch's effective denominator.

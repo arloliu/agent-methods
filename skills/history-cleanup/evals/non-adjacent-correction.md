@@ -54,6 +54,12 @@ In an approved linear A+C / B rewrite, Git may abbreviate source IDs in its gene
 A full-ID string replacement can exit zero without changing any action and leave three commits.
 The executable fixture test compares that silent failure with an editor refusing unmatched instructions
 and a complete approved todo using full IDs.
+The fixture also models an editor that emits C's variable while processing B before assigning it at C,
+then skips C and exits zero with two incomplete groups.
+Validating the original A, B, C input does not detect that transformed omission.
+A completed command-sequence validation boundary rejects the flawed todo before replay.
 The validation failure stops before replay; unchanged final trees do not establish successful grouping.
-The explicit full-ID transformation produces the approved two groups with unrelated refs preserved.
+The flawed replay independently proves that C's patch is absent from the first group and that its final tree differs.
+The complete full-ID transformation passes the same final check and produces the approved A+C and B groups,
+with their expected trees and unrelated refs preserved.
 These are reference transformations for the regression, not an exclusive choice of rewrite mechanism.

@@ -339,6 +339,159 @@ class FixtureTests(unittest.TestCase):
                     self.check_program(repo, "check_retry.py")
                     self.check_program(repo, "check_logs.py")
 
+    def test_final_todo_validation_rejects_editor_omission_before_replay(self):
+        for mode in ("input-only", "final-todo", "complete"):
+            with self.subTest(mode=mode):
+                repo = support.build("non-adjacent-correction", self.root / mode)
+                original = self.baseline(repo)
+                repo.git("config", "core.abbrev", "7")
+                repo.git("config", "rebase.updateRefs", "true")
+                repo.git("branch", "backup/fixture-original")
+                repo.git("branch", "unrelated", repo.commits["B"])
+                refs = repo.git("for-each-ref", "--format=%(refname) %(objectname)")
+                editor = repo.root / "sequence editor.py"
+                editor.write_text(
+                    "import pathlib, sys\n"
+                    "todo = pathlib.Path(sys.argv[1])\n"
+                    "source = " + repr(repo.commits) + "\n"
+                    "original = [\n"
+                    "    ('pick', source['A']),\n"
+                    "    ('pick', source['B']),\n"
+                    "    ('pick', source['C']),\n"
+                    "]\n"
+                    "approved = [\n"
+                    "    ('pick', source['A']),\n"
+                    "    ('fixup', source['C']),\n"
+                    "    ('pick', source['B']),\n"
+                    "]\n"
+                    "complete = [\n"
+                    "    'pick ' + source['A'] + ' Add bounded retry\\n',\n"
+                    "    'fixup ' + source['C'] + ' Correct retry exhaustion\\n',\n"
+                    "    'pick ' + source['B'] + ' Add JSON log output\\n',\n"
+                    "]\n"
+                    "\n"
+                    "def command_lines(lines):\n"
+                    "    commands = []\n"
+                    "    for line in lines:\n"
+                    "        stripped = line.strip()\n"
+                    "        if not stripped or stripped.startswith('#'):\n"
+                    "            continue\n"
+                    "        fields = stripped.split(maxsplit=2)\n"
+                    "        if len(fields) < 2 or fields[0] not in {'pick', 'fixup'}:\n"
+                    "            return None\n"
+                    "        matches = [\n"
+                    "            commit for commit in source.values() if commit.startswith(fields[1])\n"
+                    "        ]\n"
+                    "        if len(matches) != 1:\n"
+                    "            return None\n"
+                    "        commands.append((fields[0], matches[0]))\n"
+                    "    return commands\n"
+                    "\n"
+                    "def flawed_transform(lines):\n"
+                    "    correction = ''\n"
+                    "    transformed = []\n"
+                    "    for line in lines:\n"
+                    "        fields = line.split(maxsplit=2)\n"
+                    "        if len(fields) >= 2 and fields[0] == 'pick':\n"
+                    "            if source['B'].startswith(fields[1]):\n"
+                    "                transformed.append(correction)\n"
+                    "                transformed.append(line)\n"
+                    "                continue\n"
+                    "            if source['C'].startswith(fields[1]):\n"
+                    "                correction = 'fixup ' + line[5:]\n"
+                    "                continue\n"
+                    "        transformed.append(line)\n"
+                    "    return transformed\n"
+                    "\n"
+                    "input_lines = todo.read_text().splitlines(keepends=True)\n"
+                    "if command_lines(input_lines) != original:\n"
+                    "    sys.exit('Unexpected source todo; refusing replay')\n"
+                    "if " + repr(mode) + " == 'complete':\n"
+                    "    transformed = complete\n"
+                    "else:\n"
+                    "    transformed = flawed_transform(input_lines)\n"
+                    "if "
+                    + repr(mode)
+                    + " != 'input-only' and command_lines(transformed) != approved:\n"
+                    "    sys.exit('Transformed todo differs from approved commands; refusing replay')\n"
+                    "todo.write_text(''.join(transformed))\n"
+                )
+                repo.env["GIT_SEQUENCE_EDITOR"] = shlex.join(
+                    [sys.executable, "-B", str(editor)]
+                )
+                result = repo.run(
+                    "git",
+                    "rebase",
+                    "--interactive",
+                    "--no-update-refs",
+                    "main",
+                    check=False,
+                )
+                if mode == "final-todo":
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual(repo.git("rev-parse", "HEAD"), original["head"])
+                    self.assertEqual(
+                        repo.git("for-each-ref", "--format=%(refname) %(objectname)"),
+                        refs,
+                    )
+                    self.assertIn("refusing replay", result.stderr)
+                    continue
+                self.assertEqual(result.returncode, 0, result.stderr)
+                if mode == "complete":
+                    self.assert_final_tree(repo, 2)
+                    self.assertEqual(
+                        repo.git("rev-parse", "unrelated"), repo.commits["B"]
+                    )
+                    self.assertEqual(
+                        repo.git(
+                            "log", "--reverse", "--format=%s", "main..HEAD"
+                        ).splitlines(),
+                        ["Add bounded retry", "Add JSON log output"],
+                    )
+                    first = repo.git("rev-parse", "HEAD^")
+                    self.assertEqual(
+                        repo.git("rev-parse", first + "^{tree}"),
+                        "d5ab936bc59f73f37e8df0e65a05e1904f626fa9",
+                    )
+                    self.assertEqual(
+                        repo.git("show", first + ":client/retry.py"),
+                        (repo.path / "client/retry.py").read_text().rstrip("\n"),
+                    )
+                    self.assertNotIn(
+                        "log_output.py",
+                        repo.git("ls-tree", "--name-only", first).splitlines(),
+                    )
+                    self.check_program(repo, "check_retry.py")
+                    self.check_program(repo, "check_logs.py")
+                    continue
+                self.assertEqual(repo.git("rev-list", "--count", "main..HEAD"), "2")
+                self.assertNotEqual(
+                    repo.git("rev-parse", "HEAD^{tree}"), original["tree"]
+                )
+                diff = repo.run(
+                    "git",
+                    "diff",
+                    "--exit-code",
+                    "backup/fixture-original",
+                    "HEAD",
+                    check=False,
+                )
+                self.assertNotEqual(diff.returncode, 0)
+                first = repo.git("rev-parse", "HEAD^")
+                self.assertEqual(
+                    repo.git("show", first + ":client/retry.py"),
+                    "def attempts(limit):\n    return list(range(limit + 2))",
+                )
+                self.assertNotIn(
+                    "assert attempts(0) == [0]",
+                    repo.git("show", first + ":check_retry.py"),
+                )
+                self.assertEqual(
+                    repo.git("rev-parse", "backup/fixture-original"),
+                    original["head"],
+                )
+                self.assertEqual(repo.git("rev-parse", "unrelated"), repo.commits["B"])
+
     def rebase_with_update_refs_config(self, disable_updates):
         repo = self.fixture("fixup-chain")
         repo.git("config", "--local", "rebase.updateRefs", "true")

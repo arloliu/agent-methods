@@ -37,7 +37,9 @@ Use `--force-with-lease` when authorized; never silently substitute unconditiona
 
 ## Inspect
 
-- Use read-only Git queries and file reads; use `git --no-optional-locks` so status does not write index metadata.
+- Use read-only Git queries and file reads.
+  Use `git --no-optional-locks` for every read-only Git query, including repeated or batched queries.
+  Keep that Git option inside any host-required command wrapper so status cannot refresh index metadata.
 - Batch independent queries when the host preserves complete output and each command's exit status.
 - Reuse recorded inventory and patches during planning; re-read missing evidence or changed state.
   Reuse never replaces the state and backup revalidation required before rewriting.
@@ -51,8 +53,8 @@ Record repository state and the original tree ID:
 
 ```sh
 git --no-optional-locks status --porcelain=v1 --untracked-files=all
-git branch --show-current
-git rev-parse HEAD HEAD^{tree}
+git --no-optional-locks branch --show-current
+git --no-optional-locks rev-parse HEAD HEAD^{tree}
 ```
 
 Record the upstream when present, or `none`.
@@ -74,8 +76,8 @@ If a user-supplied base does not resolve, report the error and request direction
 Record the base ref and its resolved commit ID, then resolve the fork point:
 
 ```sh
-git rev-parse <base-ref>^{commit}
-git merge-base --all <base-ref> HEAD
+git --no-optional-locks rev-parse <base-ref>^{commit}
+git --no-optional-locks merge-base --all <base-ref> HEAD
 ```
 
 Require exactly one merge-base.
@@ -87,7 +89,7 @@ The merge-base defines the inventory range and rewrite boundary; the base tip do
 Inventory every commit in `<merge-base>..HEAD` oldest first, with parents before children:
 
 ```sh
-git rev-list --reverse --topo-order <merge-base>..HEAD
+git --no-optional-locks rev-list --reverse --topo-order <merge-base>..HEAD
 ```
 
 For each commit collect its full hash, parents, author, subject, changed paths, diff summary, and merge status.
@@ -174,7 +176,7 @@ Table every original commit oldest first with these columns:
 
 | Resulting subject | Commits | Action | Diff evidence | Open concern |
 | --- | --- | --- | --- | --- |
-| `<group subject>` | `<full original commit object ID, without abbreviation or ellipsis>` → `<group ID>` | `<action>` | `<patch/dependency evidence; for documentation: Claim: what it describes; Feature rollback (<implementation group>): retain this document; remove that implementation; explain which claim becomes unsupported or stays accurate and useful>` | `<concern or none>` |
+| `<group subject>` | `<full original commit object ID, without abbreviation or ellipsis>` → `<group ID>` | `<action>` | `<patch/dependency evidence; for documentation: Claim: what it describes; Feature rollback (<implementation group>): retain <document>; remove <implementation group>; explain which claim becomes unsupported or stays accurate and useful>` | `<concern or none>` |
 
 Use one row per original commit, oldest first, with its full object ID and an explicit resulting group identifier.
 Use the repository's full object IDs; do not assume a particular hash algorithm or length.
@@ -186,7 +188,7 @@ Allowed proposal actions:
 
 - `squash`: members become one atomic commit.
 - `preserve`: the commit stays independent with its existing subject; its ID may change if its parent changes.
-- `drop candidate`: proposed removal, with an empty resulting subject.
+- `drop candidate`: proposed removal; leave the resulting-subject table cell empty between its `|` delimiters.
   Never label it simply `drop` before approval.
 
 Give concrete patch/dependency evidence for every decision and make uncertainty visible.
@@ -199,7 +201,8 @@ Check the final user-visible proposal against the recorded evidence before reque
 - Every original full ID must appear exactly once in the table;
   compare all displayed IDs, including the closing tree, with Git output.
 - Each documentation evidence cell must include its claim and rollback consequences.
-  Under `Feature rollback (<implementation group>)`, retain this document and remove the named implementation.
+  Under `Feature rollback (<implementation group>)`, state both actions explicitly:
+  retain `<document>`; remove `<implementation group>`.
   State which claim becomes unsupported or remains accurate and useful.
   Name the implementation group even when the document belongs to a different group.
   For independent corrections to pre-existing behavior, remove the feature group whose independence is at issue
@@ -240,11 +243,11 @@ If a required check fails or cannot complete, report its actual status and stop 
 Then revalidate state, including any working files changed by those checks:
 
 ```sh
-git status --porcelain=v1 --untracked-files=all
-git branch --show-current
-git rev-parse HEAD
-git rev-parse <approved-base-ref>^{commit}
-git merge-base --all <approved-base-ref> HEAD
+git --no-optional-locks status --porcelain=v1 --untracked-files=all
+git --no-optional-locks branch --show-current
+git --no-optional-locks rev-parse HEAD
+git --no-optional-locks rev-parse <approved-base-ref>^{commit}
+git --no-optional-locks merge-base --all <approved-base-ref> HEAD
 ```
 
 Keep the displayed branch, HEAD, base ref, base-tip ID, and unique merge-base ID as the immutable approved record.
@@ -271,7 +274,7 @@ Stop if backup creation or verification fails; do not rely solely on reflog reco
 Record the ref names and object IDs after creating the backup:
 
 ```sh
-git for-each-ref --format='%(refname) %(objectname)'
+git --no-optional-locks for-each-ref --format='%(refname) %(objectname)'
 ```
 
 Before starting the approved rewrite operation, confirm that branch, HEAD, base, merge-base, and worktree are unchanged.
@@ -287,6 +290,15 @@ Pass `--no-update-refs` when starting any rebase to override `rebase.updateRefs=
 which could otherwise move the backup and other branches along with rewritten commits.
 For example: `git rebase --interactive --no-update-refs <approved-merge-base>`.
 If Git rejects that option, stop and select a supported strategy before rewriting.
+When generating a todo for a linear rebase:
+
+1. Derive the expected ordered `(action, source ID)` list from the approved groups and removals.
+   Use recorded full IDs, or resolve abbreviations uniquely against the inventory.
+2. Construct the complete replacement before emitting reordered instructions.
+3. Have the sequence editor parse the completed replacement and compare it with that expected list before allowing replay.
+   Require the approved actions and order, each retained source exactly once, and only approved omissions.
+   Stop on a parse error or mismatch; validating the original input alone does not validate the replacement.
+
 Perform only the approved picks, squashes/fixups, justified moves, subject edits, and explicitly approved removals.
 Do not broaden the range or opportunistically clean unrelated history.
 Resolve conflicts only when the resolution clearly preserves both the approved net change and grouping.
@@ -297,8 +309,8 @@ If a conflict requires a behavioral decision or changes the planned result, stop
 Verify the backup commit independently of tree equality:
 
 ```sh
-git rev-parse <backup-branch>^{commit}
-git for-each-ref --format='%(refname) %(objectname)'
+git --no-optional-locks rev-parse <backup-branch>^{commit}
+git --no-optional-locks for-each-ref --format='%(refname) %(objectname)'
 ```
 
 The backup must still resolve to the recorded original HEAD commit ID.
@@ -309,9 +321,9 @@ A moved backup is a verification failure even when its tree matches.
 Compare the recorded original tree with both trees below:
 
 ```sh
-git rev-parse HEAD^{tree}
-git rev-parse <backup-branch>^{tree}
-git diff --exit-code <backup-branch> HEAD
+git --no-optional-locks rev-parse HEAD^{tree}
+git --no-optional-locks rev-parse <backup-branch>^{tree}
+git --no-optional-locks diff --exit-code <backup-branch> HEAD
 ```
 
 All tree IDs must match exactly; tree identity is primary and the diff is a secondary check.
@@ -324,13 +336,16 @@ Verify the history from the approved merge-base to rewritten HEAD against the in
 - No unapproved history changes, including outside the rewrite range.
 
 Inspect resulting patches and dependencies, not only log subjects and counts.
-Confirm the worktree is clean with `git status --porcelain=v1 --untracked-files=all`
+Confirm the worktree is clean with `git --no-optional-locks status --porcelain=v1 --untracked-files=all`
 and the rewrite operation has finished.
 If any check fails, report failure, retain the backup, and stop for recovery direction.
 Do not claim success, publish, or silently reset away the failed result.
 
 Report:
 
+List resulting commits in approved order with their group IDs, full object IDs, and subjects.
+Compare these IDs with recorded Git output before sending the final response.
+Complete every field below, retaining separate verification results when shortening the report.
 Give each check a status with its command, observed exit code, and relevant output:
 `passed` (completed successfully), `failed` (observed failure), `not-run` (not executed),
 or `incomplete` (blocked or insufficient evidence).
@@ -346,6 +361,7 @@ Tree identity: passed | failed | not-run | incomplete
 Original tree: <tree-id>
 Rewritten tree: <tree-id, or unavailable>
 Resulting commits: <count>
+Resulting history: <group; full commit ID; subject, in approved order; or unavailable>
 Backup branch: <backup-branch, or not created>
 Backup identity: passed | failed | not-run | incomplete
 Other refs: passed | failed | not-run | incomplete
