@@ -23,6 +23,7 @@ Surrounding history uses plain sentence subjects without prefixes.
 ## Expected behavior
 
 Propose one group, A+B+C+D, with the subject `Add retry limit`.
+Explicitly list its resulting group order even though only one group results.
 Cite the counter repair, completing boundary tests, and option documentation as evidence.
 Account for all four commits and request approval of the exact plan before rewriting.
 Show each original full object ID exactly once in the proposal, with its group, action, evidence, and concern.
@@ -68,6 +69,9 @@ A concise final response that omits either is incomplete even if an earlier vers
 In a preapproval variant whose command trace runs `git diff --check`,
 the final proposal must report that command, its observed exit code, and its outcome.
 Required behavioral validation deferred until approval must remain visible as not-run, with the reason.
+Name the discovered behavioral check by its command, such as `python3 checks.py` in the executable fixture.
+List unavailable required lint tooling separately; it does not replace the behavioral check.
+A generic pending smoke test, or a list containing only lint, leaves the behavioral-check field incomplete.
 Saying no checks ran, reporting the executed diff check as pending, or claiming behavioral tests passed is substantive.
 Listing a truthful status query beside the diff check under one heading is only a presentation note
 when the executed-check evidence and pending statuses remain complete.

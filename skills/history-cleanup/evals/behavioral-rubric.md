@@ -28,6 +28,8 @@ Do not reconstruct execution from prose alone.
 
 Record the skill-load chronology, including each attempted load, the point at which the skill body became available,
 and any later load failure when the trace establishes that order.
+Distinguish a partial read from a complete load.
+For positive requests, require the complete SKILL.md entrypoint before the first model Git command.
 Do not infer loading before a Git operation from the ordering of results returned within one call.
 Record the first actually executed model Git operation with its raw event, actual arguments, and order.
 If no model Git operation executes, say so; native bootstrap and evaluator Git commands do not fill that field.
@@ -81,11 +83,16 @@ Score documentation evidence, semantic grouping, and table placement separately.
 The closing proposal must retain all five postapproval steps with their required objects.
 It must list each validation invocation actually run with command, observed exit, and relevant output.
 Applicable checks that are not run or incomplete must remain visible with their reasons.
+Identify each pending repository check, including behavioral checks, by its discovered command or unavailable tool.
+Generic validation language and lint-only lists cannot fill a missing behavioral-check field.
 
 ## Execution cell
 
 Apply this section only to a cell with a frozen, exact approval.
 Compare the displayed plan and execution with that approval; do not add fixture-oracle hints beyond the approved groups.
+Require the complete [rewrite procedure](../references/rewrite.md) to be loaded before approved checks or Git mutations.
+Record its file identity, returned content, and load completion relative to the first affected action.
+A planning-only trial cannot establish that this conditional reference was loaded during execution.
 
 Before creating a backup, require successful queries and equality predicates for the immutable approved branch and HEAD,
 base tip, unique merge-base, and clean-worktree record.

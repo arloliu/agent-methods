@@ -85,6 +85,67 @@ class PreparationTests(unittest.TestCase):
             },
         )
 
+    def test_references_are_copied_and_all_package_changes_are_rejected(self):
+        package = self.root / "candidate"
+        (package / "references").mkdir(parents=True)
+        entry = package / "SKILL.md"
+        entry.write_text("Read references/rewrite.md after approval.\n")
+        (package / "references/rewrite.md").write_text(
+            "Stop when a required check fails.\n"
+        )
+        preparation.prepare(self.destination, entry)
+        for cell in preparation.CASES:
+            installed = (
+                self.destination / cell / "workspace/repo/.method/references/rewrite.md"
+            )
+            self.assertEqual(
+                installed.read_bytes(), (package / "references/rewrite.md").read_bytes()
+            )
+        method = self.destination / "cell-01/workspace/repo/.method"
+        reference = method / "references/rewrite.md"
+        original = reference.read_bytes()
+        for change in ("changed", "missing", "extra"):
+            with self.subTest(change=change):
+                if change == "changed":
+                    reference.write_text("Skip verification.\n")
+                elif change == "missing":
+                    reference.unlink()
+                else:
+                    (method / "extra.md").write_text("unexpected input\n")
+                with self.assertRaisesRegex(ValueError, "candidate package changed"):
+                    preparation.verify(self.destination)
+                reference.write_bytes(original)
+                (method / "extra.md").unlink(missing_ok=True)
+        preparation.verify(self.destination)
+
+    def test_self_contained_candidate_remains_supported(self):
+        entry = self.root / "standalone.md"
+        entry.write_text("Self-contained method.\n")
+        batch = preparation.prepare(self.destination, entry)
+        self.assertEqual(set(batch["candidate_files_sha256"]), {"SKILL.md"})
+        preparation.verify(self.destination)
+        for cell in preparation.CASES:
+            installed = self.destination / cell / "workspace/repo/.method/SKILL.md"
+            self.assertEqual(installed.read_bytes(), entry.read_bytes())
+
+    def test_reference_outside_candidate_is_rejected_before_output_creation(self):
+        package = self.root / "candidate"
+        (package / "references").mkdir(parents=True)
+        entry = package / "SKILL.md"
+        entry.write_text("Example method.\n")
+        outside = self.root / "outside.md"
+        outside.write_text("External instructions.\n")
+        outside_directory = self.root / "outside-directory"
+        outside_directory.mkdir()
+        link = package / "references/rewrite.md"
+        for target in (outside, outside_directory):
+            with self.subTest(target=target):
+                link.symlink_to(target)
+                with self.assertRaisesRegex(ValueError, "reference escapes"):
+                    preparation.prepare(self.destination, entry)
+                self.assertFalse(self.destination.exists())
+                link.unlink()
+
     def test_existing_directory_and_symlinks_are_never_replaced(self):
         existing = self.root / "existing"
         existing.mkdir()

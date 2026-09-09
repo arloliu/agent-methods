@@ -3,7 +3,11 @@
 Test whether a host selects and loads `history-cleanup` from ordinary user requests.
 Keep discovery separate from correctness after loading.
 Evaluate the full visible conversation and tool trace, not only the final message.
-If the body was returned before a later command failed, count it as loaded and record the command failure separately.
+Record partial and complete entrypoint loading separately, including which ranges were returned.
+A failed command does not erase content already returned; it also does not supply a missing remainder.
+For positive requests, require the complete SKILL.md entrypoint to return before the first model Git command is issued.
+A skill read and Git commands submitted together cannot satisfy that ordering, even when the shell reads the file first.
+Score this loading boundary separately from selection, protected Git queries, and actual mutations.
 Use the [shared snapshot checks](README.md#shared-checks) to detect preapproval mutations, including ignored caches.
 The [execution cases](README.md#run-a-case) supply the skill directly and cannot measure automatic selection.
 These are written cases and a manual protocol; no agent runs or discovery results are bundled.
@@ -13,7 +17,8 @@ These are written cases and a manual protocol; no agent runs or discovery result
 1. Build a fresh `fixup-chain` fixture using the [fixture guide](README.md#build-a-fixture-for-an-agent).
    Use `main` as the integration base for every prompt below.
 2. Install the repository's current skill through the host's supported discovery mechanism in an isolated test profile.
-   Record the source revision, installed skill content hash, host version, model, settings, and available skill catalog.
+   Record the source revision and installed entrypoint and reference hashes.
+   Also record the host version, model, settings, and available skill catalog.
    Verify the installed copy matches the source and is listed as available before interpreting selection results.
    Keep personal installations unchanged and ensure no second copy shadows the tested skill.
 3. Start a fresh session in the fixture repository for each prompt and repetition.
@@ -73,12 +78,13 @@ Use one record per trial, for example:
 ```text
 Case ID / repetition:
 Date:
-Source revision / installed skill hash:
+Source revision / installed package file hashes:
 Host version / model / settings:
 Catalog snapshot / installation evidence:
 Prompt:
 Expected selection: load | skip
-Observed body loading: loaded | not-loaded | unobservable | not-run
+Observed body loading: complete | partial | not-loaded | unobservable | not-run
+Complete body returned before first model Git command: yes | no | unobservable | not-applicable
 Loading evidence: trace event or file-read location, including which skill copy
 Discovery result: pass | fail | unobservable | not-run
 Task behavior: pass | fail | not-evaluated
@@ -90,7 +96,7 @@ Transcript location:
 ```
 
 Score discovery only when availability and loading are observable:
-`load` passes on a body-load event; `skip` passes when a complete trace shows no body-load event.
+`load` passes on observable complete entrypoint loading; `skip` passes when a complete trace shows no body-load event.
 Missing logs, an interrupted response, or an invalid installation are `unobservable`, not a pass or a selection failure.
 Report positive load counts, explicit-name control counts, and negative unnecessary-load counts separately.
 Include denominators and list unobservable and not-run trials separately from scored trials.

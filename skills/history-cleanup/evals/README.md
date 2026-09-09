@@ -106,10 +106,11 @@ python3 -B scripts/test_prepare_history_evaluation.py
 
 `prepare` creates independent documentation, safe revert, non-adjacent correction, and dirty-worktree cases.
 It refuses to reuse an output directory.
-It writes ignored per-cell `.method/SKILL.md` files, inline task text, an exact workspace working-directory registry,
+It copies the entrypoint and its sibling `references/` directory into each ignored `.method/` package.
+It also writes inline task text, an exact workspace working-directory registry,
 snapshots, hashes, and evaluator-only `batch.json`, `registry.json`, metadata, and prompts.
 It also sets local `rebase.updateRefs=true` and creates sentinel refs with before/after baselines.
-Pass `--candidate <self-contained-SKILL.md>` to prepare another self-contained candidate;
+Pass `--candidate <SKILL.md>` to prepare another candidate with its sibling references, when present;
 otherwise it uses the checked-in skill.
 
 The helper creates planning prompts only and never manufactures rewrite approval.
@@ -130,7 +131,8 @@ Letters denote commits, `M` denotes the integration merge-base, and graph edges 
 Unless a case says otherwise, use a clean attached feature branch, a user-supplied base at `M`,
 one author, unsigned commits, plain sentence subjects, and no upstream or remote.
 
-Give the agent the skill, repository, and user request.
+Give the agent the complete skill package, repository, and user request.
+Keep runtime references available beside SKILL.md without exposing evaluator scenarios or fixture setup.
 Keep expected behavior and failure criteria in the evaluator's notes rather than the agent's task prompt.
 Observe inspection and the displayed plan before providing any approval.
 For execution checks, approve a specific displayed plan in the disposable repository and record that approval.
@@ -148,7 +150,8 @@ A passing fixture suite is not a passed agent evaluation.
 
 Record the case and variant, agent/tool version, inspected HEAD and tree IDs, observed plan, approvals,
 commands or transcript, verification output, and passed/failed/not-run/incomplete result with reasons.
-Record the candidate skill hash, prompt, catalog, runner, model, reasoning effort, and host profile for each trial.
+Record hashes for every candidate entrypoint and reference, plus the prompt, catalog, runner, model,
+reasoning effort, and host profile for each trial.
 Freeze the permitted host instructions and resource access with the trial protocol.
 Verify the effective context against that record before admitting behavioral trials.
 If this needs a model turn, record it separately as an infrastructure probe before freezing the behavioral batch.

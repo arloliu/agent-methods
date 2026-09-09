@@ -106,7 +106,10 @@ def prepare_cell(directory, case, candidate):
     original = observation.snapshot(expected)
     package = expected / ".method"
     package.mkdir()
-    (package / "SKILL.md").write_bytes(candidate)
+    for relative, content in candidate.items():
+        target = package / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
     (expected / ".git/info").mkdir(exist_ok=True)
     with (expected / ".git/info/exclude").open("a", encoding="utf-8") as stream:
         stream.write("\n.method/\n")
@@ -133,7 +136,7 @@ def prepare_cell(directory, case, candidate):
             "text": task,
             "sha256": hashlib.sha256(task.encode()).hexdigest(),
         },
-        "candidate_sha256": hashlib.sha256(candidate).hexdigest(),
+        "candidate_sha256": hashlib.sha256(candidate["SKILL.md"]).hexdigest(),
         "prompt_sha256": sha256(directory / "prompt.txt"),
         "original": original,
         "prepared": prepared,
@@ -160,15 +163,27 @@ def prepare(destination, candidate=DEFAULT_CANDIDATE):
         raise ValueError(
             "generated evaluation workspaces must stay outside published skills"
         )
-    content = Path(candidate).read_bytes()
+    candidate = Path(candidate).resolve()
+    content = candidate.read_bytes()
     if not content.decode("utf-8").strip():
         raise ValueError("candidate skill is empty")
+    package = {"SKILL.md": content}
+    for reference in sorted((candidate.parent / "references").rglob("*")):
+        if not reference.resolve().is_relative_to(candidate.parent):
+            raise ValueError("candidate reference escapes its package")
+        if reference.is_file():
+            package[reference.relative_to(candidate.parent).as_posix()] = (
+                reference.read_bytes()
+            )
+    package_hashes = {
+        name: hashlib.sha256(data).hexdigest() for name, data in package.items()
+    }
     # Exclusive creation preserves prior evidence, including partial failures and symlinks.
     destination.mkdir()
     registry = {}
     hashes = {}
     for cell, case in CASES.items():
-        metadata = prepare_cell(destination / cell, case, content)
+        metadata = prepare_cell(destination / cell, case, package)
         registry[cell] = metadata["cwd"]
         for name in (
             "metadata.json",
@@ -185,6 +200,7 @@ def prepare(destination, candidate=DEFAULT_CANDIDATE):
         "status": "prepared-only",
         "cells": CASES,
         "candidate_sha256": hashlib.sha256(content).hexdigest(),
+        "candidate_files_sha256": package_hashes,
         "source_hashes": source_hashes(),
         "artifact_hashes": hashes,
         "model_execution": "not-run",
@@ -238,7 +254,18 @@ def verify(destination):
             raise ValueError(f"task hash differs: {cell}")
         if (directory / "prompt.txt").read_text(encoding="utf-8") != prompt_for(task):
             raise ValueError(f"inline prompt differs: {cell}")
-        if sha256(repo / ".method/SKILL.md") != batch["candidate_sha256"]:
+        installed = {
+            path.relative_to(repo / ".method").as_posix(): sha256(path)
+            for path in (repo / ".method").rglob("*")
+            if path.is_file()
+        }
+        expected = batch.get(
+            "candidate_files_sha256", {"SKILL.md": batch["candidate_sha256"]}
+        )
+        if (
+            installed != expected
+            or installed.get("SKILL.md") != batch["candidate_sha256"]
+        ):
             raise ValueError(f"candidate package changed: {cell}")
         if observation.snapshot(repo) != metadata["prepared"]:
             raise ValueError(f"prepared repository changed: {cell}")
@@ -258,7 +285,7 @@ def main():
         "--candidate",
         type=Path,
         default=DEFAULT_CANDIDATE,
-        help="Self-contained SKILL.md to copy",
+        help="SKILL.md to copy with its sibling references directory, when present",
     )
     check = commands.add_parser(
         "verify", help="Check prepared inputs and workspaces are unchanged"
