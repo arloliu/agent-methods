@@ -1,7 +1,7 @@
 # Classification examples
 
-Companion to the class table in [SKILL.md](../SKILL.md#class).
-Each example names the evidence that decides the class;
+Worked examples for the class table in [SKILL.md](../SKILL.md#class); the rules live there.
+Each example names the evidence that decides the outcome;
 without that evidence, reapply the ordered conditions with what remains rather than keeping the class.
 
 ## Precedence in practice
@@ -21,52 +21,29 @@ without that evidence, reapply the ordered conditions with what remains rather t
 
 ## Delegated runs
 
-A delegated run is an external agent CLI or an asynchronous remote task.
-Its output is sparse and its duration long, so the generic rules would misclassify it.
-
-Startup unconfirmed:
-
-- The first milestone is a marker that shows initialization passed,
-  such as a session file plus the first substantive output line, or the first outbound request.
-  A banner printed before the CLI reads its input is not a milestone; it precedes the most common startup blocker.
-- The bound is a baseline from this session when the same command ran before, else the wrapper's documented startup time,
-  else a 60-second heuristic threshold.
-  The threshold prompts a review; it does not establish failure on its own.
-- Missing or inaccessible marker evidence leaves startup `unconfirmed` or `unobservable`; it is not a missed milestone.
-- Missed milestone plus confirmed blocker is `stuck`.
-  Confirmation means the CLI's documented behaviour for that state, thread-level evidence,
-  or a controlled intervention on that process.
-  An open stdin, a wait state, a missing session file, and zero CPU across two samples are compatible observations;
-  together they name a suspected blocker and support only `suspect`.
-  Unknown launch time makes the breach `unverified`.
-- A deadline beyond the remaining budget is reported as `startup pending, deadline <time>`.
-
-Startup confirmed:
-
-- Silence never yields `suspect`.
-- `suspect` needs an exceeded stated budget (wrapper timeout or user budget) and no activity on any observed signal;
-  name the signals that could not be observed.
-- The item still blocks a completion claim while it runs.
-- A stop discards partial work and spent tokens; the proposal says so.
-
-Baseline record: run identity, marker observed, observed duration,
-comparability limits (same model, same input size, same host),
-and the bound you chose, kept separate.
+| Situation | Evidence | Outcome |
+| --- | --- | --- |
+| A delegated CLI launched 30 seconds ago printed its banner; no session file yet; no baseline this session | 60-second heuristic bound not reached; banner is not the milestone | `healthy`, startup unconfirmed |
+| The same CLI three minutes later: descriptor 0 is an inherited open pipe, zero CPU delta across two samples, no session file; its documentation says it reads stdin until EOF when stdin is not a terminal | breached bound; blocker confirmed by documented behaviour for the observed state | `stuck` |
+| The same observations without the documented behaviour | breached bound; suspected blocker named (open stdin, zero CPU) | `suspect` |
+| The same observations with an unknown launch time | breach `unverified` | `suspect` at most |
+| The same command ran earlier this session and reached its first output in 45 seconds | baseline recorded with comparability limits (same model, input size, host), separate from the chosen bound | bound taken from the baseline, not the heuristic |
+| Session file present, first substantive output two minutes ago, nothing since; wrapper timeout 20 minutes | startup confirmed; stated budget not exceeded | `healthy`; still blocks a completion claim |
+| Startup confirmed, wrapper timeout exceeded, no output change, no CPU delta; sockets not readable in this sandbox | exceeded budget; no activity on observed signals; unobserved signal named | `suspect` |
+| Startup deadline at 09:41; the remaining budget ends at 09:40 | deadline beyond budget | `startup pending, deadline 09:41` |
 
 ## Waiters and inheritance
 
-A waiter is an item whose sole recorded, current purpose is to wait on, poll, or watch one other item.
-When that item is `stuck` or `obsolete`, the waiter may inherit candidacy, one level only,
-labelled "candidate because waiting solely on <class> <item>".
-Inheritance never overrides ownership, terminal-result precedence, observability, the `long-lived` exclusion, or approved scope.
-It keeps its own lifecycle, ownership, and stop path;
-each operation is approved separately, and both identities and the dependency are revalidated immediately before action.
-A waiter with any separate purpose (recovery, reporting, a second target) is assessed on its own.
-A replacement waiter armed after a breached expectation inherits nothing from an earlier proposal or approval.
+| Situation | Evidence | Outcome |
+| --- | --- | --- |
+| A watcher tails the output file of a `stuck` delegated run and has no other recorded purpose | sole dependency in its launch record | candidate, "candidate because waiting solely on stuck <item>", with its own stop path and approval |
+| The same watcher while the delegated run is `suspect` | target class below the threshold | not a candidate |
+| A watcher that also restarts the run on failure | separate recovery purpose | assessed on its own |
+| A monitor waiting on that watcher | second level | not a candidate |
+| A watcher re-armed after the first one's expectation was breached | replacement waiter | recorded with its dependency; inherits no earlier proposal or approval |
+| The watcher is `foreign` or flagged `long-lived` | exclusion applies | never a candidate |
 
 ## Result disposition
-
-Compare accessible result content and referenced deliverables with the accepted request:
 
 | Disposition | Meaning |
 | --- | --- |
@@ -74,10 +51,6 @@ Compare accessible result content and referenced deliverables with the accepted 
 | `partial` | some of the requested content exists |
 | `absent` | the result is accessible and the deliverable is not in it, for example a report that says it is still waiting |
 | `unverified` | the result or its referenced artifact is not accessible from this session |
-
-A host status of `completed` says nothing about disposition.
-An item reported complete without its deliverable has disposition `absent`;
-its handling may close after assessment while the goal stays open.
 
 ## Stop path examples
 
