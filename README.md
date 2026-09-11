@@ -39,6 +39,20 @@ Test retry edge cases
 
 The grouping depends on the actual changes, not just these commit messages.
 
+### [progress-check](skills/progress-check/SKILL.md)
+
+**Check a session's real progress and the background work it started.**
+Use it when you want to know where the work stands, whether anything is still running,
+or whether a background shell, subagent, monitor, scheduled job, or delegated agent run is stuck.
+
+- Reconciles the accepted scope, the work record, and the runtime record with permitted evidence within a stated budget.
+- Probes each background item within a bounded wait and classifies it with the evidence it cites;
+  silence alone is never "stuck".
+- Proposes stops only for evidenced candidates, names who can stop each one, and acts only on an approved list.
+- Verifies each stop's postcondition and keeps unread failures from being reported as done.
+- Works with any host through capability probing;
+  a dated per-host reference covers Claude Code, Codex, OpenCode, agy, and Gemini CLI.
+
 ## Install
 
 You need **Git** and an installed coding agent with local skill support.
@@ -51,6 +65,8 @@ With Node.js 22.20.0 or newer and npm, run this from your target project:
 ```sh
 npx skills add arloliu/agent-methods --skill history-cleanup
 ```
+
+Use `--skill progress-check` for the progress-check skill, or repeat the command for each skill you want.
 
 The default scope is the current project.
 When running interactively, choose your agent from the prompts.
@@ -100,6 +116,8 @@ This checkout remains on that release tag until you deliberately select another 
 
 Run **one** of the following blocks from the cloned repository.
 These install for your user account, making the skill available across projects.
+The commands show `history-cleanup`; replace it with `progress-check` to install that skill from a checkout that contains it.
+The pinned `history-cleanup/v0.1.2` checkout does not include progress-check.
 The copy commands ask before replacing existing files; keep any local customizations you need.
 
 ##### Claude Code
@@ -141,7 +159,7 @@ cp -i skills/history-cleanup/SKILL.md "$HOME/.gemini/antigravity-cli/skills/hist
 ```
 
 This follows agy's documented CLI installation using a named Markdown file.
-The current skill is self-contained; its evaluation files are not required to use it.
+Each skill's `SKILL.md` operates on its own; progress-check's references add per-host detail and evaluation files are not required.
 Launch `agy` and invoke `/history-cleanup`.
 See [Antigravity CLI skill documentation](https://www.antigravity.google/docs/cli/plugins/).
 
@@ -149,6 +167,7 @@ See [Antigravity CLI skill documentation](https://www.antigravity.google/docs/cl
 
 Use the following locations inside the repository where you want to use the skill.
 Copy the skill directory for Claude Code, OpenCode, and Codex; for agy, copy `SKILL.md` to the named file.
+The paths show `history-cleanup`; `progress-check` installs at the same locations under its own name.
 You can commit the installation to share it with your team.
 
 | Agent | Project installation path |
@@ -225,6 +244,41 @@ A dirty worktree can be analyzed, but must be clean before rewriting.
 An unclear base or a merge requiring a topology decision may need your input.
 If the history is already coherent, the correct outcome may be to leave it as it is.
 
+## Use progress-check
+
+In a session where background work exists, send your agent:
+
+```text
+Use the progress-check skill: where are we, and is anything you started still running or stuck?
+```
+
+The skill's description also covers ordinary requests without its name, such as:
+
+- "Where are we on this task, and is anything still running in the background?"
+- "Check whether any background job, subagent, or watcher you started is stuck."
+- "現在進度到哪了？有沒有背景工作還在跑？"
+
+**What to expect:**
+
+1. **Inspect:** the agent states which capabilities its host exposes, rebuilds the accepted scope,
+   and lists every background item it can account for, with the boundary of what it cannot see.
+2. **Probe:** it checks each item within a bounded wait where the host permits, and reports the gaps it cannot observe;
+   lifecycle, output activity, and expectations are recorded separately.
+3. **Assess:** each item gets a class with cited evidence;
+   unread results and running delegated runs block any "done" claim.
+4. **Propose:** stop candidates appear with their mechanism, reason, affected descendants, and who can stop them.
+   Nothing is stopped in the proposal turn.
+5. **Act and verify:** after you approve the exact displayed operations, it revalidates each item,
+   executes only the approved mechanism with its documented or explicitly unknown semantics,
+   and reports the observed outcome, ending with `Stopped: <ids or none>`.
+
+The description also asks the agent to record a handle, purpose, expected end, and output location
+whenever it starts background work, so a later check has something to inventory.
+Some hosts let only the user stop a background terminal;
+the report then names the command and its side effects instead of asking.
+The [evaluation guide](skills/progress-check/evals/README.md) describes the fixture contract and trial protocol;
+fixture scripts and automated checks are planned for a later change.
+
 ## Quality bar
 
 Every skill is designed around:
@@ -258,6 +312,12 @@ python3 -B skills/history-cleanup/evals/test_fixtures.py
 The tests check fixture histories and reference transformations.
 Evaluating an agent's decisions and approval handling requires an actual agent run.
 See the [evaluation guide](skills/history-cleanup/evals/README.md) to build a fixture and assess a run.
+
+The progress-check suite currently consists of written scenarios:
+a [discovery prompt set](skills/progress-check/evals/discovery.md),
+a [fixture contract and trial protocol](skills/progress-check/evals/README.md),
+and a [behavioural rubric](skills/progress-check/evals/behavioral-rubric.md).
+No executed trials are bundled; fixture scripts and CI checks are planned.
 
 ## Contributing
 
