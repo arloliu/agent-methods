@@ -32,6 +32,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Test fixture graphs and reference rewrites
         run: python -B skills/history-cleanup/evals/test_fixtures.py
+      - name: Test progress-check workers, harness, and verifier
+        run: python -B skills/progress-check/evals/test_fixtures.py
       - name: Test portable evaluation preparation
         run: python -B scripts/test_prepare_history_evaluation.py
       - name: Install artifact validation dependencies
@@ -60,11 +62,15 @@ jobs:
           scripts/*.py
           skills/history-cleanup/evals/*.py
           skills/history-cleanup/evals/fixtures/*/setup.py
+          skills/progress-check/evals/*.py
+          skills/progress-check/evals/fixtures/*.py
       - name: Check Python formatting
         run: >-
           ruff format --isolated --check --no-cache
           scripts/*.py
           skills/history-cleanup/evals/*.py
           skills/history-cleanup/evals/fixtures/*/setup.py
+          skills/progress-check/evals/*.py
+          skills/progress-check/evals/fixtures/*.py
       - name: Check commit whitespace
         run: git show --format= --check HEAD

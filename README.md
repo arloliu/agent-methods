@@ -277,7 +277,7 @@ whenever it starts background work, so a later check has something to inventory.
 Some hosts let only the user stop a background terminal;
 the report then names the command and its side effects instead of asking.
 The [evaluation guide](skills/progress-check/evals/README.md) describes the fixture contract and trial protocol;
-fixture scripts and automated checks are planned for a later change.
+the fixture workers, harness, and trace verifier are tested in CI, while agent trials remain manual.
 
 ## Quality bar
 
@@ -313,11 +313,17 @@ The tests check fixture histories and reference transformations.
 Evaluating an agent's decisions and approval handling requires an actual agent run.
 See the [evaluation guide](skills/history-cleanup/evals/README.md) to build a fixture and assess a run.
 
-The progress-check suite currently consists of written scenarios:
+The progress-check suite has a machine-checked fixture layer and written trial material:
 a [discovery prompt set](skills/progress-check/evals/discovery.md),
 a [fixture contract and trial protocol](skills/progress-check/evals/README.md),
 and a [behavioural rubric](skills/progress-check/evals/behavioral-rubric.md).
-No executed trials are bundled; fixture scripts and CI checks are planned.
+Its tests start real worker processes, hold a stdin writer open, stop one worker, and reject bad traces:
+
+```sh
+python3 -B skills/progress-check/evals/test_fixtures.py
+```
+
+No executed agent trials are bundled.
 
 ## Contributing
 
