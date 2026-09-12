@@ -12,6 +12,7 @@ Three layers carry separate verdicts:
    They run in CI on Linux and macOS; this document defines their contract.
 3. Behavioural trials scored with the [rubric](behavioral-rubric.md):
    does an agent following the skill make the right decisions?
+   Executed trials are recorded under [trials/](trials/2026-09-12-claude-code.md), one file per date and host.
 
 A written scenario is not a passed trial.
 A passing fixture suite is not a passed agent evaluation.

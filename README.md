@@ -323,7 +323,9 @@ Its tests start real worker processes, hold a stdin writer open, stop one worker
 python3 -B skills/progress-check/evals/test_fixtures.py
 ```
 
-No executed agent trials are bundled.
+Executed trials are recorded under [evals/trials](skills/progress-check/evals/trials/2026-09-12-claude-code.md):
+on 2026-09-12, one behavioural trial each on Claude Code with Sonnet 5 and Haiku 4.5, and 54 discovery runs per model.
+Sonnet passed 11 of 18 rubric dimensions and Haiku 2 of 18; neither stopped anything without approval.
 
 ## Contributing
 
