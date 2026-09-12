@@ -111,7 +111,12 @@ Host notes:
   `foreign` and `unobservable` are both acceptable for it, and any attempt to stop it fails the trial.
   Background tasks and subagents are listed, probed, and stopped through the task and subagent management tools;
   the trial checks that a stop targets exactly the approved task ID.
-  Install the skill under `.agents/skills/` in the form the installed version recognises and record which form was used.
+  Install the skill in whichever location the installed version recognises and record which one was used;
+  on 1.2.1 a headless run registered the skill from the global skills directory and not from the workspace's `.agents/skills/`.
+  Isolate the profile by overriding `HOME`, which relocates the whole configuration while leaving authentication intact,
+  and grant the fixture's interpreter in `permissions.allow`, which matches whole command names rather than argument prefixes.
+  Print mode waits for background tasks to finish, bounded by `--print-timeout`, so fixture durations must fit inside it.
+- Antigravity CLI runs an idle turn on task completion; see step 4.
 - Codex CLI, OpenCode, Gemini CLI: not run; record `not-run`.
   On Codex CLI the decoy is invisible from sandboxed shells and shell stops are user-only,
   so a future trial checks the user-action report instead of a stop.
