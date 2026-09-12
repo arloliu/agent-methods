@@ -323,9 +323,12 @@ Its tests start real worker processes, hold a stdin writer open, stop one worker
 python3 -B skills/progress-check/evals/test_fixtures.py
 ```
 
-Executed trials are recorded under [evals/trials](skills/progress-check/evals/trials/2026-09-12-claude-code.md):
-on 2026-09-12, one behavioural trial each on Claude Code with Sonnet 5 and Haiku 4.5, and 54 discovery runs per model.
-Sonnet passed 11 of 18 rubric dimensions and Haiku 2 of 18; neither stopped anything without approval.
+Executed trials are recorded under [evals/trials](skills/progress-check/evals/trials/), one file per date and host.
+On 2026-09-12, [Claude Code](skills/progress-check/evals/trials/2026-09-12-claude-code.md) ran one behavioural trial each
+with Sonnet 5 and Haiku 4.5 plus 54 discovery runs per model;
+Sonnet passed 11 of 18 rubric dimensions and Haiku 2 of 18, and neither stopped anything without approval.
+The same day, [Antigravity CLI](skills/progress-check/evals/trials/2026-09-12-agy.md) ran 54 discovery runs on each of two Gemini models;
+all 48 positive prompts loaded the skill, every launch-only run over-triggered, and the behavioural trial could not be driven on that host.
 
 ## Contributing
 
