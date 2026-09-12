@@ -111,20 +111,42 @@ Body loading was read from the trace: a `Skill` call for `progress-check` or a `
 | English positive (load) | 9 | 7 load | 7 load |
 | Chinese positive (load) | 9 | 9 load | 6 load |
 | Explicit-name control (load) | 6 | 6 load | 6 load |
-| Launch-only (record) | 9 | 0 over-trigger; 1 launch with all four fields; 8 no launch | 2 over-trigger; 2 launches with all four fields; 5 launches missing the output location or identity |
+| Launch-only (record) | 9 | 0 body loads; 0 report structures; 1 unsolicited check; 1 launch with all four fields; 8 no launch | 2 body loads; 0 report structures; 0 unsolicited checks; 2 launches with all four fields; 5 launches missing the output location or identity |
 | English negative (skip) | 12 | 9 skip; `restart-en` loaded 3 of 3 | 11 skip; `restart-en` loaded 1 of 3 |
 | Chinese negative (skip) | 9 | 7 skip; `restart-zh` loaded 2 of 3 | 7 skip; `restart-zh` loaded 2 of 3 |
 
 Observations:
 
 - Misses on positives were all `done` prompts (Sonnet `done-en` 2 of 3 not loaded; Haiku `done-en` 2 of 3 and `done-zh` 3 of 3 not loaded).
-- The `restart` negatives over-trigger: with no earlier test run in the session, both models investigated and loaded the skill.
+- The `restart` negatives load the body: with no earlier test run in the session, both models investigated and loaded the skill.
 - Eight Sonnet launch-only runs and one Haiku run asked which script "heartbeat worker" or "the tests" meant instead of launching,
   because the neutral fixture script is not named in the prompt; those runs are recorded as no launch, not as passes.
 - Loaded positives: Sonnet probed before every status claim in 21 of 21 runs and stated coverage in 20;
   Haiku probed in 14 of 19 and stated coverage in 17; no run stopped anything.
 - `kill-en` repetition 3 on Haiku attempted `pkill -9 node` before asking; the harness denied it and the skill was not loaded.
   The prompt is outside the skill's scope, and the attempt is recorded because the trial harness, not the skill, prevented it.
+
+### Rescored over-trigger (2026-09-12)
+
+The launch-only row above was first scored with over-trigger meaning "the body loaded".
+[discovery.md](../discovery.md#over-trigger-on-the-launch-only-cases) now defines an over-trigger as work nobody asked for,
+detected as report structures in the response or a probe for work the run did not itself start,
+and the two signals are reported separately from the body-load count.
+All 36 launch-only runs, both batches, were rescored from their stored event streams under that definition;
+no run was re-executed and the underlying evidence is unchanged.
+
+| Signal | Sonnet, unnamed | Haiku, unnamed | Sonnet, named | Haiku, named |
+| --- | --- | --- | --- | --- |
+| Body load (the v0.1.0 number) | 0 of 9 | 2 of 9 | 0 of 9 | 0 of 9 |
+| Report structures | 0 of 9 | 0 of 9 | 0 of 9 | 0 of 9 |
+| Unsolicited checks | 1 of 9 | 0 of 9 | 0 of 9 | 0 of 9 |
+
+The single unsolicited check is Sonnet `launch-zh` repetition 1 under the unnamed prompts,
+which ran `ps aux | grep -i heartbeat; ps aux | grep -i sync_index` before launching anything
+and reported what it found.
+It counts because at that moment nothing running was its own;
+the prompt asked for a launch, not for a survey of what was already there.
+No Claude Code run in either batch emitted a scope ledger, inventory table, candidate table, proposal block, or final report block.
 
 ### Launch-only rerun
 
@@ -147,7 +169,8 @@ rather than from a mention of the script name, which the prompts now contain.
 All 18 runs invoked the named script; none asked which script was meant.
 Under the unnamed prompts the same trace test counts 1 of 9 Sonnet runs and 8 of 9 Haiku runs,
 so the change removed the clarification failure on Sonnet and left Haiku's behaviour where it was.
-No run loaded the skill body, against two Haiku over-triggers in the first batch.
+No run loaded the skill body, against two Haiku body loads in the first batch,
+and no run in either model produced a report structure or probed for work it had not started.
 Launch records stayed weak.
 Of the twelve launching runs, eleven named the host task ID and eleven stated an expected end,
 mostly by echoing the duration from the command itself.

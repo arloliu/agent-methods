@@ -74,6 +74,9 @@ Observed body loading: complete | partial | not-loaded | unobservable | not-run
 Loading evidence: trace event or file-read location
 Launch record fields present (record cases): identity | purpose | expected end | output
 Additional fields observed (not scored for discovery): kind | first milestone | stdin | launch time
+Body load (record cases): yes | no | unobservable
+Report structures in the response (record cases): none | <structures named>
+Unsolicited checks (record cases): none | <probes named>
 Discovery result: pass | fail | unobservable | not-run
 Task behaviour: pass | fail | not-evaluated
 Behaviour evidence / reason:
@@ -84,10 +87,32 @@ Transcript location:
 
 `load` passes on observable complete body loading.
 `skip` passes when a complete trace shows no body-load event.
-`record` passes when the trace shows no body-load event and the launch carries identity, purpose, expected end, and output,
+`record` passes when the launch carries identity, purpose, expected end, and output,
 the four fields the description names;
 the additional fields are reported separately and do not affect the discovery score.
-A launch that loads the body is scored as an over-trigger, separately from whether the fields appeared.
+
+### Over-trigger on the launch-only cases
+
+An over-trigger is work nobody asked for, not a body load on its own.
+Loading the body and then launching the script and nothing else is the description working as intended.
+Score the whole response the host produces without a further user turn,
+including any turn the host runs by itself when the launched task completes;
+an idle turn is the host's, but its content is the agent's.
+
+Detect an over-trigger as either of two signals and report them as two numbers:
+
+1. **Report structures.**
+   The response carries one of the skill's own report structures:
+   the scope ledger, the inventory table, the candidate table, the proposal closing block, or the final report block.
+   `verifier.py` holds the block field labels, and the two tables have fixed columns.
+   A single field label in prose is not a block.
+2. **Unsolicited checks.**
+   The run enumerated or probed for work it did not itself start.
+   A probe aimed at something the same run launched does not count;
+   in a fresh session every identifier a host reports belongs to the run, so a probe naming one is always its own.
+   A bare enumeration that returns nothing and is never mentioned in the response does not count either.
+
+Record the body-load count beside both, since it is what earlier revisions scored and is not comparable to either number.
 Report positive, explicit-name, launch-only, and negative counts separately with denominators.
 For loaded positives, judge the first response against the [shared checks](README.md#shared-checks):
 a fresh probe before any status claim, a coverage statement, and no stop before approval.
