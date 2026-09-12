@@ -18,9 +18,13 @@ def main(path):
             verdict = "pass" if loaded == "complete" else "fail"
         elif expected == "skip":
             verdict = "pass" if loaded == "not-loaded" else "fail"
-        else:  # record: body must not load; fields judged manually
+        else:
+            # record: the body-load verdict only.  Over-trigger is a different question
+            # -- work nobody asked for -- and score_over_trigger.py answers it.
             verdict = (
-                "over-trigger" if loaded == "complete" else "not-loaded(judge fields)"
+                "body-load(judge fields)"
+                if loaded == "complete"
+                else "no-load(judge fields)"
             )
         by_class[(r["class"], expected)][verdict] += 1
         rows.append(

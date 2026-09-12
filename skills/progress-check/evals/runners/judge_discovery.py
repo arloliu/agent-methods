@@ -4,6 +4,7 @@ import json
 import re
 import sys
 
+# Both hosts: Claude Code first, then Antigravity CLI.
 PROBE_TOOLS = {
     "TaskList",
     "TaskGet",
@@ -12,6 +13,10 @@ PROBE_TOOLS = {
     "CronList",
     "Monitor",
     "TaskStatus",
+    "BashOutput",
+    "manage_task",
+    "manage_subagents",
+    "command_status",
 }
 FIELD_PATTERNS = {
     "identity": r"(task id|task-id|task_id|\bid\b|\bpid\b|handle|`b[a-z0-9]{8}`|shell id|background id)",

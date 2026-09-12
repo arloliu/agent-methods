@@ -1,7 +1,7 @@
 # Skill discovery evaluation
 
 Test whether a host selects and loads `progress-check` from ordinary requests,
-and whether launch-only requests follow the description's recording instruction without loading the body.
+and whether launch-only requests follow the description's recording instruction without doing work nobody asked for.
 Keep discovery separate from correctness after loading.
 Evaluate the full visible conversation and tool trace, not only the final message.
 These are written cases and a manual protocol; no agent runs or results are bundled.
@@ -29,8 +29,9 @@ A statement such as "I used progress-check" is not evidence of loading.
 
 `load` means the request should select this skill.
 `skip` means the skill body is unnecessary.
-`record` means the body should not load,
-but the launch record fields named in the description should appear in the agent's launch.
+`record` means the launch record fields named in the description should appear in the agent's launch.
+Whether the body loads is recorded but does not decide the case;
+what fails a `record` case is work nobody asked for, scored as an over-trigger below.
 The expected column is evaluator-only.
 
 | ID | Class | Prompt | Expected |
