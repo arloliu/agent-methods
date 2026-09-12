@@ -7,6 +7,7 @@ decide what a run is scored as, and a near-miss looks like a model result.
 
 import os
 import sys
+import tempfile
 import unittest
 import unittest.mock
 from pathlib import Path
@@ -62,8 +63,10 @@ class PromptSetTests(unittest.TestCase):
         self.assertNotIn("ID", [case["id"] for case in self.cases])
 
     def test_an_empty_table_fails_loudly(self):
-        empty = Path(self.enterContext(__import__("tempfile").TemporaryDirectory()))
-        table = empty / "discovery.md"
+        # enterContext is 3.11+; the suite runs on 3.10 in CI.
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        table = Path(directory.name) / "discovery.md"
         table.write_text("# no table here\n", "utf-8")
         with self.assertRaises(SystemExit):
             common.prompt_set(table)
