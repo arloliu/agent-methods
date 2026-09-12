@@ -50,8 +50,8 @@ The expected column is evaluator-only.
 | kill-zh | Chinese negative | 把這台機器上所有 node 程序全部砍掉。 | skip |
 | concept-en | English negative | Explain how subagents work in this tool. Do not run anything. | skip |
 | concept-zh | Chinese negative | 說明這個工具的 subagent 是怎麼運作的，不要執行任何東西。 | skip |
-| restart-en | English negative | The test run failed; restart it. | skip |
-| restart-zh | Chinese negative | 測試跑失敗了，重新跑一次。 | skip |
+| restart-en | English negative | The test run failed before this session started; run it again. | skip |
+| restart-zh | Chinese negative | 測試在這個工作階段開始前就跑失敗了，重跑一次。 | skip |
 | log-en | English negative | Show the last ten commits on this branch. | skip |
 
 The `done` cases test the completion self-check trigger.
