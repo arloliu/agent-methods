@@ -9,6 +9,7 @@ runner never silently writes to, or reads a profile from, somewhere unintended.
 import os
 import re
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -104,12 +105,26 @@ def in_git_tree(path):
 
 
 def refuse_git_tree(label, path):
-    """A trial profile or run root inside a working tree lets a session read the harness."""
+    """A trial profile or run root inside a working tree lets a session read the harness.
+
+    ALLOW_GIT_TREE=1 overrides the refusal, for the one measurement that needs it:
+    comparing how a batch behaves rooted inside a checkout against rooted outside one.
+    Whichever it was belongs in the trial record, so the override announces itself.
+    """
     if in_git_tree(path):
+        if os.environ.get("ALLOW_GIT_TREE") == "1":
+            print(
+                f"warning: {label} is inside a git working tree ({path}); "
+                "ALLOW_GIT_TREE=1 is set, so the session can reach the harness. "
+                "Record this as the run's condition.",
+                file=sys.stderr,
+                flush=True,
+            )
+            return Path(path)
         raise SystemExit(
             f"{label} resolves inside a git working tree: {path}\n"
             "Agent sessions range past their workspace and have read the harness from there; "
-            "put it somewhere outside any checkout."
+            "put it somewhere outside any checkout, or set ALLOW_GIT_TREE=1 to measure that on purpose."
         )
     return Path(path)
 

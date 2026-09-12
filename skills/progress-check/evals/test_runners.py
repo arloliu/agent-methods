@@ -5,8 +5,10 @@ discovery.md can drop a case with no error at all; the launch and stop regexes
 decide what a run is scored as, and a near-miss looks like a model result.
 """
 
+import os
 import sys
 import unittest
+import unittest.mock
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -162,6 +164,13 @@ class RequiredPathTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             common.refuse_git_tree(
                 "the run root", Path(__file__).parent / "does/not/exist"
+            )
+
+    def test_the_refusal_can_be_overridden_on_purpose(self):
+        with unittest.mock.patch.dict(os.environ, {"ALLOW_GIT_TREE": "1"}):
+            self.assertEqual(
+                common.refuse_git_tree("the run root", Path(__file__).parent),
+                Path(__file__).parent,
             )
 
 

@@ -96,6 +96,9 @@ agent sessions range past their workspace through `find` and `grep`,
 and a session that reaches the harness can read `discovery.md` with its evaluator-only expected column,
 which is how one agy batch had to be discarded.
 The check tests the nearest existing ancestor, since a run root does not exist yet.
+`ALLOW_GIT_TREE=1` overrides the refusal and says so on stderr.
+It exists for one measurement — comparing a batch rooted inside a checkout against the same batch rooted outside one —
+and the condition it produces belongs in the trial record.
 
 Profile provisioning differs by host.
 `run_discovery_agy.py` builds each run's isolated `HOME` itself, including the permission allow list,
