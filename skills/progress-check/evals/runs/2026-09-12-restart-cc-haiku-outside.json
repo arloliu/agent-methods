@@ -1,0 +1,308 @@
+{
+  "batch": "2026-09-12-restart-cc-haiku-outside",
+  "hashes": {
+    "SKILL.md": "a32c5a079e2cf15966dddf74a5b3371082bd6608ceaa70bbed9ccbc0a8ae3e94",
+    "references/classification.md": "133f4bb91731d7c0f143e1bd60ef491dd454d934f0bcbdfd1dfc7d3e6c8761f7",
+    "references/hosts.md": "76b2f16af2ed026cc1624525f38095be24d50959c4e9003015b1e2005e2a615b",
+    "references/process-inspection.md": "50a6255241b42c74b1847abaecce65c26e5020eae8c292ed1b1695fc85664320"
+  },
+  "results": [
+    {
+      "bash_commands": [
+        "find . -type f -name \"*.json\" -o -name \"*.md\" -o -name \"*.sh\" | head -20",
+        "pwd && ls -la",
+        "python run_checks.py lint"
+      ],
+      "case": "restart-en",
+      "catalog_has_skill": true,
+      "class": "English negative",
+      "denials": [
+        {
+          "tool_input": {
+            "command": "python run_checks.py lint",
+            "description": "Run lint checks"
+          },
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01APJpb3WsWjXVcuL9Nunx8D"
+        }
+      ],
+      "expected": "skip",
+      "final_text": "The command needs approval. This will run the lint test suite that's designed to show a failure (it will exit with status 3 and report an unused import error). Would you like me to proceed?",
+      "finished": "2026-09-12T11:49:38Z",
+      "launches": [
+        {
+          "command": "python run_checks.py lint",
+          "description": "Run lint checks"
+        }
+      ],
+      "loaded": "not-loaded",
+      "loading_evidence": [],
+      "model": "haiku",
+      "model_id": "claude-haiku-4-5-20251001",
+      "rep": 1,
+      "returncode": 0,
+      "started": "2026-09-12T11:49:25Z",
+      "stop_calls": [],
+      "tool_names": [
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Bash"
+      ]
+    },
+    {
+      "bash_commands": [
+        "find . -type f -name \"*.test.*\" -o -name \"test_*.py\" -o -name \"*_test.py\" | head -20",
+        "ls -la",
+        "python run_checks.py unit"
+      ],
+      "case": "restart-en",
+      "catalog_has_skill": true,
+      "class": "English negative",
+      "denials": [
+        {
+          "tool_input": {
+            "command": "python run_checks.py unit",
+            "description": "Run the unit test suite"
+          },
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01U4hEqFm6to8QeSwZ6WaJMc"
+        }
+      ],
+      "expected": "skip",
+      "final_text": "The test runner needs your approval to execute. The project has `run_checks.py` which can run \"unit\" or \"lint\" test suites. Would you like me to proceed with running the unit tests?",
+      "finished": "2026-09-12T11:49:38Z",
+      "launches": [
+        {
+          "command": "python run_checks.py unit",
+          "description": "Run the unit test suite"
+        }
+      ],
+      "loaded": "not-loaded",
+      "loading_evidence": [],
+      "model": "haiku",
+      "model_id": "claude-haiku-4-5-20251001",
+      "rep": 2,
+      "returncode": 0,
+      "started": "2026-09-12T11:49:25Z",
+      "stop_calls": [],
+      "tool_names": [
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Bash"
+      ]
+    },
+    {
+      "bash_commands": [
+        "find . -type f -name \"*.json\" -o -name \"*.js\" -o -name \"*.ts\" -o -name \"Makefile\" -o -name \"*.yml\" -o -name \"*.yaml\" | head -20",
+        "ls -la",
+        "git log --oneline -10",
+        "find . -name \".git\" -type d",
+        "ls -la .claude/",
+        "python run_checks.py unit",
+        "python run_checks.py unit"
+      ],
+      "case": "restart-en",
+      "catalog_has_skill": true,
+      "class": "English negative",
+      "denials": [
+        {
+          "tool_input": {
+            "command": "python run_checks.py unit",
+            "description": "Run unit test suite"
+          },
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01KAc9yzwctV2eXzxAE5q6r4"
+        },
+        {
+          "tool_input": {
+            "command": "python run_checks.py unit",
+            "description": "Run unit test suite"
+          },
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01JjF12YFWXMYz9SXooFLewL"
+        }
+      ],
+      "expected": "skip",
+      "final_text": "I need your permission to run the test command. The system is asking for approval before executing `python run_checks.py unit`. \n\nThe script will run the unit test suite, which according to the code should:\n- Run for ~2 seconds\n- Output \"3 checks passed\" \n- Exit with code 0 (success)\n\nWould you like me to proceed?",
+      "finished": "2026-09-12T11:50:09Z",
+      "launches": [
+        {
+          "command": "python run_checks.py unit",
+          "description": "Run unit test suite"
+        },
+        {
+          "command": "python run_checks.py unit",
+          "description": "Run unit test suite"
+        }
+      ],
+      "loaded": "not-loaded",
+      "loading_evidence": [],
+      "model": "haiku",
+      "model_id": "claude-haiku-4-5-20251001",
+      "rep": 3,
+      "returncode": 0,
+      "started": "2026-09-12T11:49:38Z",
+      "stop_calls": [],
+      "tool_names": [
+        "Bash",
+        "Bash",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Skill",
+        "Bash"
+      ]
+    },
+    {
+      "bash_commands": [
+        "find . -type f \\( -name \"*.test.*\" -o -name \"*.spec.*\" -o -name \"test_*.py\" -o -name \"*_test.py\" \\) | head -20",
+        "ls -la",
+        "python run_checks.py unit",
+        "python run_checks.py lint"
+      ],
+      "case": "restart-zh",
+      "catalog_has_skill": true,
+      "class": "Chinese negative",
+      "denials": [
+        {
+          "tool_input": {
+            "command": "python run_checks.py unit",
+            "description": "Run unit tests"
+          },
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_016MjS36BSuVtFoj4i9dnRYX"
+        },
+        {
+          "tool_input": {
+            "command": "python run_checks.py lint",
+            "description": "Run lint tests"
+          },
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01APKF6BoYJTGXS7S3yonrD4"
+        }
+      ],
+      "expected": "skip",
+      "final_text": "I found two test suites in `run_checks.py`:\n- **unit**: should pass (3 checks passed)\n- **lint**: currently failing (error: unused import in app.py)\n\nI'm ready to run both test suites. The unit tests should pass, and the lint tests will show the existing failure you mentioned. Would you like me to proceed?",
+      "finished": "2026-09-12T11:49:46Z",
+      "launches": [
+        {
+          "command": "python run_checks.py unit",
+          "description": "Run unit tests"
+        },
+        {
+          "command": "python run_checks.py lint",
+          "description": "Run lint tests"
+        }
+      ],
+      "loaded": "not-loaded",
+      "loading_evidence": [],
+      "model": "haiku",
+      "model_id": "claude-haiku-4-5-20251001",
+      "rep": 1,
+      "returncode": 0,
+      "started": "2026-09-12T11:49:25Z",
+      "stop_calls": [],
+      "tool_names": [
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash"
+      ]
+    },
+    {
+      "bash_commands": [
+        "find . -type f -name \"*.test.*\" -o -name \"*.spec.*\" -o -name \"*test*.json\" | head -20",
+        "ls -la",
+        "python run_checks.py unit"
+      ],
+      "case": "restart-zh",
+      "catalog_has_skill": true,
+      "class": "Chinese negative",
+      "denials": [
+        {
+          "tool_input": {
+            "command": "python run_checks.py unit",
+            "description": "Run unit tests"
+          },
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_01ExjGBeeyiGiHJP7Ls1zSkc"
+        }
+      ],
+      "expected": "skip",
+      "final_text": "I found two test suites in `run_checks.py`: \"unit\" and \"lint\". The lint suite has a known failure (`error: unused import in app.py`). \n\nWhich test suite would you like me to run — \"unit\" or \"lint\"? Or did you want me to run both?",
+      "finished": "2026-09-12T11:49:50Z",
+      "launches": [
+        {
+          "command": "python run_checks.py unit",
+          "description": "Run unit tests"
+        }
+      ],
+      "loaded": "not-loaded",
+      "loading_evidence": [],
+      "model": "haiku",
+      "model_id": "claude-haiku-4-5-20251001",
+      "rep": 2,
+      "returncode": 0,
+      "started": "2026-09-12T11:49:38Z",
+      "stop_calls": [],
+      "tool_names": [
+        "Bash",
+        "Bash",
+        "Read",
+        "Bash"
+      ]
+    },
+    {
+      "bash_commands": [
+        "ls -la",
+        "python run_checks.py unit"
+      ],
+      "case": "restart-zh",
+      "catalog_has_skill": true,
+      "class": "Chinese negative",
+      "denials": [
+        {
+          "tool_input": {
+            "command": "python run_checks.py unit",
+            "description": "Run the unit test suite"
+          },
+          "tool_name": "Bash",
+          "tool_use_id": "toolu_0196hK4PFoZogaKxyx5Fot2v"
+        }
+      ],
+      "expected": "skip",
+      "final_text": "I need permission to run Python commands. The test script is ready — `python run_checks.py unit` will run the unit tests. Could you approve this?",
+      "finished": "2026-09-12T11:49:59Z",
+      "launches": [
+        {
+          "command": "python run_checks.py unit",
+          "description": "Run the unit test suite"
+        }
+      ],
+      "loaded": "not-loaded",
+      "loading_evidence": [],
+      "model": "haiku",
+      "model_id": "claude-haiku-4-5-20251001",
+      "rep": 3,
+      "returncode": 0,
+      "started": "2026-09-12T11:49:46Z",
+      "stop_calls": [],
+      "tool_names": [
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Bash"
+      ]
+    }
+  ],
+  "runs": 6
+}
