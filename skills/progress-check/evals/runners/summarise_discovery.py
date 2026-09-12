@@ -1,15 +1,28 @@
-"""Aggregate discovery results per class, and print the material for manual record/load judgements."""
+"""Aggregate discovery results per class, and print the material for manual record/load judgements.
+
+Usage: summarise_discovery.py <results.json | runs/<batch>.json> [detail]
+
+It reads either a batch's raw results.json or the reduced summary committed under
+evals/runs/, which is what makes a recorded count reproducible from the repository alone.
+Fields that only one host records, such as Claude Code's skill catalog, are optional.
+"""
 
 import json
 import sys
 from collections import Counter, defaultdict
 
 
+def load(path):
+    """A batch's run list, from a raw results.json or a reduced summary."""
+    data = json.load(open(path))
+    return data["results"] if isinstance(data, dict) else data
+
+
 def main(path):
-    results = json.load(open(path))
+    results = load(path)
     by_class = defaultdict(Counter)
     rows = []
-    for r in sorted(results, key=lambda r: (r.get("case", ""), r.get("rep", 0))):
+    for r in sorted(results, key=lambda r: (r.get("case", ""), int(r.get("rep", 0)))):
         if "error" in r:
             rows.append((r["case"], r["rep"], "ERROR", r["error"]))
             continue
@@ -32,7 +45,9 @@ def main(path):
                 r["case"],
                 r["rep"],
                 verdict,
-                f"loaded={loaded} tools={','.join(r['tool_names'])} stops={len(r['stop_calls'])} denials={len(r['denials'])} catalog={r['catalog_has_skill']}",
+                f"loaded={loaded} tools={','.join(r['tool_names'])} "
+                f"stops={len(r['stop_calls'])} denials={len(r['denials'])} "
+                f"catalog={r.get('catalog_has_skill', 'n/a')}",
             )
         )
     for row in rows:
@@ -42,7 +57,9 @@ def main(path):
         total = sum(counter.values())
         print(f"{key[0]:<22} expected={key[1]:<7} n={total:<3} {dict(counter)}")
     if len(sys.argv) > 2 and sys.argv[2] == "detail":
-        for r in sorted(results, key=lambda r: (r.get("case", ""), r.get("rep", 0))):
+        for r in sorted(
+            results, key=lambda r: (r.get("case", ""), int(r.get("rep", 0)))
+        ):
             if r.get("expected") == "record" or (
                 r.get("expected") == "load" and r.get("loaded") == "complete"
             ):

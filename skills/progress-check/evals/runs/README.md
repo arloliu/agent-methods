@@ -2,8 +2,10 @@
 
 One JSON file per executed discovery batch, holding every number the
 [trial records](../trials/) cite and every response in full.
-They exist so a recorded count can be recomputed rather than taken on trust:
-`runners/summarise_discovery.py` and `runners/score_over_trigger.py` read the same fields from the batch they came from.
+They exist so a recorded count can be recomputed rather than taken on trust.
+`runners/summarise_discovery.py <batch>.json` reads one directly and reprints the per-class counts the records cite.
+`runners/score_over_trigger.py` needs the event streams, which are not committed,
+so each launch-only entry carries its verdict instead.
 
 Each file carries the batch name, the run count, the installed skill file hashes, and one entry per run with
 its case, class, expected result, model, timings, body-load verdict and evidence, tool names, shell commands,
