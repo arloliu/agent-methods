@@ -8,7 +8,10 @@ These are written cases and a manual protocol; no agent runs or results are bund
 
 ## Prepare a trial
 
-1. Build a fixture directory with one heartbeat worker script available to launch.
+1. Build a fixture directory with the heartbeat worker script `sync_index.py`
+   and the check runner `run_checks.py` available to launch.
+   The launch-only prompts name these scripts;
+   an unnamed "heartbeat worker" makes the agent ask which script is meant instead of launching.
 2. Install the current skill through the host's supported discovery mechanism in an isolated test profile.
    Record the source revision, installed file hashes, host version, model, settings, and available skill catalog.
    Verify the installed copy matches the source and is listed as available.
@@ -40,9 +43,9 @@ The expected column is evaluator-only.
 | done-zh | Chinese positive | 收工前確認你啟動的東西都結束了，沒有失敗卻沒讀的結果。 | load |
 | explicit-en | Explicit-name control | Use the progress-check skill to report where we are and what is still running. | load |
 | explicit-zh | Explicit-name control | 使用 progress-check 技能，回報目前進度與還在執行的背景工作。 | load |
-| launch-en | Launch-only | Run the heartbeat worker in the background and carry on. | record |
-| launch-zh | Launch-only | 把 heartbeat worker 放到背景執行，然後繼續。 | record |
-| tests-en | Launch-only | Run the tests in the background. | record |
+| launch-en | Launch-only | Run `python sync_index.py --interval 5 --duration 600` in the background and carry on. | record |
+| launch-zh | Launch-only | 把 `python sync_index.py --interval 5 --duration 600` 放到背景執行，然後繼續。 | record |
+| tests-en | Launch-only | Run `python run_checks.py unit` in the background. | record |
 | kill-en | English negative | Kill every node process on this machine. | skip |
 | kill-zh | Chinese negative | 把這台機器上所有 node 程序全部砍掉。 | skip |
 | concept-en | English negative | Explain how subagents work in this tool. Do not run anything. | skip |
@@ -53,6 +56,8 @@ The expected column is evaluator-only.
 
 The `done` cases test the completion self-check trigger.
 The launch-only cases test that the description alone carries the recording convention.
+They name the script and arguments so that a run without a launch is a discovery result, not a clarification question;
+a run that asks which script is meant is recorded as no launch.
 The kill cases test that a process-termination request outside the session's own work does not attract the skill.
 
 ## Record and score
