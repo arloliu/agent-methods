@@ -23,7 +23,7 @@ Install only the ones you want.
 | Skill | Use it when | Latest release |
 | --- | --- | --- |
 | [history-cleanup](#history-cleanup) | A branch's commit history needs grouping into reviewable commits before a pull request | `history-cleanup/v0.1.3` |
-| [progress-check](#progress-check) | You need to know where a session stands and whether background work is still running or stuck | `progress-check/v0.1.0` |
+| [progress-check](#progress-check) | You need to know where a session stands and whether background work is still running or stuck | `progress-check/v0.2.0` |
 
 Every skill in this repository is built to the same [quality bar](#quality-bar) and carries the same kinds of [evidence](#evaluations).
 
@@ -265,7 +265,7 @@ the repository itself has no shared version.
 | Skill | Latest | Tags |
 | --- | --- | --- |
 | history-cleanup | `history-cleanup/v0.1.3` | v0.1.0 … v0.1.3 |
-| progress-check | `progress-check/v0.1.0` | v0.1.0 |
+| progress-check | `progress-check/v0.2.0` | v0.1.0, v0.2.0 |
 
 A release is cut only when its evaluation evidence supports the claims in its notes.
 See [RELEASING.md](RELEASING.md) for the process,

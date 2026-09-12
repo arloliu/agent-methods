@@ -55,8 +55,16 @@ If shared material changes a skill's delivered behavior or requirements, include
    Distinguish automated fixture checks, executed model evaluations, and written scenarios.
    Report failed, incomplete, and unrun evaluations explicitly.
    Earlier candidates' results do not establish the released candidate's reliability.
-5. Confirm the tag name is unused and targets the exact source commit described in the notes.
-   Complete publication within the user's authorized scope, then verify the published tag target and release contents.
+5. Update every place in the repository that names the skill's current version, and commit that change.
+   Today that is `README.md`: the skill table's "Latest release" column, and the Releases table's "Latest" and "Tags" columns.
+   Do this before tagging, not after.
+   A tag is immutable and points at a tree, so a tag created over a stale README names the previous version forever,
+   and the fix can only land on the branch afterwards.
+   Search for the previous tag string rather than trusting this list, since a new reference may have been added since.
+6. Confirm the tag name is unused and targets the exact source commit described in the notes.
+   That commit is the one whose checks passed and whose README names the version being released.
+   Complete publication within the user's authorized scope,
+   then verify the published tag target, the release contents, and that the repository's version references match.
 
 A release does not establish that every agent follows the method reliably.
 State the intended use and human review requirements alongside the observed evaluation limits.
