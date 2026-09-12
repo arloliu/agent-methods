@@ -69,6 +69,47 @@ On termination or interruption it terminates and reaps its child.
 it also checks the two report blocks for field presence, order, and ID membership,
 using the item and operation IDs read from the agent's tables.
 
+## Runners
+
+[runners/](runners/) holds the scripts that drove the recorded trials.
+They are evaluator tools, not part of the skill, and they are committed so that a recorded number can be reproduced.
+
+| Script | Role |
+| --- | --- |
+| `common.py` | repository paths, the discovery prompt-table parser, the launch and stop patterns, and the path checks below |
+| `driver.py` | one multi-turn Claude Code print-mode session over stream-json, with a reader thread and per-turn result matching |
+| `run_trial.py` | one behavioural trial on Claude Code: fixture, decoy, setup turns, check turn, relaunch, approval, liveness snapshots |
+| `run_discovery.py` | the discovery prompt set on Claude Code, one fresh print-mode session per prompt and repetition |
+| `run_discovery_agy.py` | the same set on Antigravity CLI, each run in its own `HOME` |
+| `summarise_discovery.py` | per-class counts and per-run verdicts from a batch's `results.json` |
+| `judge_discovery.py` | the loaded positives' shared checks and the launch-record material for manual judgement |
+| `score_over_trigger.py` | the two over-trigger signals on the launch-only cases, from the stored event streams |
+
+Every runner takes its paths from the command line, falling back to an environment variable,
+and exits with a message when a required one is missing;
+none of them defaults to a path in this checkout or on any particular machine.
+
+Two paths are checked rather than trusted.
+A run root or a trial profile inside a git working tree is refused:
+agent sessions range past their workspace through `find` and `grep`,
+and a session that reaches the harness can read `discovery.md` with its evaluator-only expected column,
+which is how one agy batch had to be discarded.
+The check tests the nearest existing ancestor, since a run root does not exist yet.
+
+Profile provisioning differs by host.
+`run_discovery_agy.py` builds each run's isolated `HOME` itself, including the permission allow list,
+because agy authenticates from the system keyring and survives the override.
+The Claude Code runners cannot: a profile needs credentials, which only the user can place.
+Prepare one outside any checkout, copy `.credentials.json` into it,
+and give it an allow list that covers every command the prompts invite —
+a denied command is a harness artifact that shows up in the results as a model result.
+Pass it as `$TRIAL_PROFILE`; a profile without `.credentials.json` is refused.
+
+`test_runners.py` covers the two things that broke silently in the recorded batches:
+the prompt-table parser, which matches rows positionally and so can drop a case with no error,
+and the launch and stop patterns, which decide how a run is scored.
+The expected case list lives in that test; change it in the same commit as the table.
+
 ## Run a behavioural trial
 
 Before the first model turn,
