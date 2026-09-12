@@ -84,6 +84,7 @@ They are evaluator tools, not part of the skill, and they are committed so that 
 | `summarise_discovery.py` | per-class counts and per-run verdicts from a batch's `results.json` |
 | `judge_discovery.py` | the loaded positives' shared checks and the launch-record material for manual judgement |
 | `score_over_trigger.py` | the two over-trigger signals on the launch-only cases, from the stored event streams |
+| `reduce_runs.py` | a batch's committable per-run summary under [runs/](runs/), with machine-specific text replaced |
 
 Every runner takes its paths from the command line, falling back to an environment variable,
 and exits with a message when a required one is missing;

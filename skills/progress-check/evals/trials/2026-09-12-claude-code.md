@@ -16,6 +16,7 @@ they are not a reliability rate, and no result here transfers to other hosts, mo
 | Isolation | separate `CLAUDE_CONFIG_DIR` with credentials only: no hooks, plugins, MCP servers, or user-level skills |
 | Fixture | built with `build_fixture.py`; decoy started by the evaluator from `external/`; `review-b-input` created 20 s after the second launch turn; `cache-ready` and `review-c-input` never created |
 | Evidence kept | events log, host transcript, per-turn texts, process-table snapshots every 10 s, under `tmp/progress-check-design/trials/` (outside the repository) |
+| Reduced summaries | every run's classification, calls, and response in full, with machine-specific text replaced, under [runs/](../runs/) |
 | Cost | S1 US$0.89, H1 US$0.20 per the host's session totals |
 
 Deviations from the written protocol:
