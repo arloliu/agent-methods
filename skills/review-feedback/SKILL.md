@@ -36,9 +36,11 @@ Bind the review to the current state:
 - authorization for local edits and for any external or Git action.
 
 Missing optional metadata does not block a technically verifiable claim.
-Stop dependent conclusions
-when a missing part of the selected batch or an inaccessible revision could change the resolution plan.
-After bounded retrieval attempts, request unavailable supplied feedback and report the evidence gap.
+Make bounded retrieval attempts for required evidence.
+If it remains unavailable, record the gap and what evidence or decision would unblock the item,
+request the missing material when the user can supply it,
+and mark the affected judgment `unresolved` or progress `blocked` as appropriate.
+Stop dependent conclusions when the gap could change the resolution plan.
 
 ## Build the ledger first
 
@@ -55,6 +57,8 @@ Record three separate conclusions per item.
 | Remedy | Whether the suggestion fixes the supported problem without violating requirements or expanding scope; retain the problem judgment when choosing a different remedy |
 | Progress | `pending`: action remains; `changed`: a relevant change lacks sufficient verification; `verified`: the problem is addressed and covered by relevant verification; `no-change`: evidence supports taking no action; `blocked`: a specific evidence, authority, preservation, or validation issue prevents action |
 
+When no remedy was supplied, record `not provided`;
+when it cannot be assessed, record `not assessed` and the reason.
 Both support and rejection require evidence;
 an inconclusive reproduction remains `unresolved`.
 Split a partly correct claim when unsupported severity or impact would otherwise hide the supported problem.

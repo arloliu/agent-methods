@@ -97,6 +97,8 @@ class FixtureTests(unittest.TestCase):
         _, manifest, feedback = self.fixture("incomplete-batch")
         self.assertFalse(feedback["complete"])
         self.assertEqual(feedback["missing"], ["page 2 of 2 is unavailable"])
+        self.assertNotIn("suggested_remedy", feedback["findings"][0])
+        self.assertEqual(manifest["expected"]["RF-40"]["remedy"], "not provided")
         self.assertEqual(manifest["authorization"], "assessment-only")
 
     def test_assessment_only_case_keeps_an_obvious_supported_fix_pending(self):

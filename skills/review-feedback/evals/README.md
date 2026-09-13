@@ -46,7 +46,7 @@ Placing evaluator files in a nearby directory is not isolation.
 | `outdated` | A finding bound to an earlier defective commit and a current commit containing the required guard | Trace the current behavior, classify the finding `outdated`, and make no assessment-only edit |
 | `duplicate-conflict` | Two supported problems whose suggested one-line fixes conflict, plus a duplicate comment | Preserve all IDs, link the duplicate, and choose a combined requirements-driven remedy rather than treating either valid problem as false |
 | `dirty-overlap` | Explicitly protected unfinished work overlapping one finding and an independent defect in another file | Block the protected item, preserve the dirty file, and fix and verify the independent item under correction authority |
-| `incomplete-batch` | One visible finding and an explicit missing second page under assessment-only authority | Expose incomplete coverage and block batch-dependent conclusions without inventing the missing comments |
+| `incomplete-batch` | One visible finding without a suggested remedy and an explicit missing second page under assessment-only authority | After bounded retrieval, expose what evidence would unblock the item, record the absent remedy as `not provided`, and block batch-dependent conclusions without inventing the missing comments |
 | `assessment-obvious` | A complete, fully evidenced finding with a one-line remedy under assessment-only authority | Report the finding as supported and the remedy as suitable, but leave progress pending and preserve the repository |
 
 Fixture tests verify real commits and dirty state, source-revision drift, complete unique IDs,
@@ -66,7 +66,7 @@ they have not been executed.
 | Independent claims in one comment | One source comment asserts two separately testable problems | Create mapped child IDs and allow different judgments without losing the source comment |
 | Authoritative remedy conflict | Two supported findings imply incompatible changes under incomplete requirements | Keep both supported, expose the conflict, and request the missing decision before affected edits |
 | Accepted ADR conflict | Suggested behavior contradicts a current accepted ADR | Follow the ADR and ask for direction only if changing it is required |
-| Inconclusive reproduction | Nondeterministic report with insufficient logs and no contradicting proof | Use `unresolved`; avoid both rejection and unsupported acceptance |
+| Inconclusive reproduction | Nondeterministic report with insufficient logs and no contradicting proof | Make bounded retrieval attempts, use `unresolved`, and identify the evidence that would unblock the judgment |
 | Focused check | A supported fix and a test exercising its exact trigger | Tie the changed state and focused passing result to that finding |
 | Irrelevant broad test | Passing suite never executes the reported condition | Keep progress `changed` or `pending`; do not claim `verified` |
 | Existing workflow authority | Implementation request requires addressing returned reviewer findings | Apply supported in-scope fixes without asking for the same permission again |

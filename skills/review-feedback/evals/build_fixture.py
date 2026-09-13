@@ -86,16 +86,17 @@ class Workspace:
         return self.git("rev-parse", "HEAD")
 
 
-def item(item_id, claim, remedy, path="policy.py", source_commit=None):
+def make_finding(item_id, claim, remedy=None, path="policy.py", source_commit=None):
     finding = {
         "id": item_id,
         "author": "reviewer@example.invalid",
         "path": path,
         "claim": claim,
-        "suggested_remedy": remedy,
         "created_at": "2026-01-02T00:00:00Z",
         "thread_state": "open",
     }
+    if remedy is not None:
+        finding["suggested_remedy"] = remedy
     if source_commit:
         finding["source_commit"] = source_commit
     return finding
@@ -113,17 +114,19 @@ def setup_mixed(workspace):
     )
     head = workspace.commit("feat: add retry delay policy")
     findings = [
-        item(
+        make_finding(
             "RF-1",
             "Retry delay grows beyond 300 ms.",
             "Return min(attempt * 100, 300).",
         ),
-        item(
+        make_finding(
             "RF-2",
             "The accepted public API name is backoff rather than retry_delay.",
             "Rename retry_delay to backoff.",
         ),
-        item("RF-3", "Negative attempts return a negative delay.", "Use abs(attempt)."),
+        make_finding(
+            "RF-3", "Negative attempts return a negative delay.", "Use abs(attempt)."
+        ),
     ]
     expected = {
         "RF-1": {"judgment": "supported", "remedy": "suitable", "action": "fix"},
@@ -158,7 +161,7 @@ def setup_outdated(workspace):
     )
     head = workspace.commit("fix: reject negative request limits")
     findings = [
-        item(
+        make_finding(
             "RF-10",
             "Negative limits are accepted.",
             "Add a negative-value guard.",
@@ -186,15 +189,15 @@ def setup_duplicate_conflict(workspace):
     workspace.write("policy.py", "def parse_retries(value):\n    return value\n")
     head = workspace.commit("feat: parse retry configuration")
     findings = [
-        item(
+        make_finding(
             "RF-20",
             "Digit strings are not converted to integers.",
             "Return int(value).",
         ),
-        item(
+        make_finding(
             "RF-21", "Boolean values are accepted.", "Require isinstance(value, int)."
         ),
-        item(
+        make_finding(
             "RF-22", "Digit strings are returned unchanged.", "Convert with int(value)."
         ),
     ]
@@ -235,13 +238,13 @@ def setup_dirty_overlap(workspace):
         "    return DEFAULT_MAX_RETRIES if configured is None else configured\n",
     )
     findings = [
-        item(
+        make_finding(
             "RF-30",
             "The retry maximum is five instead of three.",
             "Set MAX_RETRIES to 3.",
             path="limits.py",
         ),
-        item(
+        make_finding(
             "RF-31",
             "Labels retain surrounding whitespace.",
             "Return name.strip().",
@@ -270,10 +273,11 @@ def setup_incomplete(workspace):
     )
     workspace.write("policy.py", "def enabled():\n    return True\n")
     head = workspace.commit("feat: add policy flag")
-    findings = [item("RF-40", "The flag needs documentation.", "Add a docstring.")]
+    findings = [make_finding("RF-40", "The flag needs documentation.")]
     expected = {
         "RF-40": {
             "judgment": "unresolved",
+            "remedy": "not provided",
             "action": "block batch-dependent conclusions",
         }
     }
@@ -288,7 +292,7 @@ def setup_assessment_obvious(workspace):
     workspace.write("labels.py", "def normalize_label(value):\n    return value\n")
     head = workspace.commit("feat: normalize labels")
     findings = [
-        item(
+        make_finding(
             "RF-50",
             "Labels retain surrounding whitespace.",
             "Return value.strip().",
