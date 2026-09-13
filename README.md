@@ -5,12 +5,19 @@
 [![CI](https://github.com/arloliu/agent-methods/actions/workflows/ci.yml/badge.svg)](https://github.com/arloliu/agent-methods/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
-Portable Agent Skills for engineering work that needs careful judgment.
-Install a skill in your coding agent, ask for the task, and follow a workflow with evidence, approval, and verification.
+Portable Agent Skills for engineering tasks where judgment, safety, and proof matter.
+Each skill tells the agent what evidence to gather, which decisions need your review,
+when to stop for approval, and how to verify the final state.
 
-- **Review the plan:** understand proposed changes before approving destructive actions.
-- **Check the result:** each method defines what success looks like and how to verify it.
-- **Use your preferred agent:** Claude Code, OpenCode, Codex, and agy are covered below.
+We refine each method through an evidence loop:
+
+`failure mode → explicit workflow → evaluation case → recorded result → revision`
+
+Fixture tests, executed agent trials, and written scenarios remain separate,
+so you can see what has been tested, what agents have demonstrated,
+and what still lacks evidence.
+
+Works with Claude Code, OpenCode, Codex, and agy.
 
 [Skills](#skills) · [Install](#install) · [Evaluations](#evaluations) · [Releases](#releases) · [Contributing](#contributing)
 
@@ -115,14 +122,24 @@ See the agent documentation for details:
 
 ## history-cleanup
 
-**Prepare a history-cleanup proposal for human review**, before opening a pull request or merging a branch.
+Prepare a history-cleanup proposal for human review before opening a pull request or merging a branch.
 Read the [skill](skills/history-cleanup/SKILL.md).
+
+### When to use it
+
+- Your branch contains WIP, fixup, retry, or partial commits that obscure the final change.
+- You want patches and dependencies to determine the commit groups,
+  followed by your approval of the exact rewrite plan.
+
+### What it does
 
 - Proposes grouping related implementation, fixes, tests, and documentation into coherent commits.
 - Uses patches and dependencies to decide what belongs together, including non-adjacent corrections.
 - Keeps independent work separate and checks dependencies before removing revert pairs.
 - Requires your approval of the exact rewrite plan, creates a backup, and verifies the final Git tree is unchanged.
 - Treats pushing as a separate action requiring authorization.
+
+### Example
 
 For example, when the retry changes belong together and logging is independent:
 
@@ -136,22 +153,25 @@ Test retry edge cases
 
 The grouping depends on the actual changes, not just these commit messages.
 
-**Ask for it** in the repository whose branch you want to clean up:
+### Ask for it
 
-```text
-Use the history-cleanup skill to review this branch against main.
-Group related WIP commits and fixups into atomic commits.
-Show me the exact plan before rewriting anything.
-```
+Run the request in the repository whose branch you want to clean up:
+
+- Recommended:
+
+  ```text
+  Use the history-cleanup skill to review this branch against main.
+  Group related WIP commits and fixups into atomic commits.
+  Show me the exact plan before rewriting anything.
+  ```
+
+- `Squash commits into fewer commits on this branch; use main as the base.`
+- `Clean up this branch's commit history before review.`
 
 Replace `main` with your intended integration base, such as `origin/main`.
-Ordinary requests reach the same workflow without naming the skill —
-"Squash commits into fewer commits on this branch; use main as the base",
-"Clean up this branch's commit history before review", or
-"把這個分支的 WIP commits 和 fixups 整理成幾個合理的提交，以 main 為基準。"
 Automatic selection depends on the host and model, so naming the skill makes it explicit.
 
-**What to expect:**
+### What to expect
 
 1. **Inspect:** the agent reads the branch history, patches, dependencies, and working-tree state.
 2. **Plan:** it accounts for every commit and proposes the resulting groups and order.
@@ -161,26 +181,40 @@ Automatic selection depends on the host and model, so naming the skill makes it 
 5. **Report:** you get the outcome, verification results, and backup reference.
    Publishing requires separate authorization.
 
-**Before you approve,** check whether each group has one coherent purpose,
+### Before you approve
+
+Check whether each group has one coherent purpose,
 whether every original commit is accounted for with its intended subject and order,
 and which checks actually ran against which remain pending.
 
-**Limits.**
+### Limits
+
 The proposal aids your judgment; the agent can misgroup changes or omit required evidence.
 A dirty worktree can be analyzed but must be clean before rewriting.
 An unclear base or a merge requiring a topology decision may need your input.
 If the history is already coherent, the correct outcome is to leave it alone.
 Merely listing commits, explaining Git squash, or cleaning source files is outside this skill's purpose.
 
-**Migrating from `commit-squashing`:** preserve local customizations, install `history-cleanup`,
-confirm it loads in a new session, then remove the old installation from the same scope
+### Migrating from `commit-squashing`
+
+Preserve local customizations, install `history-cleanup`, confirm it loads in a new session,
+then remove the old installation from the same scope
 so both are not discovered together.
 Updating `history-cleanup` does not migrate an installation registered under the old name.
 
 ## progress-check
 
-**Check a session's real progress and the background work it started.**
+Check a session's real progress and the background work it started.
 Read the [skill](skills/progress-check/SKILL.md).
+
+### When to use it
+
+- The agent started background jobs, subagents, monitors, or delegated runs,
+  and you need to know what is still active.
+- A session appears silent, stuck, or complete,
+  and you want evidence before accepting that assessment or stopping anything.
+
+### What it does
 
 - Reconciles the accepted scope, the work record, and the runtime record with permitted evidence within a stated budget.
 - Probes each background item within a bounded wait and classifies it with the evidence it cites;
@@ -190,18 +224,20 @@ Read the [skill](skills/progress-check/SKILL.md).
 - Works with any host through capability probing;
   a dated per-host reference covers Claude Code, Codex, OpenCode, agy, and Gemini CLI.
 
-**Ask for it** in a session where background work exists:
+### Ask for it
 
-```text
-Use the progress-check skill: where are we, and is anything you started still running or stuck?
-```
+Run the request in a session where background work exists:
 
-Ordinary requests reach it without naming the skill —
-"Where are we on this task, and is anything still running in the background?",
-"Check whether any background job, subagent, or watcher you started is stuck", or
-"現在進度到哪了？有沒有背景工作還在跑？"
+- Recommended:
 
-**What to expect:**
+  ```text
+  Use the progress-check skill: where are we, and is anything you started still running or stuck?
+  ```
+
+- `Where are we on this task, and is anything still running in the background?`
+- `Check whether any background job, subagent, or watcher you started is stuck.`
+
+### What to expect
 
 1. **Inspect:** the agent states which capabilities its host exposes, rebuilds the accepted scope,
    and lists every background item it can account for, with the boundary of what it cannot see.
@@ -215,11 +251,14 @@ Ordinary requests reach it without naming the skill —
    executes only the approved mechanism with its documented or explicitly unknown semantics,
    and reports the observed outcome, ending with `Stopped: <ids or none>`.
 
-**Before you approve,** check that each stop candidate cites evidence rather than silence,
+### Before you approve
+
+Check that each stop candidate cites evidence rather than silence,
 that the mechanism named matches what you expect it to do to child processes,
 and that nothing you still need is on the list.
 
-**Limits.**
+### Limits
+
 The skill also asks the agent to record a handle, purpose, expected end, and output location
 whenever it starts background work, so a later check has something to inventory.
 Some hosts let only the user stop a background terminal;
@@ -228,8 +267,15 @@ Terminating arbitrary processes and cancelling external CI are outside its purpo
 
 ## rules-check
 
-**Check current work and session operations against the applicable agent rules.**
+Check current work and session operations against the applicable agent rules.
 Read the [skill](skills/rules-check/SKILL.md).
+
+### When to use it
+
+- You want to review local commits and uncommitted work against repository or user-level agent rules.
+- You need to check whether the session missed required lint, tests, approvals, or other workflow steps.
+
+### What it does
 
 - Includes local commits ahead of the confirmed upstream, staged and unstaged changes, and relevant untracked files.
 - Reviews cumulative content, each selected commit message, and required workflow steps such as lint and approval.
@@ -237,24 +283,32 @@ Read the [skill](skills/rules-check/SKILL.md).
 - Separates confirmed violations, pending requirements, and facts it cannot verify.
   A later successful check cannot prove that a prerequisite happened before an earlier commit.
 
-**Ask for it:**
+### Ask for it
 
-```text
-Use rules-check to check our current work against the agent rules.
-Include the commits I have not pushed and verify whether you missed required lint, tests, or approvals.
-```
+- Recommended:
 
-You can also ask: "檢查目前 changes 與還沒 push 的 commits 是否違反 agent rules，並查核這次有沒有漏跑必要檢查。"
+  ```text
+  Use rules-check to check our current work against the agent rules.
+  Include the commits I have not pushed and verify whether you missed required lint, tests, or approvals.
+  ```
+
+- `Check my current changes and unpushed commits against the agent rules, including any required steps we missed.`
+
 Specify a base or range to review a different commit scope, or request staged-only review.
 
-**What to expect:** a report naming the compared refs and commits, uncommitted scope, rule sources,
-and operation evidence, followed by concrete violations and remaining requirements or gaps.
+### What to expect
+
+You receive a report naming the compared refs and commits, uncommitted scope, rule sources,
+and operation evidence.
+It separates concrete violations from remaining requirements and evidence gaps.
 Missing upstream or divergent history requires a comparison decision; other independent checks can proceed.
 The default commit set is based on locally cached refs, so it does not prove what is currently on the remote.
 Incomplete session records limit historical verification; a clean worktree does not remove commits from review.
 Existing authorization governs any follow-up checks, and inspection does not authorize fixes or publication.
 
-**Validation status:** includes deterministic fixtures and written evaluation scenarios.
+### Validation status
+
+The current evidence includes deterministic fixtures and written evaluation scenarios.
 Model behavior, discovery, and native session-record retrieval have not yet been evaluated.
 See the [evaluation guide](skills/rules-check/evals/README.md).
 
