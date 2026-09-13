@@ -9,6 +9,15 @@ Use the combined workflow to move from an uncertain request to a verified result
 Matt Pocock's skills move the work through discovery and implementation.
 The agent-methods skills add evidence, approval gates, completion checks, and release discipline.
 
+## In this guide
+
+- Start with [Quick start](#quick-start) and the [Default flow](#default-flow).
+- Use [Skill roles](#skill-roles) and [Phase handoffs](#phase-handoffs) as references during a task.
+- Choose a route from [Common paths](#common-paths).
+- Follow the [worked example](#worked-example-add-a-retry-cap) to see the decisions and evidence in context.
+- Apply the [best practices](#best-practices-and-integration-rules) before publication.
+- Review the [project setup](#project-setup) guidance when adopting the workflow.
+
 ## Quick start
 
 Choose the shortest path that preserves the checks your change needs.
@@ -59,16 +68,17 @@ For large work, insert `to-spec` and `to-tickets` between clarification and impl
 
 Use Matt Pocock's skills to shape and execute the work:
 
-- `grill-with-docs` and `domain-modeling` clarify the problem and record decisions.
-- `codebase-design` defines module boundaries, interfaces, and testing seams.
-- `research` and `prototype` resolve technical uncertainty.
-- `to-spec` and `to-tickets` turn a large request into an executable plan.
-- `implement` and `tdd` deliver small vertical slices.
-- `code-review` checks the result against repository standards and the originating specification.
-- `diagnosing-bugs` provides an alternate entry point for difficult bugs.
-- `triage` evaluates incoming issues before the team accepts them as development work.
-- `wayfinder` maps broad efforts before the team commits to a route.
-- `handoff` and `resolving-merge-conflicts` handle session boundaries and Git conflicts.
+- **Clarify:** `grill-with-docs` and `domain-modeling` define the problem and record decisions.
+- **Design and investigate:** `codebase-design` sets module boundaries and testing seams.
+  Use `research` and `prototype` to resolve uncertainty.
+- **Plan and build:** `to-spec` and `to-tickets` structure large work.
+  Use `implement` and `tdd` to deliver vertical slices.
+- **Review:** `code-review` checks repository standards and the originating specification.
+- **Choose another entry point:**
+  - `diagnosing-bugs` handles difficult bugs.
+  - `triage` evaluates incoming issues.
+  - `wayfinder` maps broad efforts.
+- **Cross session or Git boundaries:** `handoff` transfers context, and `resolving-merge-conflicts` handles conflicts.
 
 Use agent-methods to govern evidence and completion:
 
@@ -85,47 +95,32 @@ Use agent-methods to govern evidence and completion:
 
 Choose the entry point that matches the request, then join the main path when the problem is clear.
 
-Single-border skill nodes name Matt Pocock skills.
-Double-border nodes name agent-methods skills.
+Blue `[M]` nodes mark Matt Pocock skills.
+The purple `[A]` node marks agent-methods skills.
 
 ```mermaid
-flowchart TD
-    request([Request]) --> kind{What kind of work?}
-    kind -->|Fuzzy feature| grill[grill-with-docs]
-    kind -->|Incoming issue| triage[triage]
-    kind -->|Difficult bug| diagnose[diagnosing-bugs]
-    kind -->|Broad effort| wayfinder[wayfinder]
+flowchart LR
+    understand["1. Understand [M]<br/>grill-with-docs · triage<br/>diagnosing-bugs · wayfinder"]
+    build["2. Plan and build [M]<br/>research · prototype<br/>to-spec · to-tickets<br/>implement · TDD"]
+    review["3. Review [M]<br/>code-review"]
+    verify[["4. Verify and publish [A]<br/>review-feedback<br/>history-cleanup when needed<br/>rules-check"]]
 
-    grill --> understood[Problem understood]
-    triage --> understood
-    diagnose --> understood
-    wayfinder --> understood
+    understand --> build --> review --> verify
 
-    understood --> unknown{Need more evidence?}
-    unknown -->|Yes| explore[research or prototype]
-    unknown -->|No| size{Large change?}
-    explore --> size
-
-    size -->|Yes| plan[to-spec then to-tickets]
-    size -->|No| implement[implement with TDD]
-    plan --> implement
-    implement --> review[code-review]
-    review --> feedback[[review-feedback]]
-    feedback --> history{History needs cleanup?}
-    history -->|Yes| cleanup[[history-cleanup with approval]]
-    history -->|No| rules[[rules-check]]
-    cleanup --> rules
-    rules --> publish([Pull request or release])
-
-    explore -. background work .-> progress[[progress-check before transition]]
-    implement -. background work .-> progress
-    review -. background work .-> progress
+    classDef matt fill:#ddf4ff,stroke:#0969da,color:#24292f,stroke-width:2px
+    classDef agent fill:#fbefff,stroke:#8250df,color:#24292f,stroke-width:2px
+    class understand,build,review matt
+    class verify agent
+    linkStyle default stroke:#6e7781,stroke-width:2px
 ```
 
-Each entry skill leads to a shared point where the problem and constraints are understood.
-Use `research` or `prototype` when uncertainty remains.
-Small changes move to implementation, while large changes pass through a specification and tickets first.
-Both paths continue through review, feedback assessment, an optional history cleanup, and a final rules check.
+Read the diagram from left to right:
+
+- Choose one entry skill in the Understand stage.
+- Use `research` or `prototype` when uncertainty remains in Plan and build.
+- Add `to-spec` plus `to-tickets` for large work.
+- Continue through `code-review`, feedback assessment, an optional history cleanup, and a final rules check.
+
 `progress-check` sits beside this flow rather than inside it.
 Use it before a phase transition or completion claim when the session started background work.
 
@@ -204,15 +199,27 @@ Send them to implementation without another triage pass.
 Suppose an API client retries failed requests without a limit.
 You want a configurable retry cap while preserving the current public API.
 
-| Step | Why this skill fits | Concrete result |
-| --- | --- | --- |
-| `grill-with-docs` | The request leaves the default, maximum, and compatibility behavior open. | The team chooses a default of three attempts, rejects negative values, and preserves existing call sites. |
-| `codebase-design` | The retry loop mixes policy with network I/O. | The agent defines a small retry-policy seam that tests can exercise without making requests. |
-| Choose the small-change path | The change has one boundary and does not need multiple tickets. | The agent skips `to-spec` and records the decision in the task notes. |
-| `implement` with `tdd` | Boundary behavior needs executable proof. | A failing test covers the fourth attempt, then the implementation makes it pass without changing existing tests. |
-| `code-review` | The completed change needs standards and specification checks. | The review separates a naming concern from a finding that the cap is missing on one retry path. |
-| `review-feedback` | The two findings need evidence-based judgments. | The agent records the naming comment as unsupported, fixes the missing cap, and reruns the focused tests. |
-| `rules-check` | The final state must satisfy repository instructions. | The report accounts for lint, tests, `git diff --check`, commit messages, approvals, and worktree state. |
+1. **Clarify with `grill-with-docs`.**
+   The request leaves the default, maximum, and compatibility behavior open.
+   The team chooses a default of three attempts, rejects negative values, and preserves existing call sites.
+2. **Design the seam with `codebase-design`.**
+   The retry loop mixes policy with network I/O.
+   The agent defines a small retry-policy seam that tests can exercise without making requests.
+3. **Choose the small-change path.**
+   The change has one boundary and does not need multiple tickets.
+   The agent skips `to-spec` and records the decision in the task notes.
+4. **Implement with `tdd`.**
+   Boundary behavior needs executable proof.
+   A failing test covers the fourth attempt, then the implementation makes it pass without changing existing tests.
+5. **Review with `code-review`.**
+   The completed change needs standards and specification checks.
+   The review separates a naming concern from a finding that the cap is missing on one retry path.
+6. **Assess findings with `review-feedback`.**
+   The two findings need evidence-based judgments.
+   The agent records the naming comment as unsupported, fixes the missing cap, and reruns the focused tests.
+7. **Check the final state with `rules-check`.**
+   The final state must satisfy repository instructions.
+   The report accounts for lint, tests, `git diff --check`, commit messages, approvals, and worktree state.
 
 For one focused change, proceed without ticket decomposition or history cleanup.
 A wider feature might change persistence, observability, and several public APIs.
@@ -227,6 +234,8 @@ In that case, use `to-spec` and `to-tickets` before implementation.
 | Tracking background work | Claim completion while started tasks remain unaccounted for. | Record task handles at launch and run `progress-check` before the next phase. |
 | Cleaning history | Rewrite commits as an automatic finishing step. | Propose exact commit groups and wait for approval. |
 | Checking rules | Run `rules-check` before rewriting history. | Run it after the final commit structure and worktree are stable. |
+
+### Operational rules
 
 1. Route review findings through `review-feedback`.
    Use `code-review -> review-feedback -> commit` so the agent evaluates evidence before changing code.
@@ -282,10 +291,9 @@ Replace these entries with the terms, tracker rules, and labels that the project
 
 ## Tailor the flow to the risk
 
-A small, well-understood change can skip research, prototyping, ticket decomposition, and history cleanup.
-A large or uncertain change needs more explicit handoffs and evidence.
-Preserve the gates that remain.
-Clarify the request, implement with tests, review, assess findings, verify rules, and publish.
+- For a small, well-understood change, skip research, prototyping, ticket decomposition, and history cleanup.
+- For a large or uncertain change, require explicit handoffs and evidence.
+- Preserve the remaining gates in both cases: clarify, test, review, assess, verify, and publish.
 
 The workflow does not need a single orchestration skill.
 Point a short project rule at this guide.
