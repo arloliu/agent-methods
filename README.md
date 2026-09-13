@@ -31,6 +31,7 @@ Install only the ones you want.
 | --- | --- | --- |
 | [history-cleanup](#history-cleanup) | A branch's commit history needs grouping into reviewable commits before a pull request | `history-cleanup/v0.1.3` |
 | [progress-check](#progress-check) | You need to know where a session stands and whether background work is still running or stuck | `progress-check/v0.2.0` |
+| [review-feedback](#review-feedback) | You need to assess supplied review findings and address the supported ones within the current task | Unreleased |
 | [rules-check](#rules-check) | You need to check local commits, uncommitted changes, and session operations against agent rules | `rules-check/v0.1.0` |
 
 Every skill in this repository is built to the same [quality bar](#quality-bar) and carries the same kinds of [evidence](#evaluations).
@@ -41,7 +42,7 @@ You need **Git** and a coding agent with local skill support.
 Python is needed only to run the evaluation fixtures.
 
 Throughout this section, replace `<skill>` with the directory name of the skill you want:
-`history-cleanup`, `progress-check`, or `rules-check`.
+`history-cleanup`, `progress-check`, `review-feedback`, or `rules-check`.
 Repeat the commands for each skill.
 
 ### With Skills CLI
@@ -312,6 +313,58 @@ The current evidence includes deterministic fixtures and written evaluation scen
 Model behavior, discovery, and native session-record retrieval have not yet been evaluated.
 See the [evaluation guide](skills/rules-check/evals/README.md).
 
+## review-feedback
+
+Assess supplied code-review findings against the current code and accepted requirements,
+then address supported findings when the current task authorizes correction.
+Read the [skill](skills/review-feedback/SKILL.md).
+
+### When to use it
+
+- You have PR comments or a review report and need to determine which findings hold for the current code.
+- You want supported findings fixed and verified within the requested scope.
+- A reviewer returns findings during a workflow that already requires assessing or addressing them.
+
+### What it does
+
+- Accounts for every selected finding and checks each claim against current code and requirements.
+- Judges the reported problem independently from its suggested remedy.
+- Preserves stale findings, duplicates, conflicting recommendations, and missing evidence in a traceable ledger.
+- Implements supported fixes when authorized and ties verification to each reviewed behavior.
+- Keeps local technical resolution separate from replies, thread state, commits, pushes, and merges.
+
+### Ask for it
+
+- Recommended assessment request:
+
+  ```text
+  Use review-feedback to assess every finding in this report against the current code.
+  Recommend what to do, but do not edit files.
+  ```
+
+- Recommended correction request:
+
+  ```text
+  Address these review comments with review-feedback.
+  Fix and verify the supported findings within the current task scope.
+  ```
+
+- `The reviewer returned these findings; assess them before continuing the authorized implementation.`
+
+### What to expect
+
+The agent defines the selected feedback batch and binds it to the current branch, commit, diff, and working tree.
+Every finding receives a judgment, a separate remedy assessment, a progress state, and supporting evidence.
+Assessment-only requests leave supported changes pending.
+Correction requests apply supported local fixes and report focused verification where authority and evidence permit.
+External replies and thread resolution require separate authorization and observed external state.
+
+### Validation status
+
+The current evidence includes deterministic Git fixtures and written behavioral and discovery scenarios.
+Model behavior and discovery have not yet been evaluated.
+See the [evaluation guide](skills/review-feedback/evals/README.md).
+
 ## Evaluations
 
 Each skill carries three kinds of evidence, and they are never conflated:
@@ -327,6 +380,7 @@ Run the fixture tests from the repository root with Git and Python 3.10 or newer
 | --- | --- | --- |
 | history-cleanup | `python3 -B skills/history-cleanup/evals/test_fixtures.py` | fixup chains, non-adjacent corrections, safe and dependent revert pairs, merge boundaries, dirty worktrees, ambiguous bases |
 | progress-check | `python3 -B skills/progress-check/evals/test_fixtures.py` | real worker processes, a held stdin writer, stopping one worker, liveness snapshots, and rejecting bad traces |
+| review-feedback | `python3 -B skills/review-feedback/evals/test_fixtures.py` | mixed findings, older revisions, duplicate and conflicting remedies, protected dirty work, incomplete batches, and assessment-only fixes |
 | rules-check | `python3 -B skills/rules-check/evals/test_fixtures.py` | local ahead/divergent refs, staged/worktree separation, generated check evidence, timing, and stale results |
 
 [CI](https://github.com/arloliu/agent-methods/actions/workflows/ci.yml) runs these suites on Linux and macOS.
@@ -340,6 +394,10 @@ and [behavioural rubric](skills/progress-check/evals/behavioral-rubric.md).
 
 For rules-check, see its [guide](skills/rules-check/evals/README.md),
 [prompts](skills/rules-check/evals/discovery.md), and [rubric](skills/rules-check/evals/behavioral-rubric.md).
+
+For review-feedback, see its [guide](skills/review-feedback/evals/README.md),
+[prompts](skills/review-feedback/evals/discovery.md),
+and [rubric](skills/review-feedback/evals/behavioral-rubric.md).
 
 Executed trials are recorded under [trials/](skills/progress-check/evals/trials/), one file per date and host.
 On 2026-09-12, [Claude Code](skills/progress-check/evals/trials/2026-09-12-claude-code.md) ran one behavioural trial each
@@ -357,6 +415,7 @@ the repository itself has no shared version.
 | --- | --- | --- |
 | history-cleanup | `history-cleanup/v0.1.3` | v0.1.0 … v0.1.3 |
 | progress-check | `progress-check/v0.2.0` | v0.1.0, v0.2.0 |
+| review-feedback | Unreleased | — |
 | rules-check | `rules-check/v0.1.0` | v0.1.0 |
 
 A release is cut only when its evaluation evidence supports the claims in its notes.
