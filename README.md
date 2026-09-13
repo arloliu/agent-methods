@@ -19,6 +19,8 @@ and what still lacks evidence.
 
 Works with Claude Code, OpenCode, Codex, and agy.
 
+Read the [development workflow](docs/development-workflow.md) for an integrated path from discovery to release.
+
 [Skills](#skills) · [Install](#install) · [Evaluations](#evaluations) · [Releases](#releases) · [Contributing](#contributing)
 
 ## Skills
