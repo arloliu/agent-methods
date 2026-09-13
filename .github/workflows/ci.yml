@@ -36,6 +36,8 @@ jobs:
         run: python -B skills/progress-check/evals/test_fixtures.py
       - name: Test progress-check runner parsing
         run: python -B skills/progress-check/evals/test_runners.py
+      - name: Test rules-check Git and operation-evidence fixtures
+        run: python -B skills/rules-check/evals/test_fixtures.py
       - name: Test portable evaluation preparation
         run: python -B scripts/test_prepare_history_evaluation.py
       - name: Install artifact validation dependencies
@@ -67,6 +69,7 @@ jobs:
           skills/progress-check/evals/*.py
           skills/progress-check/evals/fixtures/*.py
           skills/progress-check/evals/runners/*.py
+          skills/rules-check/evals/*.py
       - name: Check Python formatting
         run: >-
           ruff format --isolated --check --no-cache
@@ -76,5 +79,6 @@ jobs:
           skills/progress-check/evals/*.py
           skills/progress-check/evals/fixtures/*.py
           skills/progress-check/evals/runners/*.py
+          skills/rules-check/evals/*.py
       - name: Check commit whitespace
         run: git show --format= --check HEAD

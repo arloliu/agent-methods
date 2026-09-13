@@ -24,6 +24,7 @@ Install only the ones you want.
 | --- | --- | --- |
 | [history-cleanup](#history-cleanup) | A branch's commit history needs grouping into reviewable commits before a pull request | `history-cleanup/v0.1.3` |
 | [progress-check](#progress-check) | You need to know where a session stands and whether background work is still running or stuck | `progress-check/v0.2.0` |
+| [rules-check](#rules-check) | You need to check local commits, uncommitted changes, and session operations against agent rules | `rules-check/v0.1.0` |
 
 Every skill in this repository is built to the same [quality bar](#quality-bar) and carries the same kinds of [evidence](#evaluations).
 
@@ -33,7 +34,7 @@ You need **Git** and a coding agent with local skill support.
 Python is needed only to run the evaluation fixtures.
 
 Throughout this section, replace `<skill>` with the directory name of the skill you want:
-`history-cleanup` or `progress-check`.
+`history-cleanup`, `progress-check`, or `rules-check`.
 Repeat the commands for each skill.
 
 ### With Skills CLI
@@ -225,6 +226,38 @@ Some hosts let only the user stop a background terminal;
 the report then names the command and its side effects instead of asking.
 Terminating arbitrary processes and cancelling external CI are outside its purpose.
 
+## rules-check
+
+**Check current work and session operations against the applicable agent rules.**
+Read the [skill](skills/rules-check/SKILL.md).
+
+- Includes local commits ahead of the confirmed upstream, staged and unstaged changes, and relevant untracked files.
+- Reviews cumulative content, each selected commit message, and required workflow steps such as lint and approval.
+- Re-reads applicable rules and actively seeks operation evidence instead of trusting a summary that checks passed.
+- Separates confirmed violations, pending requirements, and facts it cannot verify.
+  A later successful check cannot prove that a prerequisite happened before an earlier commit.
+
+**Ask for it:**
+
+```text
+Use rules-check to check our current work against the agent rules.
+Include the commits I have not pushed and verify whether you missed required lint, tests, or approvals.
+```
+
+You can also ask: "檢查目前 changes 與還沒 push 的 commits 是否違反 agent rules，並查核這次有沒有漏跑必要檢查。"
+Specify a base or range to review a different commit scope, or request staged-only review.
+
+**What to expect:** a report naming the compared refs and commits, uncommitted scope, rule sources,
+and operation evidence, followed by concrete violations and remaining requirements or gaps.
+Missing upstream or divergent history requires a comparison decision; other independent checks can proceed.
+The default commit set is based on locally cached refs, so it does not prove what is currently on the remote.
+Incomplete session records limit historical verification; a clean worktree does not remove commits from review.
+Existing authorization governs any follow-up checks, and inspection does not authorize fixes or publication.
+
+**Validation status:** includes deterministic fixtures and written evaluation scenarios.
+Model behavior, discovery, and native session-record retrieval have not yet been evaluated.
+See the [evaluation guide](skills/rules-check/evals/README.md).
+
 ## Evaluations
 
 Each skill carries three kinds of evidence, and they are never conflated:
@@ -240,8 +273,9 @@ Run the fixture tests from the repository root with Git and Python 3.10 or newer
 | --- | --- | --- |
 | history-cleanup | `python3 -B skills/history-cleanup/evals/test_fixtures.py` | fixup chains, non-adjacent corrections, safe and dependent revert pairs, merge boundaries, dirty worktrees, ambiguous bases |
 | progress-check | `python3 -B skills/progress-check/evals/test_fixtures.py` | real worker processes, a held stdin writer, stopping one worker, liveness snapshots, and rejecting bad traces |
+| rules-check | `python3 -B skills/rules-check/evals/test_fixtures.py` | local ahead/divergent refs, staged/worktree separation, generated check evidence, timing, and stale results |
 
-[CI](https://github.com/arloliu/agent-methods/actions/workflows/ci.yml) runs both suites on Linux and macOS.
+[CI](https://github.com/arloliu/agent-methods/actions/workflows/ci.yml) runs these suites on Linux and macOS.
 Evaluating an agent's judgment and approval handling needs an actual agent run, which the fixtures cannot do.
 
 Per-skill evaluation guides:
@@ -249,6 +283,9 @@ Per-skill evaluation guides:
 [progress-check](skills/progress-check/evals/README.md),
 with its [discovery prompt set](skills/progress-check/evals/discovery.md)
 and [behavioural rubric](skills/progress-check/evals/behavioral-rubric.md).
+
+For rules-check, see its [guide](skills/rules-check/evals/README.md),
+[prompts](skills/rules-check/evals/discovery.md), and [rubric](skills/rules-check/evals/behavioral-rubric.md).
 
 Executed trials are recorded under [trials/](skills/progress-check/evals/trials/), one file per date and host.
 On 2026-09-12, [Claude Code](skills/progress-check/evals/trials/2026-09-12-claude-code.md) ran one behavioural trial each
@@ -266,6 +303,7 @@ the repository itself has no shared version.
 | --- | --- | --- |
 | history-cleanup | `history-cleanup/v0.1.3` | v0.1.0 … v0.1.3 |
 | progress-check | `progress-check/v0.2.0` | v0.1.0, v0.2.0 |
+| rules-check | `rules-check/v0.1.0` | v0.1.0 |
 
 A release is cut only when its evaluation evidence supports the claims in its notes.
 See [RELEASING.md](RELEASING.md) for the process,
