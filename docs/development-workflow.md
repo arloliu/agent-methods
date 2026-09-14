@@ -90,6 +90,8 @@ Use agent-methods to govern evidence and completion:
   It requires approval before rewriting history.
 - [`rules-check`](../skills/rules-check/SKILL.md) checks the final Git state and session evidence.
   It compares both against the applicable agent rules.
+- [`release-readiness`](../skills/release-readiness/SKILL.md) prepares and publishes a version bound to one candidate commit.
+  It tags and publishes only a candidate judged ready, after you approve the displayed plan.
 
 ## Default flow
 
@@ -103,7 +105,7 @@ flowchart LR
     understand["1. Understand [M]<br/>grill-with-docs · triage<br/>diagnosing-bugs · wayfinder"]
     build["2. Plan and build [M]<br/>research · prototype<br/>to-spec · to-tickets<br/>implement · TDD"]
     review["3. Review [M]<br/>code-review"]
-    verify[["4. Verify and publish [A]<br/>review-feedback<br/>history-cleanup when needed<br/>rules-check"]]
+    verify[["4. Verify and publish [A]<br/>review-feedback<br/>history-cleanup when needed<br/>rules-check<br/>release-readiness when releasing"]]
 
     understand --> build --> review --> verify
 
@@ -120,6 +122,7 @@ Read the diagram from left to right:
 - Use `research` or `prototype` when uncertainty remains in Plan and build.
 - Add `to-spec` plus `to-tickets` for large work.
 - Continue through `code-review`, feedback assessment, an optional history cleanup, and a final rules check.
+- Add `release-readiness` when the change ships as a version.
 
 `progress-check` sits beside this flow rather than inside it.
 Use it before a phase transition or completion claim when the session started background work.
@@ -140,6 +143,7 @@ Each phase should produce evidence that the next phase can consume.
 | Reconcile background work | `progress-check` | The report accounts for every started task as complete, active, failed, or proposed for an approved stop. |
 | Prepare history | `history-cleanup` | Commits form coherent groups, the user approved any rewrite, and verification confirms tree equality. |
 | Check process compliance | `rules-check` | The final commits, worktree, checks, approvals, and session actions satisfy repository rules. |
+| Release a version | `release-readiness` | The tag, notes, version references, and release entry describe one verified candidate commit, and each publication status is observed. |
 | Transfer context | `handoff` | The next session receives artifact references, current state, and unresolved decisions. |
 
 ## Common paths
@@ -153,6 +157,7 @@ grill-with-docs
   -> review-feedback
   -> rules-check
   -> push or open a pull request
+  -> release-readiness when the change ships as a version
 ```
 
 ### Multi-ticket feature
@@ -168,6 +173,7 @@ grill-with-docs
   -> history-cleanup when needed
   -> rules-check
   -> open a pull request
+  -> release-readiness when the merge ships as a version
 ```
 
 ### Difficult bug
@@ -253,6 +259,9 @@ In that case, use `to-spec` and `to-tickets` before implementation.
    Implementation can then start with a focused failing test instead of reopening the same design question.
 7. Use `handoff` at a real session boundary.
    Point to specifications, tickets, reports, and test output instead of copying large blocks of context into the handoff.
+8. Use `release-readiness` when a change should become a version.
+   It reads the release policy first, binds evidence to the candidate commit,
+   and tags or publishes only after a `ready` verdict and your approval of the displayed plan.
 
 ## Project setup
 

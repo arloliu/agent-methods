@@ -33,6 +33,7 @@ Install only the ones you want.
 | --- | --- | --- |
 | [history-cleanup](#history-cleanup) | A branch's commit history needs grouping into reviewable commits before a pull request | `history-cleanup/v0.1.3` |
 | [progress-check](#progress-check) | You need to know where a session stands and whether background work is still running or stuck | `progress-check/v0.2.0` |
+| [release-readiness](#release-readiness) | You need to assess, prepare, or publish a release bound to one candidate commit | Unreleased |
 | [review-feedback](#review-feedback) | You need to assess supplied review findings and address the supported ones within the current task | `review-feedback/v0.1.0` |
 | [rules-check](#rules-check) | You need to check local commits, uncommitted changes, and session operations against agent rules | `rules-check/v0.1.0` |
 
@@ -44,7 +45,7 @@ You need **Git** and a coding agent with local skill support.
 Python is needed only to run the evaluation fixtures.
 
 Throughout this section, replace `<skill>` with the directory name of the skill you want:
-`history-cleanup`, `progress-check`, `review-feedback`, or `rules-check`.
+`history-cleanup`, `progress-check`, `release-readiness`, `review-feedback`, or `rules-check`.
 Repeat the commands for each skill.
 
 ### With Skills CLI
@@ -367,6 +368,77 @@ The current evidence includes deterministic Git fixtures and written behavioral 
 Model behavior and discovery have not yet been evaluated.
 See the [evaluation guide](skills/review-feedback/evals/README.md).
 
+## release-readiness
+
+Assess, prepare, or publish a software release bound to one candidate commit.
+Read the [skill](skills/release-readiness/SKILL.md).
+
+### When to use it
+
+- You want to know whether a repository or package is ready to release and which version it should get.
+- You need release notes, version references, a tag, and a release entry that all describe the same commit.
+- You want tagging and publication executed only for a candidate judged ready, and verified afterwards.
+
+### What it does
+
+- Reads the repository's release policy first, then resolves the scope, previous release, and candidate commit.
+- Maps the change range to the public contract and proposes the version with compatibility and migration reasoning.
+- Inventories required checks and evaluations, tying each result to the commit it covered
+  and keeping failed, incomplete, unrun, and earlier-candidate evidence visible.
+- Finds every version reference by searching, updates and commits them before tagging, and drafts the notes.
+- Judges readiness, shows the exact plan, and executes only approved actions in order with pre-action state checks.
+- Verifies the tag target, remote state, release entry, and tagged-tree references,
+  and reports each status separately.
+
+### Ask for it
+
+Run the request in the repository you want to release:
+
+- Recommended:
+
+  ```text
+  Use release-readiness to prepare the next alpha release.
+  Propose the version, update the version references, and draft the notes.
+  Show me the exact plan before creating or pushing anything.
+  ```
+
+- `Is this repository ready to release, and which version should it be?`
+- `Publish alpha v0.2.0: push the tag and create the release from the prepared notes.`
+
+State which actions you authorize: committing version references, tagging, pushing, and publishing are separate.
+
+### What to expect
+
+1. **Inspect:** the agent reads the release policy, records the candidate, resolves the previous release,
+   and reads the change range.
+2. **Reason:** it proposes the version from the contract mapping and inventories the evidence per commit.
+3. **Prepare:** it updates version references, commits them, drafts the notes, and re-runs invalidated checks.
+4. **Judge and plan:** it reports `ready` or `not-ready`,
+   then shows the plan with the exact tag, commit, remote, and actions.
+   A `not-ready` verdict ends the run; authorization does not override it.
+5. **Execute and verify:** after you approve the displayed plan, it tags, pushes, and publishes in order,
+   re-checking state before each step, then verifies the published state and reports each status separately.
+
+### Before you approve
+
+Check that the candidate commit is the one you reviewed, that the version matches the contract change,
+that every required check names that commit, and that the action list contains only what you intend to authorize.
+
+### Limits
+
+Published tags are never moved; a mistake becomes a new version.
+Registry publication, artifact uploads, checksums, and signing are outside this version;
+the agent lists them as actions you complete separately and proceeds only if you accept that.
+A release does not establish that agents follow the method reliably; review the cited evidence and notes yourself.
+Deployment, rollout monitoring, branch integration, and history cleanup are outside its purpose.
+
+### Validation status
+
+The current evidence includes deterministic Git and forge fixtures, an end-state verifier,
+and written behavioral and discovery scenarios.
+Model behavior and discovery have not yet been evaluated.
+See the [evaluation guide](skills/release-readiness/evals/README.md).
+
 ## Evaluations
 
 Each skill carries three kinds of evidence, and they are never conflated:
@@ -382,6 +454,7 @@ Run the fixture tests from the repository root with Git and Python 3.10 or newer
 | --- | --- | --- |
 | history-cleanup | `python3 -B skills/history-cleanup/evals/test_fixtures.py` | fixup chains, non-adjacent corrections, safe and dependent revert pairs, merge boundaries, dirty worktrees, ambiguous bases |
 | progress-check | `python3 -B skills/progress-check/evals/test_fixtures.py` | real worker processes, a held stdin writer, stopping one worker, liveness snapshots, and rejecting bad traces |
+| release-readiness | `python3 -B skills/release-readiness/evals/test_fixtures.py` | version reasoning, stale references, checks on the parent, failing checks, existing and mismatched remote tags, stale approval, partial authorization, overstated notes, failed publication, and the end-state verifier |
 | review-feedback | `python3 -B skills/review-feedback/evals/test_fixtures.py` | mixed findings, older revisions, duplicate and conflicting remedies, protected dirty work, incomplete batches, and assessment-only fixes |
 | rules-check | `python3 -B skills/rules-check/evals/test_fixtures.py` | local ahead/divergent refs, staged/worktree separation, generated check evidence, timing, and stale results |
 
@@ -401,6 +474,10 @@ For review-feedback, see its [guide](skills/review-feedback/evals/README.md),
 [prompts](skills/review-feedback/evals/discovery.md),
 and [rubric](skills/review-feedback/evals/behavioral-rubric.md).
 
+For release-readiness, see its [guide](skills/release-readiness/evals/README.md),
+[prompts](skills/release-readiness/evals/discovery.md),
+and [rubric](skills/release-readiness/evals/behavioral-rubric.md).
+
 Executed trials are recorded under [trials/](skills/progress-check/evals/trials/), one file per date and host.
 On 2026-09-12, [Claude Code](skills/progress-check/evals/trials/2026-09-12-claude-code.md) ran one behavioural trial each
 with Sonnet 5 and Haiku 4.5 plus 54 discovery runs per model;
@@ -417,6 +494,7 @@ the repository itself has no shared version.
 | --- | --- | --- |
 | history-cleanup | `history-cleanup/v0.1.3` | v0.1.0 … v0.1.3 |
 | progress-check | `progress-check/v0.2.0` | v0.1.0, v0.2.0 |
+| release-readiness | Unreleased | — |
 | review-feedback | `review-feedback/v0.1.0` | v0.1.0 |
 | rules-check | `rules-check/v0.1.0` | v0.1.0 |
 
