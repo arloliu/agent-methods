@@ -33,7 +33,7 @@ Install only the ones you want.
 | --- | --- | --- |
 | [history-cleanup](#history-cleanup) | A branch's commit history needs grouping into reviewable commits before a pull request | `history-cleanup/v0.1.3` |
 | [progress-check](#progress-check) | You need to know where a session stands and whether background work is still running or stuck | `progress-check/v0.2.0` |
-| [release-readiness](#release-readiness) | You need to assess, prepare, or publish a release bound to one candidate commit | Unreleased |
+| [release-readiness](#release-readiness) | You need to assess, prepare, or publish a release bound to one candidate commit | `release-readiness/v0.1.0` |
 | [review-feedback](#review-feedback) | You need to assess supplied review findings and address the supported ones within the current task | `review-feedback/v0.1.0` |
 | [rules-check](#rules-check) | You need to check local commits, uncommitted changes, and session operations against agent rules | `rules-check/v0.1.0` |
 
@@ -494,7 +494,7 @@ the repository itself has no shared version.
 | --- | --- | --- |
 | history-cleanup | `history-cleanup/v0.1.3` | v0.1.0 … v0.1.3 |
 | progress-check | `progress-check/v0.2.0` | v0.1.0, v0.2.0 |
-| release-readiness | Unreleased | — |
+| release-readiness | `release-readiness/v0.1.0` | v0.1.0 |
 | review-feedback | `review-feedback/v0.1.0` | v0.1.0 |
 | rules-check | `rules-check/v0.1.0` | v0.1.0 |
 
