@@ -125,6 +125,8 @@ The verdict is `ready` only when all of these hold:
   or disclosed in the notes as earlier, failed, incomplete, or unrun where the policy tolerates that.
 - Version references and release notes name the proposed version and the final candidate.
 - The proposed tag is unused in the local view and in the remote view when it is accessible.
+  A remote tag of that name that does not peel to the final candidate is an unmet condition, whatever created it;
+  a local tag the user created counts only when it resolves to the final candidate and the remote lacks it.
 - Any product-readiness judgment the policy requires has been supplied by the repository owners.
 - Every action the policy requires is either a supported action in the plan
   or one the user has explicitly accepted completing separately.
