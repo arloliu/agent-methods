@@ -3,7 +3,8 @@
 Evaluate [release-readiness](../SKILL.md) on scope and candidate binding, version reasoning,
 evidence coverage, version-reference completeness, authorization discipline, tag immutability, and status reporting.
 Use the [behavioural rubric](behavioral-rubric.md) and [discovery prompts](discovery.md) separately.
-No executed model trials are bundled with this initial implementation.
+The only executed run is the skill's own `v0.1.0` release, recorded under [trials/](trials/);
+it is a self-reported run log, not an isolated trial.
 
 ## Build and test
 

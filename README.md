@@ -436,7 +436,9 @@ Deployment, rollout monitoring, branch integration, and history cleanup are outs
 
 The current evidence includes deterministic Git and forge fixtures, an end-state verifier,
 and written behavioral and discovery scenarios.
-Model behavior and discovery have not yet been evaluated.
+The skill's own `v0.1.0` release was performed with the method and is
+[recorded as a self-reported run](skills/release-readiness/evals/trials/2026-09-15-claude-code.md);
+isolated model behavior and discovery trials have not yet been run.
 See the [evaluation guide](skills/release-readiness/evals/README.md).
 
 ## Evaluations
