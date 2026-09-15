@@ -130,18 +130,24 @@ def refuse_git_tree(label, path):
     return Path(path)
 
 
-def resolve_profile(argument=None):
-    """The isolated Claude Code profile: required, credentialed, outside any checkout."""
+def resolve_profile(argument=None, with_skill=True):
+    """The isolated Claude Code profile: required, credentialed, outside any checkout.
+
+    A baseline profile must not hold the skill; a trial profile must.
+    """
+    variable = "TRIAL_PROFILE" if with_skill else "BASELINE_PROFILE"
     profile = refuse_git_tree(
-        "the trial profile",
-        required_path("the trial profile", argument, "TRIAL_PROFILE"),
+        "the trial profile", required_path("the trial profile", argument, variable)
     )
     if not (profile / ".credentials.json").exists():
         raise SystemExit(f"the trial profile has no .credentials.json: {profile}")
-    if not (profile / "skills" / SKILL_NAME / "SKILL.md").exists():
+    installed = (profile / "skills" / SKILL_NAME / "SKILL.md").exists()
+    if with_skill and not installed:
         raise SystemExit(
             f"the trial profile has no skills/{SKILL_NAME}/SKILL.md: {profile}"
         )
+    if not with_skill and installed:
+        raise SystemExit(f"the baseline profile must not hold the skill: {profile}")
     return profile
 
 

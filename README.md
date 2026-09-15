@@ -438,7 +438,8 @@ The current evidence includes deterministic Git and forge fixtures, an end-state
 and written behavioral and discovery scenarios.
 On 2026-09-15, [Claude Code](skills/release-readiness/evals/trials/2026-09-15-claude-code.md) ran every fixture case once with Sonnet 5 and Haiku 4.5.
 Every approved run passed the end-state verifier, and both models stopped on stale checks and conflicting tags.
-Haiku once asked for approval under a `not-ready` verdict.
+Two Haiku gate slips led to wording corrections that re-ran clean.
+Without the skill, Haiku published under a stale approval and Sonnet offered to delete a remote tag on the same fixtures.
 The same batch ran 48 discovery runs per model.
 The same record covers the skill's own `v0.1.0` release, performed with the method and self-reported.
 See the [evaluation guide](skills/release-readiness/evals/README.md).

@@ -1,6 +1,9 @@
 """Run release-readiness behavioural trials on Claude Code, one fixture case per session.
 
-Usage: run_trial.py <model> <workers> [<case-ids>] [<run-root>] [<profile>]
+Usage: run_trial.py <model> <workers> [<case-ids>] [<run-root>] [<profile>] [--baseline]
+
+With --baseline the profile comes from $BASELINE_PROFILE, must not hold the skill,
+and the request is sent without the line naming the skill: a no-skill comparison arm.
 
 For each case the runner builds the fixture and moves the manifest to an evaluator directory beside the run root.
 It starts a print-mode session inside `repo/` with `input/` added as an allowed directory and sends the request.
@@ -58,6 +61,8 @@ STATUSES = (
 
 def skill_hashes(profile):
     target = profile / "skills" / SKILL_NAME
+    if not target.exists():
+        return {}
     return {
         str(p.relative_to(target)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in sorted(target.rglob("*"))
@@ -165,13 +170,15 @@ def final_text(turn_events):
     return parts[-1] if parts else ""
 
 
-def run_case(model, case, root, evaluator, profile):
+def run_case(model, case, root, evaluator, profile, baseline=False):
     workdir = root / case
     fixture = build(case, workdir)
     manifest_path = evaluator / f"{case}.json"
     shutil.move(str(fixture / "manifest.json"), str(manifest_path))
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    request = PREFIX + (fixture / "input" / "request.md").read_text(encoding="utf-8")
+    request = (fixture / "input" / "request.md").read_text(encoding="utf-8")
+    if not baseline:
+        request = PREFIX + request
     record = {
         "case": case,
         "model": model,
@@ -180,6 +187,7 @@ def run_case(model, case, root, evaluator, profile):
         "expected": manifest["expected"],
         "authorization": manifest["authorization"],
         "request": request,
+        "arm": "baseline" if baseline else "skill",
     }
     session = Session(
         fixture / "repo", model, workdir / "events.jsonl", profile, fixture / "input"
@@ -243,6 +251,8 @@ def run_case(model, case, root, evaluator, profile):
 def main():
     if len(sys.argv) < 2:
         raise SystemExit(__doc__)
+    baseline = "--baseline" in sys.argv
+    sys.argv = [a for a in sys.argv if a != "--baseline"]
     model = sys.argv[1]
     workers = int(sys.argv[2]) if len(sys.argv) > 2 else 2
     only = case_ids(sys.argv[3] if len(sys.argv) > 3 else None)
@@ -250,7 +260,9 @@ def main():
     if unknown:
         raise SystemExit(f"unknown case ids: {sorted(unknown)}")
     cases = [case for case in CASES if not only or case in only]
-    profile = resolve_profile(sys.argv[5] if len(sys.argv) > 5 else None)
+    profile = resolve_profile(
+        sys.argv[5] if len(sys.argv) > 5 else None, with_skill=not baseline
+    )
     root = refuse_git_tree(
         "the run root",
         required_path(
@@ -265,6 +277,7 @@ def main():
     evaluator.mkdir(parents=True)
     batch = {
         "model": model,
+        "arm": "baseline" if baseline else "skill",
         "claude_version": subprocess.run(
             ["claude", "--version"], capture_output=True, text=True
         ).stdout.strip(),
@@ -279,7 +292,7 @@ def main():
     }
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {
-            pool.submit(run_case, model, case, root, evaluator, profile): case
+            pool.submit(run_case, model, case, root, evaluator, profile, baseline): case
             for case in cases
         }
         for future in concurrent.futures.as_completed(futures):

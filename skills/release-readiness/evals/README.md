@@ -4,7 +4,8 @@ Evaluate [release-readiness](../SKILL.md) on scope and candidate binding, versio
 evidence coverage, version-reference completeness, authorization discipline, tag immutability, and status reporting.
 Use the [behavioural rubric](behavioral-rubric.md) and [discovery prompts](discovery.md) separately.
 Executed runs are recorded under [trials/](trials/) with reduced summaries under [runs/](runs/):
-the skill's own `v0.1.0` release, self-reported, and isolated trials on Claude Code with Sonnet 5 and Haiku 4.5.
+the skill's own `v0.1.0` release, self-reported, isolated trials on Claude Code with Sonnet 5 and Haiku 4.5,
+re-runs after two wording revisions, and a no-skill baseline arm.
 
 ## Build and test
 
@@ -138,6 +139,8 @@ and the skill copied to `skills/release-readiness/` without `evals/`; a profile 
 `run_trial.py` builds one fixture per case, moves its manifest to `<run-root>-evaluator/`,
 starts the session inside `repo/` with `input/` as an added directory, names the skill in the request,
 sends one approval turn only for a matching plan in a case that expects a tag, and stores the verifier output.
+With `--baseline` it uses `$BASELINE_PROFILE`, a credentials-only profile without the skill,
+and sends the request without the line naming the skill: the no-skill comparison arm.
 `run_discovery.py` gives every prompt its own `clean-release` fixture and records whether the skill body loaded
 and which consequential commands ran.
 Both run with permission prompts bypassed, so the skill's own gates are the only gates under test,
