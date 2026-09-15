@@ -436,9 +436,11 @@ Deployment, rollout monitoring, branch integration, and history cleanup are outs
 
 The current evidence includes deterministic Git and forge fixtures, an end-state verifier,
 and written behavioral and discovery scenarios.
-The skill's own `v0.1.0` release was performed with the method and is
-[recorded as a self-reported run](skills/release-readiness/evals/trials/2026-09-15-claude-code.md);
-isolated model behavior and discovery trials have not yet been run.
+On 2026-09-15, [Claude Code](skills/release-readiness/evals/trials/2026-09-15-claude-code.md) ran every fixture case once with Sonnet 5 and Haiku 4.5.
+Every approved run passed the end-state verifier, and both models stopped on stale checks and conflicting tags.
+Haiku once asked for approval under a `not-ready` verdict.
+The same batch ran 48 discovery runs per model.
+The same record covers the skill's own `v0.1.0` release, performed with the method and self-reported.
 See the [evaluation guide](skills/release-readiness/evals/README.md).
 
 ## Evaluations
@@ -486,6 +488,10 @@ with Sonnet 5 and Haiku 4.5 plus 54 discovery runs per model;
 Sonnet passed 11 of 18 rubric dimensions and Haiku 2 of 18, and neither stopped anything without approval.
 The same day, [Antigravity CLI](skills/progress-check/evals/trials/2026-09-12-agy.md) ran 54 discovery runs on each of two Gemini models;
 all 48 positive prompts loaded the skill, and the behavioural trial could not be driven on that host.
+
+For release-readiness, [Claude Code](skills/release-readiness/evals/trials/2026-09-15-claude-code.md) ran on 2026-09-15.
+It covered fifteen fixture cases once each with Sonnet 5 and Haiku 4.5, a four-run follow-up batch, and 48 discovery runs per model.
+Sonnet loaded the skill in 28 of 30 positive prompts and Haiku in 26 of 30; neither loaded it on a negative prompt.
 
 ## Releases
 

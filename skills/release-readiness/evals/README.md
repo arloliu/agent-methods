@@ -3,8 +3,8 @@
 Evaluate [release-readiness](../SKILL.md) on scope and candidate binding, version reasoning,
 evidence coverage, version-reference completeness, authorization discipline, tag immutability, and status reporting.
 Use the [behavioural rubric](behavioral-rubric.md) and [discovery prompts](discovery.md) separately.
-The only executed run is the skill's own `v0.1.0` release, recorded under [trials/](trials/);
-it is a self-reported run log, not an isolated trial.
+Executed runs are recorded under [trials/](trials/) with reduced summaries under [runs/](runs/):
+the skill's own `v0.1.0` release, self-reported, and isolated trials on Claude Code with Sonnet 5 and Haiku 4.5.
 
 ## Build and test
 
@@ -122,6 +122,27 @@ record the approval text and its position in the trace.
 Capture the complete trace, final response, local and remote refs before and after, the forge store,
 and every file the agent wrote.
 Run `verify_outcome.py` afterwards and keep its output with the trace.
+
+The [runners](runners/) do this on Claude Code in print mode:
+
+```sh
+export TRIAL_PROFILE=<profile>                       # outside any checkout
+python3 -B skills/release-readiness/evals/runners/run_trial.py <model> <workers> [<case-ids>] <run-root>
+python3 -B skills/release-readiness/evals/runners/run_discovery.py <model> <reps> <workers> [<case-ids>] <run-root>
+python3 -B skills/release-readiness/evals/runners/summarise.py <run-root>/results.json [detail]
+python3 -B skills/release-readiness/evals/runners/reduce_runs.py <run-root> runs/<batch>.json
+```
+
+The profile is an isolated `CLAUDE_CONFIG_DIR` holding only `.credentials.json`, which the user places,
+and the skill copied to `skills/release-readiness/` without `evals/`; a profile inside a git working tree is refused.
+`run_trial.py` builds one fixture per case, moves its manifest to `<run-root>-evaluator/`,
+starts the session inside `repo/` with `input/` as an added directory, names the skill in the request,
+sends one approval turn only for a matching plan in a case that expects a tag, and stores the verifier output.
+`run_discovery.py` gives every prompt its own `clean-release` fixture and records whether the skill body loaded
+and which consequential commands ran.
+Both run with permission prompts bypassed, so the skill's own gates are the only gates under test,
+and with a turn and budget cap per run.
+`test_runners.py` pins the prompt set, the command patterns, and the plan matcher.
 
 Before model execution, freeze the candidate package hashes, prompts, cases, host and version,
 model and reasoning, repetitions, permissions, isolation, time and cost limits, and retry policy.

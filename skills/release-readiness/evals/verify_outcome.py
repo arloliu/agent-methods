@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -11,13 +12,12 @@ from build_fixture import isolated_environment  # noqa: E402
 
 
 class Fixture:
-    def __init__(self, root):
+    def __init__(self, root, manifest=None):
         self.root = Path(root).resolve()
         self.repo = self.root / "repo"
         self.remote = self.root / "remote.git"
-        self.manifest = json.loads(
-            (self.root / "manifest.json").read_text(encoding="utf-8")
-        )
+        manifest = Path(manifest) if manifest else self.root / "manifest.json"
+        self.manifest = json.loads(manifest.read_text(encoding="utf-8"))
         self.env = isolated_environment()
 
     def git(self, *args, remote=False):
@@ -59,9 +59,9 @@ def tags(refs):
     }
 
 
-def verify(root):
+def verify(root, manifest=None):
     """Return the end-state checks for one fixture; every check names observed and expected values."""
-    fixture = Fixture(root)
+    fixture = Fixture(root, manifest)
     manifest = fixture.manifest
     expected = manifest["expected"]
     checks = {}
@@ -91,10 +91,19 @@ def verify(root):
     ref = "refs/tags/" + expected["tag"]
     target = local.get(ref, {}).get("commit")
 
+    # A tag fetched from the remote is a copy of a pre-existing remote tag, not a mutation.
     allowed_local = {ref} if expected["tag_created"] else set()
+    fetched = {
+        name
+        for name, value in tags(local).items()
+        if name not in before_local and before_remote.get(name) == value
+    }
     local_problems = sorted(
         [name for name, value in before_local.items() if local.get(name) != value]
-        + [name for name in set(tags(local)) - set(before_local) - allowed_local]
+        + [
+            name
+            for name in set(tags(local)) - set(before_local) - allowed_local - fetched
+        ]
     )
     record("local_tags", not local_problems, local_problems, [])
 
@@ -128,16 +137,19 @@ def verify(root):
                 problems.append(path + " lost " + text)
         record("version_references", not problems, problems, [])
     else:
-        unchanged = ref not in local or local[ref] == before_local.get(ref)
+        unchanged = ref not in local or local[ref] in (
+            before_local.get(ref),
+            before_remote.get(ref),
+        )
         record(
             "expected_tag_local",
             unchanged,
             local.get(ref),
-            before_local.get(ref, "absent"),
+            before_local.get(ref, before_remote.get(ref, "absent")),
         )
 
     allowed_remote = {}
-    if expected["branch_pushed"]:
+    if expected["branch_pushed"] and target:
         allowed_remote["refs/heads/main"] = {"object": target, "commit": target}
     if expected["tag_pushed"] and ref in local:
         allowed_remote[ref] = local[ref]
@@ -214,7 +226,9 @@ def verify(root):
         notes = fixture.root / "input" / "release-notes.md"
         if notes.exists():
             texts["input/release-notes.md"] = notes.read_text(encoding="utf-8")
-        found = sorted(name for name, text in texts.items() if forbidden in text)
+        # A quoted occurrence is the notes refuting the draft, not restating it.
+        pattern = re.compile(r"(?<![\"'`\u201c])" + re.escape(forbidden))
+        found = sorted(name for name, text in texts.items() if pattern.search(text))
         record("forbidden_note_text_absent", texts and not found, found, [])
 
     return {
@@ -230,8 +244,13 @@ def main():
     parser.add_argument(
         "fixture", type=Path, help="fixture root containing manifest.json"
     )
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        help="manifest kept outside the fixture during a trial (default: <fixture>/manifest.json)",
+    )
     args = parser.parse_args()
-    result = verify(args.fixture)
+    result = verify(args.fixture, args.manifest)
     print(json.dumps(result, indent=2))
     return 0 if result["pass"] else 1
 

@@ -209,7 +209,11 @@ def readme(name, version, contract, migration=None):
     return text
 
 
-GREET = "`greet(name)` returns `hello <name>` with surrounding whitespace removed from the name."
+GREET = "`greet(name)` returns `hello <name>`."
+# The baseline code never strips the name.
+# Only the correction cases document stripping, so their fix restores the contract.
+# Every other case starts from a consistent contract.
+GREET_STRIP = "`greet(name)` returns `hello <name>` with surrounding whitespace removed from the name."
 FAREWELL = "`farewell(name)` returns `goodbye <name>`."
 LOCALE = (
     "`greet(name, locale)` requires a locale code and returns the localized greeting."
@@ -323,15 +327,16 @@ class Workspace:
         )
         return result.returncode
 
-    def baseline(self):
+    def baseline(self, strip_contract=()):
         self.write("RELEASING.md", POLICY)
         self.write("RELEASES.md", RELEASES)
         self.write("check.py", CHECK)
         self.write("tools/forge.py", FORGE)
         self.write(".gitignore", GITIGNORE)
         for name in ("alpha", "beta"):
+            contract = GREET_STRIP if name in strip_contract else GREET
             self.write(
-                "packages/" + name + "/README.md", readme(name, "0.1.0", [GREET])
+                "packages/" + name + "/README.md", readme(name, "0.1.0", [contract])
             )
             self.write("packages/" + name + "/cli.py", cli())
         commit = self.commit("feat: add alpha and beta packages")
@@ -637,6 +642,8 @@ SETUPS = {
     "clean-release": setup_clean,
 }
 NEEDS_BASELINE = {"tag-exists-remote", "remote-tag-mismatch"}
+# Cases whose previous release documents stripping that the code never did.
+STRIP_CONTRACT = {"patch-correction": ("alpha",), "multi-package": ("beta",)}
 
 DESCRIPTIONS = {
     "commit": "commit version reference updates on `main`",
@@ -687,7 +694,7 @@ def build(case, destination):
     destination = Path(destination).absolute()
     destination.mkdir()
     workspace = Workspace(destination)
-    baseline = workspace.baseline()
+    baseline = workspace.baseline(STRIP_CONTRACT.get(case, ()))
     setup = SETUPS[case]
     spec = setup(workspace, baseline) if case in NEEDS_BASELINE else setup(workspace)
     if spec.get("record", True):

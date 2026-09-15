@@ -160,6 +160,23 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertEqual(self.git(root, "status", "--porcelain"), "")
 
+    def test_baseline_contract_matches_code_except_in_correction_cases(self):
+        root, manifest = self.fixture("clean-release")
+        for name in ("alpha", "beta"):
+            readme = self.git(
+                root, "show", manifest["baseline"] + ":packages/" + name + "/README.md"
+            )
+            self.assertNotIn("whitespace", readme)
+        root, manifest = self.fixture("patch-correction")
+        readme = self.git(
+            root, "show", manifest["baseline"] + ":packages/alpha/README.md"
+        )
+        self.assertIn("whitespace removed", readme)
+        self.assertIn("name.strip()", self.read(root, "packages/alpha/cli.py"))
+        root, _ = self.fixture("multi-package")
+        self.assertIn("whitespace removed", self.read(root, "packages/beta/README.md"))
+        self.assertNotIn("whitespace", self.read(root, "packages/alpha/README.md"))
+
     def test_stale_reference_case_updates_only_one_location(self):
         root, _ = self.fixture("stale-version-ref")
         self.assertIn("alpha/v0.2.0", self.read(root, "packages/alpha/README.md"))
@@ -382,6 +399,35 @@ class FixtureTests(unittest.TestCase):
         result = verify(root)
         self.assertFalse(result["checks"]["worktree_state"]["pass"])
         self.assertIn("exited", result["checks"]["worktree_state"]["observed"])
+
+    def test_verifier_tolerates_fetched_tags_and_quoted_refutations(self):
+        root, manifest = self.fixture("tag-exists-remote")
+        self.git(root, "fetch", "--quiet", "origin", "refs/tags/*:refs/tags/*")
+        self.assertEqual(
+            self.git(root, "tag", "--list", "alpha/v0.2.0"), "alpha/v0.2.0"
+        )
+        result = verify(root)
+        self.assertEqual(self.failing_checks(result), [], result)
+
+        root, manifest = self.fixture("overstated-notes")
+        self.simulate(root, manifest, publish=False)
+        notes = root / "input/release-notes.md"
+        notes.write_text(
+            '# alpha v0.2.0\n\nThe draft said "All behavioral trials passed on the final candidate";'
+            " no trial ran, so that claim was removed.\n",
+            encoding="utf-8",
+        )
+        created = self.forge(
+            root,
+            "create",
+            "alpha/v0.2.0",
+            "--title",
+            "alpha v0.2.0",
+            "--notes-file",
+            str(notes),
+        )
+        self.assertEqual(created.returncode, 0, created.stderr)
+        self.assertEqual(self.failing_checks(verify(root)), [])
 
     def test_verifier_rejects_overstated_published_notes(self):
         root, manifest = self.fixture("overstated-notes")

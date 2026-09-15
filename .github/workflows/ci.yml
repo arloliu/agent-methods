@@ -42,6 +42,8 @@ jobs:
         run: python -B skills/review-feedback/evals/test_fixtures.py
       - name: Test release-readiness Git, remote, and forge fixtures
         run: python -B skills/release-readiness/evals/test_fixtures.py
+      - name: Test release-readiness runner parsing
+        run: python -B skills/release-readiness/evals/test_runners.py
       - name: Test portable evaluation preparation
         run: python -B scripts/test_prepare_history_evaluation.py
       - name: Install artifact validation dependencies
@@ -74,6 +76,7 @@ jobs:
           skills/progress-check/evals/fixtures/*.py
           skills/progress-check/evals/runners/*.py
           skills/release-readiness/evals/*.py
+          skills/release-readiness/evals/runners/*.py
           skills/review-feedback/evals/*.py
           skills/rules-check/evals/*.py
       - name: Check Python formatting
@@ -86,6 +89,7 @@ jobs:
           skills/progress-check/evals/fixtures/*.py
           skills/progress-check/evals/runners/*.py
           skills/release-readiness/evals/*.py
+          skills/release-readiness/evals/runners/*.py
           skills/review-feedback/evals/*.py
           skills/rules-check/evals/*.py
       - name: Check commit whitespace
