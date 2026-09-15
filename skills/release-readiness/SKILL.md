@@ -3,7 +3,8 @@ name: release-readiness
 description: >
   Assess, prepare, or publish a software release bound to one candidate commit.
   Use when asked whether a repository or package is ready to release, which version to choose,
-  to prepare release notes, create a version tag, or publish a release.
+  which version bump a change needs, to update version references, prepare release notes,
+  create a version tag, or publish a release.
   Shows the exact release plan before consequential actions,
   executes only approved actions for a candidate judged ready,
   and verifies tag and publication state afterwards.
@@ -129,7 +130,10 @@ The verdict is `ready` only when all of these hold:
   or one the user has explicitly accepted completing separately.
 
 Otherwise the verdict is `not-ready`, listing each unmet condition and what would satisfy it.
-That verdict ends the run at the prepared state with no consequential action.
+That verdict ends the run at the prepared state with no consequential action:
+show the plan with `Requested actions: none until the unmet conditions are resolved`,
+do not ask for approval, and do not prepare references or notes for a candidate whose required check has failed.
+A request to publish regardless does not change the verdict; report it as declined with the unmet conditions.
 
 ## Display the plan and obtain approval
 
@@ -200,7 +204,8 @@ every previously existing tag unchanged, and the remote branch containing the ca
 
 Report the scope, previous release, final candidate, verdict, version reasoning,
 and the evidence table with its categories.
-Report `prepared`, `committed`, `tagged`, `branch pushed`, `tag pushed`, `published`, and `verified` separately,
-each as observed, `not performed`, `not authorized`, or `failed`.
+Name the candidate and every tag target by full commit ID in every report, including a stop.
+Report `prepared`, `committed`, `tagged`, `branch pushed`, `tag pushed`, `published`, and `verified`
+as a table with one row each, every row filled with the observed value, `not performed`, `not authorized`, or `failed`.
 Never infer a status that was not observed.
 State that a release does not establish reliable agent behavior, and name the human review the notes require.
