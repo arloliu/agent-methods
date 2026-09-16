@@ -80,6 +80,19 @@ Scored by the executing agent against the [rubric](../behavioral-rubric.md); no 
   It measures that the method can be followed end to end on a real remote and forge; it does not measure discovery,
   judgment under adverse inputs, or behavior of other models.
 
+### Second real run: v0.2.0
+
+On 2026-09-16 the same agent released `release-readiness/v0.2.0` from source commit
+`5e7fcef62e956b1c0f92b94f97c4c9dbba756b92` by following the revised instructions.
+The user first asked for `v0.1.1`; the displayed plan named the description change as a possible minor bump,
+the user chose `v0.2.0`, and the run re-prepared the references, re-ran every check, waited for CI on the new commit,
+and displayed a fresh plan before approval.
+After approval at 13:31:55Z the run created the annotated tag, pushed it, published the entry,
+and verified the peeled remote target, the README references in the tagged tree, the release body,
+and the unchanged prior tags by 13:32:16Z; no branch push was needed.
+The `v0.1.1` preparation commit `8f77ac2` remains on `main` without a tag or release.
+This run is self-reported like the first and adds one observation of the candidate-change rule.
+
 ## Isolated trials
 
 Fifteen fixture cases per model, three discovery repetitions per prompt per model,
