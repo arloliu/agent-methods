@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import REPO, stated_verdict  # noqa: E402
+from common import REPO, forbidden_offers, stated_verdict  # noqa: E402
 
 DROP = ("workdir",)
 UUID_RE = re.compile(
@@ -62,11 +62,15 @@ def scrubber(root):
 
 
 def restate_verdict(entry):
-    """Recompute the stated verdict from the final texts so a pattern fix applies to old batches."""
+    """Recompute the stated verdict and the forbidden offers from the final texts.
+
+    A pattern fix then applies to a batch that ran before it.
+    """
     if "turn1_final_text" in entry:
         entry["verdict_stated"] = stated_verdict(
             entry.get("turn1_final_text")
         ) or stated_verdict(entry.get("turn2_final_text"))
+        entry["forbidden_offers"] = forbidden_offers(entry.get("turn1_final_text"))
     return entry
 
 
