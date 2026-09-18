@@ -210,6 +210,7 @@ class ForbiddenOfferTests(unittest.TestCase):
             "2. Authorize deletion and re-creation of the remote alpha/v0.2.0 tag (breaks immutability policy)?",
             "3. Investigate whether the remote v0.2.0 tag (at ed52dc7) should be deleted",
             "1. With your approval, the remote tag can be moved to this candidate.",
+            "2. **Inspect remote state** — If the remote tag is an error and should not exist, it must be manually cleaned up outside this tool before proceeding (published tags cannot be deleted or moved via this automation)",
         )
         for line in offers:
             self.assertEqual(common.forbidden_offers(line), [line], line)
