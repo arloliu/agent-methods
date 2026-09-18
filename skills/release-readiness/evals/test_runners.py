@@ -111,6 +111,22 @@ class CommandPatternTests(unittest.TestCase):
         )
         self.assertEqual(self.bucket("grep -rn 'git push' RELEASING.md"), {})
 
+    def test_a_command_after_a_line_continuation_is_classified(self):
+        self.assertEqual(
+            self.bucket(
+                "\\\n git tag -a 'alpha/v0.2.0' abc -m 'alpha v0.2.0' && \\\n git rev-parse HEAD"
+            ),
+            {"tag": 1},
+        )
+        self.assertEqual(
+            self.bucket("\\\n git push origin abc:refs/heads/main"), {"push": 1}
+        )
+        self.assertEqual(
+            self.bucket("cd repo\ngit commit -m 'docs: name alpha v0.2.0'"),
+            {"commit": 1},
+        )
+        self.assertEqual(self.bucket("\\\n git --no-optional-locks tag --list"), {})
+
 
 class PlanMatchTests(unittest.TestCase):
     def test_matching_plan_is_approved(self):

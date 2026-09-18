@@ -20,4 +20,5 @@ because they record this machine's directory layout.
 `runners/reduce_runs.py` writes these files and rewrites machine-specific text to placeholders:
 `<run-root>`, `<evaluator-root>`, `<repo>`, `<home>`, `<tmp>`, `<scratch>`, `<host>`, `<user>`,
 and `<id-N>` for each host-assigned identifier, numbered per run.
-It also recomputes each trial's stated verdict from the final responses with the current pattern.
+It also recomputes each trial's stated verdict and forbidden offers from the final responses with the current patterns,
+and reclassifies its commands from the event stream while the run root still holds it.
