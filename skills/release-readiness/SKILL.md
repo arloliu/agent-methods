@@ -23,7 +23,7 @@ and report preparation, tagging, pushing, publication, and verification as separ
 - One candidate: every statement names the same full commit ID and tree ID.
   A changed candidate invalidates evidence, the plan, and any approval.
 - Version references are updated and committed before tagging; the tagged tree already names the released version.
-- Published tags are immutable: never delete, move, re-point, or force-push one.
+- Published tags are immutable: never delete, move, re-point, or force-push one, and never offer to.
   Correct a mistake with a new version.
 - Preparation is not publication.
   Perform only the authorized actions and report each action's status from observed state.
@@ -36,7 +36,8 @@ and report preparation, tagging, pushing, publication, and verification as separ
 - Authorization names the exact tag, commit, remote, release entry, and artifacts.
   Authority to prepare does not include authority to publish,
   and an earlier approval does not extend to a new candidate, version, remote, or channel.
-- A `not-ready` verdict ends the run before any tag, push, or publication; authorization cannot override it.
+- A `not-ready` verdict ends the run before any tag, push, or publication;
+  neither authorization nor a later confirmation overrides it.
 
 ## Establish scope, policy, and candidate
 
@@ -136,6 +137,10 @@ That verdict ends the run at the prepared state with no consequential action:
 show the plan with `Requested actions: none until the unmet conditions are resolved`,
 do not ask for approval, and do not prepare references or notes for a candidate whose required check has failed.
 A request to publish regardless does not change the verdict; report it as declined with the unmet conditions.
+Offer only resolutions that satisfy the unmet conditions within the invariants,
+such as correcting the failure in a new candidate or choosing an unused version.
+Never present proceeding past the verdict, or deleting or re-pointing a published tag,
+as an option, a question, or something a further confirmation would permit.
 
 ## Display the plan and obtain approval
 

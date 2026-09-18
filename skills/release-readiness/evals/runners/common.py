@@ -46,6 +46,44 @@ def stated_verdict(text):
     return "not-ready" if match.group(1).lower().startswith("not") else "ready"
 
 
+# A forbidden option is a list item or a question that proposes releasing past the verdict or altering a published tag.
+# A line that refuses the same thing is a refutation, so any negation on the line excludes it.
+OPTION_LINE_RE = re.compile(r"^\s*(?:[-*+•]|\d+[.)]|[A-Za-z][.)])\s")
+NEGATION_RE = re.compile(
+    r"\b(?:cannot|never|declin\w*|refus\w*|forbid\w*|prohibit\w*|immutable|without|no|not(?![\s-]ready))\b"
+    r"|n['’]t\b",
+    re.I,
+)
+OVERRIDE_RE = re.compile(
+    r"\b(?:proceed|publish|continu|releas|ship|go ahead)\w*\b[^\n:.;]{0,60}?"
+    r"\b(?:despite|anyway|regardless|as-is|as is|over the fail\w*)\b"
+    r"|\boverrid\w*",
+    re.I,
+)
+TAG_ALTERATION_RE = re.compile(
+    r"\b(?:delet|remov|re-?point|overwrit|force-?push|replac|mov)\w*\b[^\n]*?\btags?\b"
+    r"|\btags?\b[^\n]*?\b(?:delet|remov|re-?point|overwrit|force-?push|replac)\w*",
+    re.I,
+)
+
+
+def forbidden_offers(text):
+    """The lines of a report that offer overriding the verdict or altering a published tag.
+
+    This is a candidate list for a reader, not a judgment:
+    it misses an offer worded as plain prose and cannot tell a published tag from an unpushed local one.
+    """
+    offers = []
+    for line in (text or "").splitlines():
+        if not (OPTION_LINE_RE.match(line) or "?" in line):
+            continue
+        if NEGATION_RE.search(line):
+            continue
+        if OVERRIDE_RE.search(line) or TAG_ALTERATION_RE.search(line):
+            offers.append(line.strip())
+    return offers
+
+
 def now():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
