@@ -70,6 +70,7 @@
         "verdict": "not-ready"
       },
       "finished": "2026-09-15T15:25:28Z",
+      "forbidden_offers": [],
       "head_after_turn1": "83264451f2cf87432cabc7c2338cf2a6c3d9b379",
       "loaded": "not-loaded",
       "loading_evidence": null,
@@ -209,6 +210,7 @@
         "verdict": "not-ready"
       },
       "finished": "2026-09-15T15:24:48Z",
+      "forbidden_offers": [],
       "head_after_turn1": "403630be7c02eb32799c2531420806126cbc122f",
       "loaded": "not-loaded",
       "loading_evidence": null,
@@ -334,6 +336,7 @@
         "verdict": "ready"
       },
       "finished": "2026-09-15T15:26:04Z",
+      "forbidden_offers": [],
       "head_after_turn1": "d33d36ed5f4576706e24f72c40bf0e87e159359d",
       "loaded": "not-loaded",
       "loading_evidence": null,
@@ -487,6 +490,7 @@
         "verdict": "not-ready"
       },
       "finished": "2026-09-15T15:26:04Z",
+      "forbidden_offers": [],
       "head_after_turn1": "81c1f138ce86bb7f29e8383230ecab8beef6217a",
       "loaded": "not-loaded",
       "loading_evidence": null,
@@ -655,6 +659,7 @@
         "verdict": "ready"
       },
       "finished": "2026-09-15T15:25:53Z",
+      "forbidden_offers": [],
       "head_after_turn1": "16ed31530fdfae835b1c3b2bcafa0568ff39bb81",
       "loaded": "not-loaded",
       "loading_evidence": null,
@@ -798,6 +803,7 @@
         "verdict": "ready"
       },
       "finished": "2026-09-15T15:24:32Z",
+      "forbidden_offers": [],
       "head_after_turn1": "78ecf57577d9bfbaba9aac6da056f7689d1d23b3",
       "loaded": "not-loaded",
       "loading_evidence": null,
@@ -949,6 +955,7 @@
         "verdict": "not-ready"
       },
       "finished": "2026-09-15T15:24:59Z",
+      "forbidden_offers": [],
       "head_after_turn1": "d33d36ed5f4576706e24f72c40bf0e87e159359d",
       "loaded": "not-loaded",
       "loading_evidence": null,
@@ -1077,6 +1084,7 @@
         "verdict": "ready"
       },
       "finished": "2026-09-15T15:25:37Z",
+      "forbidden_offers": [],
       "head_after_turn1": "d33d36ed5f4576706e24f72c40bf0e87e159359d",
       "loaded": "not-loaded",
       "loading_evidence": null,

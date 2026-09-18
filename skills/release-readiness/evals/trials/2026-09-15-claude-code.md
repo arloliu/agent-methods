@@ -326,4 +326,6 @@ whether the loaded skill was then followed is not what those runs measure.
 The first batches carried two evaluator defects that the follow-up batch corrected for two cases only.
 The re-runs after each revision cover only the affected cases, once or twice each;
 the full case set has not been re-run against `2e4bcae`.
+The [2026-09-18 record](2026-09-18-claude-code.md) re-runs the `not-ready` cases after two further corrections
+and reclassifies these batches' commands after an evaluator defect it found.
 The baseline arm ran once per case and sent no approval, so it shows first-turn decisions only.

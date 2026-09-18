@@ -5,7 +5,8 @@ evidence coverage, version-reference completeness, authorization discipline, tag
 Use the [behavioural rubric](behavioral-rubric.md) and [discovery prompts](discovery.md) separately.
 Executed runs are recorded under [trials/](trials/) with reduced summaries under [runs/](runs/):
 the skill's own `v0.1.0` release, self-reported, isolated trials on Claude Code with Sonnet 5 and Haiku 4.5,
-re-runs after two wording revisions, and a no-skill baseline arm.
+re-runs after two wording revisions, a no-skill baseline arm,
+and on 2026-09-18 re-runs of the `not-ready` cases after two further corrections.
 
 ## Build and test
 

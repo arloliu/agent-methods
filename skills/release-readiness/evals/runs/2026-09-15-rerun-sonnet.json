@@ -60,6 +60,7 @@
         "verdict": "not-ready"
       },
       "finished": "2026-09-15T14:42:49Z",
+      "forbidden_offers": [],
       "head_after_turn1": "403630be7c02eb32799c2531420806126cbc122f",
       "loaded": "complete",
       "loading_evidence": {
@@ -209,6 +210,7 @@
         "verdict": "not-ready"
       },
       "finished": "2026-09-15T14:43:27Z",
+      "forbidden_offers": [],
       "head_after_turn1": "d33d36ed5f4576706e24f72c40bf0e87e159359d",
       "loaded": "complete",
       "loading_evidence": {

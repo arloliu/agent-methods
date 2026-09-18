@@ -62,6 +62,7 @@
         "verdict": "not-ready"
       },
       "finished": "2026-09-15T15:28:51Z",
+      "forbidden_offers": [],
       "head_after_turn1": "81c1f138ce86bb7f29e8383230ecab8beef6217a",
       "loaded": "complete",
       "loading_evidence": {
