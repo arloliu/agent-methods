@@ -96,7 +96,8 @@ Treat summaries and earlier claims as retrieval clues and read the actual result
 Run a check only within existing authorization and its side-effect limits;
 otherwise record it as unrun with the command that would run it.
 Stop before preparing references when a required check has failed on the candidate
-or cannot be run or retrieved for it.
+or cannot be run or retrieved for it,
+or when the proposed tag already exists at another commit in the local or remote view.
 
 ## Prepare version references and notes
 
@@ -135,7 +136,8 @@ The verdict is `ready` only when all of these hold:
 Otherwise the verdict is `not-ready`, listing each unmet condition and what would satisfy it.
 That verdict ends the run at the prepared state with no consequential action:
 show the plan with its `not-ready` ending,
-do not ask for approval, and do not prepare references or notes for a candidate whose required check has failed.
+do not ask for approval, and do not prepare references or notes for a candidate
+whose required check has failed or whose proposed tag is already used.
 A request to publish regardless does not change the verdict; report it as declined with the unmet conditions.
 Offer only resolutions that satisfy the unmet conditions within the invariants,
 such as correcting the failure in a new candidate or choosing an unused version.
