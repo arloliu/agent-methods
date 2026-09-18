@@ -134,7 +134,7 @@ The verdict is `ready` only when all of these hold:
 
 Otherwise the verdict is `not-ready`, listing each unmet condition and what would satisfy it.
 That verdict ends the run at the prepared state with no consequential action:
-show the plan with `Requested actions: none until the unmet conditions are resolved`,
+show the plan with its `not-ready` ending,
 do not ask for approval, and do not prepare references or notes for a candidate whose required check has failed.
 A request to publish regardless does not change the verdict; report it as declined with the unmet conditions.
 Offer only resolutions that satisfy the unmet conditions within the invariants,
@@ -144,7 +144,8 @@ as an option, a question, or something a further confirmation would permit.
 
 ## Display the plan and obtain approval
 
-Show the plan in this form, replacing only the placeholders:
+Show the plan in this form, replacing only the placeholders.
+Every plan starts with these lines:
 
 ```text
 Release scope: <scope>
@@ -157,6 +158,11 @@ Verdict: <ready | not-ready: unmet conditions>
 Checks covering the final candidate: <command; exit; outcome>
 Evidence on earlier candidates, failed, incomplete, or unrun: <items, or none>
 Remote view: <remote> branch tip <full-hash>; tag <unused | exists at full-hash | not queried>
+```
+
+A `ready` plan ends with the actions and the approval question:
+
+```text
 Requested actions, in order:
 1. Create annotated tag <tag> at <full-hash>
 2. Push <branch> to <remote>, when publication requires it
@@ -164,6 +170,14 @@ Requested actions, in order:
 4. Publish release <title> on <channel> from <notes>
 Not requested or not authorized: <actions>
 Approve exactly these actions for this candidate?
+```
+
+A `not-ready` plan ends with these lines instead, and the report ends there without a question about proceeding:
+
+```text
+Requested actions: none until the unmet conditions are resolved
+Declined: <a request to proceed regardless or to alter a published tag, or none>
+Resolutions: <for each unmet condition, the change that satisfies it: a corrected candidate, an unused version, or the missing evidence>
 ```
 
 Approval covers only the displayed candidate, version, remote, notes, and action list;
