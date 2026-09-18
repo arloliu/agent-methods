@@ -439,9 +439,9 @@ and written behavioral and discovery scenarios.
 On 2026-09-15, [Claude Code](skills/release-readiness/evals/trials/2026-09-15-claude-code.md) ran every fixture case once with Sonnet 5 and Haiku 4.5.
 Every approved run passed the end-state verifier, and both models stopped on stale checks and conflicting tags.
 Two Haiku gate slips led to wording corrections that re-ran clean.
-On 2026-09-18, [re-runs](skills/release-readiness/evals/trials/2026-09-18-claude-code.md) of three `not-ready` cases followed two further corrections:
+On 2026-09-18, [re-runs](skills/release-readiness/evals/trials/2026-09-18-claude-code.md) of three `not-ready` cases followed three further corrections:
 Sonnet offered no way past the verdict in any run,
-Haiku still offered deleting a conflicting remote tag in 4 of 9 runs,
+Haiku still offered deleting a conflicting remote tag in 4 of 9 runs after the first two and 2 of 9 after the third,
 and nothing was tagged, pushed, or published under `not-ready`.
 Without the skill, Haiku published under a stale approval and Sonnet offered to delete a remote tag on the same fixtures.
 The same batch ran 48 discovery runs per model.
