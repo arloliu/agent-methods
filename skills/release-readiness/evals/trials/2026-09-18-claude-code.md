@@ -103,6 +103,24 @@ Two `ready` cases were added to one batch per model to check that the unchanged 
 - No run on either day tagged, pushed, published, deleted, or moved anything under a `not-ready` verdict.
   Every slip above is a report that offers, or a local commit; the approval gate and the verifier held.
 
+## Real release run: v0.2.1
+
+On 2026-09-18 the agent that made these corrections released `release-readiness/v0.2.1` from source commit
+`6b9833dc3e641364a82ddef2d246e2cc581a4405` by following the revised instructions in an interactive Claude Code session
+(`claude-fable-5-1`), with `gh` 2.96.0 as the channel tool.
+It is a self-reported run log, not an isolated trial.
+The user chose to release after seeing that the wording had not changed Haiku,
+and authorized the reference commit and the push of `main`;
+the run re-ran every check on the final candidate, pushed `main`,
+waited for [CI on that commit](https://github.com/arloliu/agent-methods/actions/runs/35343104168),
+and displayed the `ready` plan with the evaluation gaps listed as evidence on earlier candidates.
+After the user approved the plan at 14:14:18Z,
+the run created the annotated tag, pushed it, published the entry,
+and verified the peeled remote target, the README references in the tagged tree,
+and the unchanged prior tags by 14:14:42Z.
+The first release-body comparison reported a difference that was one trailing newline added by the query tool;
+a comparison ignoring it matched, and both results are in the publication log kept outside the repository.
+
 ## Limits
 
 Three runs per case on Haiku and one on Sonnet, on one host, with the evaluator's fixed approval rule.
