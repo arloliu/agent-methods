@@ -500,8 +500,11 @@ Sonnet loaded the skill in 28 of 30 positive prompts and Haiku in 26 of 30; neit
 
 ## Releases
 
-Skills are versioned and tagged independently as `<skill>/vMAJOR.MINOR.PATCH`;
-the repository itself has no shared version.
+Skills are versioned and tagged independently as `<skill>/vMAJOR.MINOR.PATCH`.
+Each release commit also gets a dated repository snapshot tag, `vYYYY.MM.DD.N`,
+whose [release notes](https://github.com/arloliu/agent-methods/releases) list the skill versions it bundles.
+A snapshot names the catalog at a point in time and is not a compatibility version;
+pin an individual skill by its own tag.
 
 | Skill | Latest | Tags |
 | --- | --- | --- |

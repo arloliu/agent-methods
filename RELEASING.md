@@ -2,7 +2,9 @@
 
 Version and release each skill independently.
 Users install individual methods, and each method has its own compatibility contract and evaluation evidence.
-Repository maintenance does not have a shared release version.
+Each skill release is also recorded in a dated repository snapshot,
+which labels the whole catalog at that commit and is not a compatibility version.
+Repository maintenance without a skill release is not tagged.
 
 ## Names and release scope
 
@@ -10,6 +12,10 @@ Repository maintenance does not have a shared release version.
 - Release title: `<skill-name> v<major>.<minor>.<patch>`, for example `history-cleanup v0.1.0`.
 - Use the skill's directory and frontmatter name as `<skill-name>`.
 - Start a new skill at `0.1.0`; the first history-cleanup release uses `history-cleanup/v0.1.0`.
+- Repository snapshot tag: `v<YYYY>.<MM>.<DD>.<N>`, for example `v2026.09.19.1`.
+- Repository snapshot release title: `agent-methods v<YYYY>.<MM>.<DD>.<N>`, for example `agent-methods v2026.09.19.1`.
+
+[Repository snapshots](#repository-snapshots) defines the date and sequence fields.
 
 A Git tag identifies an entire repository commit.
 Its skill prefix defines the release's scope; other skills at that commit do not acquire that version.
@@ -43,6 +49,37 @@ Changes limited to repository CI, contributor guidance, or evaluation tooling do
 unless they change its delivered method, installation, or public contract.
 If shared material changes a skill's delivered behavior or requirements, include that skill in the release scope.
 
+## Repository snapshots
+
+A snapshot labels the catalog at the commit where skills were released.
+It does not follow Semantic Versioning, because the repository has no single public contract to version.
+Skill tags remain the authoritative versions; a snapshot adds a dated name and a manifest of skill releases.
+
+- Give every commit that receives at least one skill tag exactly one snapshot tag, and tag no other commit.
+  Releasing several skills from one commit produces one snapshot.
+  Changes limited to repository CI, contributor guidance, or evaluation tooling produce no snapshot.
+- `<YYYY>.<MM>.<DD>` is the UTC+8 calendar date on which the snapshot tag is created,
+  with a four-digit year and two-digit month and day.
+  Take it from `TZ=Asia/Taipei date +%Y.%m.%d`, whatever the machine's own time zone.
+  `<N>` counts the snapshots created on that date, starts at 1, and is not padded.
+  Take the next `<N>` from the highest existing number for that date in the local and remote tag lists, plus one.
+  Never reuse a number, even if a tag was removed.
+- List snapshot tags with `git tag --list 'v[0-9][0-9][0-9][0-9].*'`.
+  Skill names contain no `.`, so this pattern never matches a skill tag.
+  Order snapshots by date, then `<N>`.
+- Write the release notes as a manifest.
+  Give the exact source commit, then a table listing every skill in the repository with its latest released tag,
+  marked as new in this snapshot or released earlier.
+  Link each skill's release notes instead of repeating them.
+- A snapshot names released versions only.
+  Its commit may contain unreleased changes to skills that were not part of this release.
+  Install or pin one skill by its own tag.
+- Do not record a snapshot tag in tracked files.
+  The tagged tree cannot name a tag that does not exist yet, and a published tag cannot be amended afterwards.
+  README links to the Releases page instead.
+- Publish the snapshot release last and mark it as the repository's latest release.
+  Mark skill releases published on GitHub as not latest, so that Latest names the snapshot.
+
 ## Prepare and verify a release
 
 1. Identify the affected skill, its previous release tag if any, and the proposed version.
@@ -65,6 +102,11 @@ If shared material changes a skill's delivered behavior or requirements, include
    That commit is the one whose checks passed and whose README names the version being released.
    Complete publication within the user's authorized scope,
    then verify the published tag target, the release contents, and that the repository's version references match.
+7. When the release includes a skill tag, prepare the repository snapshot from the same verified commit.
+   Choose the next `<N>`, draft the manifest, and list the snapshot tag as its own action in the release plan.
+   Creating or publishing it needs the same approval as any other tag or release.
+   Create it only after the skill tags exist, then verify its target commit,
+   that its manifest matches the skill tags, and that it is the latest release.
 
 A release does not establish that every agent follows the method reliably.
 State the intended use and human review requirements alongside the observed evaluation limits.
