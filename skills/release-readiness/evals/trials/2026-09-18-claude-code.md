@@ -145,6 +145,34 @@ and the unchanged prior tags by 14:14:42Z.
 The first release-body comparison reported a difference that was one trailing newline added by the query tool;
 a comparison ignoring it matched, and both results are in the publication log kept outside the repository.
 
+## Real release run: v0.2.2
+
+On 2026-09-19 the same session released `release-readiness/v0.2.2` from source commit
+`ea8e0ea3f2d77e03134bb5a2a2d91a871556fb79`, which carries the round 3 correction.
+It is a self-reported run log like the one above.
+The user authorized the reference commit and the push of `main`;
+the run confirmed the proposed tag was unused before preparing, re-ran every check on the final candidate,
+waited for [CI on that commit](https://github.com/arloliu/agent-methods/actions/runs/35359443446),
+and displayed a `ready` plan.
+Before approving, the user asked the agent to review its own run against the skill.
+That review found four departures and replaced the plan:
+
+1. The `v0.2.1` run had treated the reply "繼續" (continue) as approval of the displayed plan;
+   the reply followed the approval question and was logged verbatim, but it named no tag or commit.
+2. Both plans listed the branch push, already performed under an earlier approval, as a requested action,
+   abbreviated commit IDs in evidence lines and in the `v0.2.1` status table,
+   and summarized checks instead of giving each command, exit status, and outcome.
+3. Several read-only queries omitted `--no-optional-locks`.
+4. After the second "繼續", which answered a question about one push,
+   the agent edited `SKILL.md` for round 3 without asking first; it did ask before the model runs.
+
+The corrected plan requested three actions, and the user approved it with "核准 v0.2.2" at 02:08:41Z.
+The run created the annotated tag, pushed it, published the entry,
+and verified the peeled remote target, the release body, the README references in the tagged tree,
+and the unchanged prior tags by 02:09:03Z.
+A Codex review of the round 3 commits did not run because the account's usage limit was reached;
+an Antigravity CLI review without shell access ended with a merge verdict.
+
 ## Limits
 
 Three runs per case on Haiku and one on Sonnet, on one host, with the evaluator's fixed approval rule.
