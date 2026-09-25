@@ -82,6 +82,8 @@ Use Matt Pocock's skills to shape and execute the work:
 
 Use agent-methods to govern evidence and completion:
 
+- [`go-no-go`](../skills/go-no-go/SKILL.md) judges a plan or an idea `go` or `no-go` before implementation starts.
+  Every blocker cites evidence and a resolution, and `go` does not authorize execution.
 - [`review-feedback`](../skills/review-feedback/SKILL.md) assesses each review finding before the agent changes code.
   It tracks supported findings through verification.
 - [`progress-check`](../skills/progress-check/SKILL.md) accounts for started background work.
@@ -124,6 +126,9 @@ Read the diagram from left to right:
 - Continue through `code-review`, feedback assessment, an optional history cleanup, and a final rules check.
 - Add `release-readiness` when the change ships as a version.
 
+`go-no-go` gates the move from Plan and build into implementation.
+Use it on a plan or an idea before committing to its next step, and act on the verdict in a separate request.
+
 `progress-check` sits beside this flow rather than inside it.
 Use it before a phase transition or completion claim when the session started background work.
 
@@ -137,6 +142,7 @@ Each phase should produce evidence that the next phase can consume.
 | Design the change | `codebase-design` | The team defines public interfaces, module boundaries, and testing seams. |
 | Resolve uncertainty | `research`, `prototype` | Primary-source findings or prototype results support a concrete decision. |
 | Plan large work | `to-spec`, `to-tickets` | The specification defines testable outcomes, and tickets form useful vertical slices with explicit dependencies. |
+| Gate the plan | `go-no-go` | A `go` report binds the verdict to the plan's revision, or every `no-go` blocker names evidence and a resolution. |
 | Implement | `implement`, `tdd` | The agent takes each slice through red, green, and refactor with focused verification. |
 | Review | `code-review` | The review report keeps standards findings and specification findings separate and traceable. |
 | Handle findings | `review-feedback` | The agent records a judgment, remedy, progress state, and verification result for each finding. |
@@ -239,6 +245,7 @@ In that case, use `to-spec` and `to-tickets` before implementation.
 | Handling review | Apply every comment as an instruction. | Assess each finding with `review-feedback` before editing. |
 | Tracking background work | Claim completion while started tasks remain unaccounted for. | Record task handles at launch and run `progress-check` before the next phase. |
 | Cleaning history | Rewrite commits as an automatic finishing step. | Propose exact commit groups and wait for approval. |
+| Gating a plan | Ask for a verdict and implementation in one request. | Ask `go-no-go` for the verdict, read the report, then request implementation separately. |
 | Checking rules | Run `rules-check` before rewriting history. | Run it after the final commit structure and worktree are stable. |
 
 ### Operational rules

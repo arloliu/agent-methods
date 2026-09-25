@@ -31,6 +31,7 @@ Install only the ones you want.
 
 | Skill | Use it when | Latest release |
 | --- | --- | --- |
+| [go-no-go](#go-no-go) | You need a go or no-go judgment on a plan or an idea before committing to its next step | `go-no-go/v0.1.0` |
 | [history-cleanup](#history-cleanup) | A branch's commit history needs grouping into reviewable commits before a pull request | `history-cleanup/v0.1.3` |
 | [progress-check](#progress-check) | You need to know where a session stands and whether background work is still running or stuck | `progress-check/v0.2.0` |
 | [release-readiness](#release-readiness) | You need to assess, prepare, or publish a release bound to one candidate commit | `release-readiness/v0.2.2` |
@@ -45,7 +46,7 @@ You need **Git** and a coding agent with local skill support.
 Python is needed only to run the evaluation fixtures.
 
 Throughout this section, replace `<skill>` with the directory name of the skill you want:
-`history-cleanup`, `progress-check`, `release-readiness`, `review-feedback`, or `rules-check`.
+`go-no-go`, `history-cleanup`, `progress-check`, `release-readiness`, `review-feedback`, or `rules-check`.
 Repeat the commands for each skill.
 
 ### With Skills CLI
@@ -448,6 +449,69 @@ The same batch ran 48 discovery runs per model.
 The same record covers the skill's own `v0.1.0` release, performed with the method and self-reported.
 See the [evaluation guide](skills/release-readiness/evals/README.md).
 
+## go-no-go
+
+Judge a plan or an idea `go` or `no-go` before work is committed to it.
+Read the [skill](skills/go-no-go/SKILL.md).
+
+### When to use it
+
+- You have a plan or design and want to know whether it is ready to implement.
+- You have an idea and want to know whether its next step is worth taking.
+- You want a binary decision with cited evidence rather than open-ended review comments.
+
+### What it does
+
+- Fixes the exact subject and its revision, and states what `go` would commit you to.
+- Declares the criteria before assessing, reading the repository's rule files first.
+- Builds a ledger of the subject's steps and load-bearing claims, marks each step one-way or two-way from repository evidence,
+  and verifies claims against the code rather than the subject's own narrative.
+- Returns `go` only with zero blockers; every blocker cites a criterion, evidence, and a resolution.
+- Stays read-only: `go` is a recommendation and does not authorize execution.
+
+### Ask for it
+
+- Recommended:
+
+  ```text
+  Use the go-no-go skill on the plan in docs/plan.md.
+  Give me a go or no-go before I commit to it.
+  ```
+
+- `Is this design ready to implement?`
+- `This idea is in notes/idea.md; is its next step worth taking?`
+
+### What to expect
+
+The agent reads the subject, the requirement it serves, and the repository's rules,
+then returns a fixed-template report: subject and revision, decision, criteria, steps, claims, verdict,
+blockers with resolutions, advisories, and what was not assessed.
+The reply ends at the report's `Closing` line.
+Insisting after a `no-go` is recorded as an owner override; the verdict does not change.
+
+### Before you act on it
+
+Check that the subject and revision are the ones you meant, that each blocker's evidence holds,
+and that anything listed as unverified or not assessed is acceptable to you.
+
+### Limits
+
+The skill cannot enforce its own read-only rule.
+In trials, a request that itself said "if it's a go, implement step 1" was acted on in 8 of 16 runs after the report.
+Keep the request to the judgment, or run the skill under your host's read-only permissions, such as Claude Code's plan mode.
+Market demand, budget, and other non-engineering claims are left to you.
+Writing or revising a plan, interviewing for requirements, reviewing code, and release verdicts are outside its purpose.
+
+### Validation status
+
+The current evidence includes 24 deterministic fixtures with a report verifier, written discovery prompts and a behavioural rubric,
+and executed runs on [Claude Code](skills/go-no-go/evals/trials/2026-09-25-claude-code.md) with Sonnet 5 and Haiku 4.5.
+In the last full round each model ran all 24 cases once; 13 and 12 reports passed the strict verifier,
+and 20 of 24 verdicts were correct for each model.
+Haiku wrote revisions without computing them and never stopped on an ambiguous subject.
+In discovery, Sonnet loaded the skill on 27 of 27 positive prompts and Haiku on 14 of 27.
+See the [evaluation guide](skills/go-no-go/evals/README.md).
+
 ## Evaluations
 
 Each skill carries three kinds of evidence, and they are never conflated:
@@ -461,6 +525,7 @@ Run the fixture tests from the repository root with Git and Python 3.10 or newer
 
 | Skill | Command | What it covers |
 | --- | --- | --- |
+| go-no-go | `python3 -B skills/go-no-go/evals/test_fixtures.py` and `test_verify_report.py` | 24 plan and idea cases with one planted defect each, subject revisions, protected files, and the report verifier |
 | history-cleanup | `python3 -B skills/history-cleanup/evals/test_fixtures.py` | fixup chains, non-adjacent corrections, safe and dependent revert pairs, merge boundaries, dirty worktrees, ambiguous bases |
 | progress-check | `python3 -B skills/progress-check/evals/test_fixtures.py` | real worker processes, a held stdin writer, stopping one worker, liveness snapshots, and rejecting bad traces |
 | release-readiness | `python3 -B skills/release-readiness/evals/test_fixtures.py` | version reasoning, stale references, checks on the parent, failing checks, existing and mismatched remote tags, stale approval, partial authorization, overstated notes, failed publication, and the end-state verifier |
@@ -482,6 +547,10 @@ For rules-check, see its [guide](skills/rules-check/evals/README.md),
 For review-feedback, see its [guide](skills/review-feedback/evals/README.md),
 [prompts](skills/review-feedback/evals/discovery.md),
 and [rubric](skills/review-feedback/evals/behavioral-rubric.md).
+
+For go-no-go, see its [guide](skills/go-no-go/evals/README.md),
+[prompts](skills/go-no-go/evals/discovery.md),
+and [rubric](skills/go-no-go/evals/behavioral-rubric.md).
 
 For release-readiness, see its [guide](skills/release-readiness/evals/README.md),
 [prompts](skills/release-readiness/evals/discovery.md),
@@ -508,6 +577,7 @@ pin an individual skill by its own tag.
 
 | Skill | Latest | Tags |
 | --- | --- | --- |
+| go-no-go | `go-no-go/v0.1.0` | v0.1.0 |
 | history-cleanup | `history-cleanup/v0.1.3` | v0.1.0 … v0.1.3 |
 | progress-check | `progress-check/v0.2.0` | v0.1.0, v0.2.0 |
 | release-readiness | `release-readiness/v0.2.2` | v0.1.0, v0.2.0, v0.2.1, v0.2.2 |
