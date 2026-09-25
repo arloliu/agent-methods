@@ -44,6 +44,11 @@ jobs:
         run: python -B skills/release-readiness/evals/test_fixtures.py
       - name: Test release-readiness runner parsing
         run: python -B skills/release-readiness/evals/test_runners.py
+      - name: Test go-no-go fixtures, report verifier, and runner parsing
+        run: |
+          python -B skills/go-no-go/evals/test_fixtures.py
+          python -B skills/go-no-go/evals/test_verify_report.py
+          python -B skills/go-no-go/evals/test_runners.py
       - name: Test portable evaluation preparation
         run: python -B scripts/test_prepare_history_evaluation.py
       - name: Install artifact validation dependencies
@@ -79,6 +84,8 @@ jobs:
           skills/release-readiness/evals/runners/*.py
           skills/review-feedback/evals/*.py
           skills/rules-check/evals/*.py
+          skills/go-no-go/evals/*.py
+          skills/go-no-go/evals/runners/*.py
       - name: Check Python formatting
         run: >-
           ruff format --isolated --check --no-cache
@@ -92,5 +99,7 @@ jobs:
           skills/release-readiness/evals/runners/*.py
           skills/review-feedback/evals/*.py
           skills/rules-check/evals/*.py
+          skills/go-no-go/evals/*.py
+          skills/go-no-go/evals/runners/*.py
       - name: Check commit whitespace
         run: git show --format= --check HEAD
