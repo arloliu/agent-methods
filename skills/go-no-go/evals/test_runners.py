@@ -10,6 +10,9 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "runners"))
+import reduce_runs  # noqa: E402
+import score_trial  # noqa: E402
+import summarise  # noqa: E402
 from common import (  # noqa: E402
     REPO,
     case_ids,
@@ -22,9 +25,6 @@ from common import (  # noqa: E402
     select,
     tool_uses,
 )
-import reduce_runs  # noqa: E402
-import score_trial  # noqa: E402
-import summarise  # noqa: E402
 
 EVENTS = [
     {"type": "system", "subtype": "init"},
@@ -86,7 +86,11 @@ class RunnerHelperTests(unittest.TestCase):
                 "type": "assistant",
                 "message": {
                     "content": [
-                        {"type": "tool_use", "name": "Skill", "input": {"skill": "go-no-go"}}
+                        {
+                            "type": "tool_use",
+                            "name": "Skill",
+                            "input": {"skill": "go-no-go"},
+                        }
                     ]
                 },
             }
@@ -190,7 +194,9 @@ class ResultProcessingTests(unittest.TestCase):
         self.assertIn("CRASHED", printed)
         self.assertNotIn("skip    pass", printed)
 
-    def test_reduce_runs_leaves_baseline_records_unrestated_but_restates_skill_records(self):
+    def test_reduce_runs_leaves_baseline_records_unrestated_but_restates_skill_records(
+        self,
+    ):
         from build_fixture import build
 
         fixture = build("sound-plan", self.root / "sound-plan")

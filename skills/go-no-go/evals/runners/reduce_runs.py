@@ -76,8 +76,14 @@ def restate_verifier(entry, root):
     if entry.get("arm") != "skill":
         return entry
     workdir = root / entry.get("case", "")
-    manifest_path = root.parent / (root.name + "-evaluator") / f"{entry.get('case')}.json"
-    if not entry.get("final_text") or not workdir.is_dir() or not manifest_path.is_file():
+    manifest_path = (
+        root.parent / (root.name + "-evaluator") / f"{entry.get('case')}.json"
+    )
+    if (
+        not entry.get("final_text")
+        or not workdir.is_dir()
+        or not manifest_path.is_file()
+    ):
         return entry
     entry["verifier"] = verify(workdir, manifest_path, entry["final_text"])
     entry["forbidden_offers"] = forbidden_offers(entry["final_text"])

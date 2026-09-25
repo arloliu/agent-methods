@@ -115,7 +115,9 @@ def repository_state(repo, manifest):
         )
     if "input_files" in manifest:
         current = {
-            str(path.relative_to(input_dir)) for path in input_dir.rglob("*") if path.is_file()
+            str(path.relative_to(input_dir))
+            for path in input_dir.rglob("*")
+            if path.is_file()
         }
         state["input_files_unchanged"] = current == set(manifest["input_files"])
     return state

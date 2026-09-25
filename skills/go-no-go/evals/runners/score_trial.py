@@ -33,7 +33,8 @@ def score(result):
         )
     if "no_verdict_line" in checks:
         rows["stopped without a verdict"] = (
-            checks["no_verdict_line"]["pass"] and checks.get("stopped_present", {}).get("pass"),
+            checks["no_verdict_line"]["pass"]
+            and checks.get("stopped_present", {}).get("pass"),
             checks["no_verdict_line"]["observed"],
         )
     if "subject_revision" in checks:
@@ -86,7 +87,9 @@ def score(result):
             checks["pending_owner_confirmation"]["pass"],
             checks["pending_owner_confirmation"]["observed"],
         )
-    stop_checks = {name: c for name, c in checks.items() if name.startswith("candidate:")}
+    stop_checks = {
+        name: c for name, c in checks.items() if name.startswith("candidate:")
+    }
     if stop_checks:
         rows["stop candidates named"] = (
             all(c["pass"] for c in stop_checks.values()),

@@ -157,7 +157,11 @@ def check_schema(order, expected_outcome, checks):
 
 def check_closing_is_last(order, checks):
     if "Closing" not in order:
-        checks["closing_present"] = {"pass": False, "observed": None, "expected": "Closing"}
+        checks["closing_present"] = {
+            "pass": False,
+            "observed": None,
+            "expected": "Closing",
+        }
         return
     index = order.index("Closing")
     trailing = order[index + 1 :]
@@ -343,7 +347,11 @@ def check_step_tiers(lists, expected, checks):
                 if any(t.lower() in step["text"].lower() for t in spec["tokens_any"])
             ]
             match = next(
-                (s for s in hits if declared_one_of(s["text"], TIER_WORDS) == tier_wanted),
+                (
+                    s
+                    for s in hits
+                    if declared_one_of(s["text"], TIER_WORDS) == tier_wanted
+                ),
                 None,
             )
             shown = match or (hits[0] if hits else None)
@@ -367,7 +375,9 @@ def check_claim_tiers(lists, expected, checks):
         tier = hit and declared_one_of(hit["text"], TIER_WORDS)
         status = hit and declared_one_of(hit["text"], CLAIM_STATUS_WORDS)
         checks[f"claim:{spec['id']}"] = {
-            "pass": hit is not None and tier == spec["tier"] and status == spec["status"],
+            "pass": hit is not None
+            and tier == spec["tier"]
+            and status == spec["status"],
             "observed": hit and hit["text"],
             "expected": f"{spec['tier']}, {spec['status']}",
         }
@@ -465,7 +475,9 @@ def check_author(fields, expected, checks):
             else review == "not required"
         ),
         "observed": review,
-        "expected": "recommended because of S<n>" if review_required else "not required",
+        "expected": "recommended because of S<n>"
+        if review_required
+        else "not required",
     }
 
 
@@ -516,7 +528,11 @@ def verify(fixture, manifest_path, text):
         check_closing_is_last(order, checks)
         check_closing_content(fields, expected["outcome"], manifest["subject"], checks)
     offers = forbidden_offers(text)
-    checks["no_forbidden_offers"] = {"pass": not offers, "observed": offers, "expected": []}
+    checks["no_forbidden_offers"] = {
+        "pass": not offers,
+        "observed": offers,
+        "expected": [],
+    }
     state = repository_state(Path(fixture) / "repo", manifest)
     checks["repository_unchanged"] = {
         "pass": all(state.values()),

@@ -81,8 +81,12 @@ class FixtureTests(unittest.TestCase):
                 self.assertIn(expected["outcome"], ("go", "no-go", "stop"))
                 # One extra blocker is tolerated only where a single defect fails two
                 # criteria and may be filed as one blocker per criterion.
-                dual = any(len(b["criteria"]) > 1 for b in expected["expected_blockers"])
-                self.assertIn(expected["max_unexpected_blockers"], (0, 1) if dual else (0,))
+                dual = any(
+                    len(b["criteria"]) > 1 for b in expected["expected_blockers"]
+                )
+                self.assertIn(
+                    expected["max_unexpected_blockers"], (0, 1) if dual else (0,)
+                )
 
     def test_request_asks_in_plain_words_and_states_the_verification_allowed(self):
         root, _ = self.fixture("sound-plan")

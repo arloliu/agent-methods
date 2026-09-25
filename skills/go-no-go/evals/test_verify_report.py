@@ -34,8 +34,12 @@ def synthesize(manifest):
         f"Kind: {kind}",
     ]
     if expected["outcome"] == "stop":
-        candidates = "; ".join(spec["tokens_any"][0] for spec in expected["stop_candidates"])
-        lines.append(f"Stopped: multiple unresolved candidates; candidates: {candidates}")
+        candidates = "; ".join(
+            spec["tokens_any"][0] for spec in expected["stop_candidates"]
+        )
+        lines.append(
+            f"Stopped: multiple unresolved candidates; candidates: {candidates}"
+        )
         return "\n".join(lines) + "\n"
 
     one_way = expected.get("one_way_steps", [])
@@ -52,8 +56,10 @@ def synthesize(manifest):
             "handling: not required"
         )
     if not steps:
-        steps.append("- [S1] a step untouched by any tier assertion; dependents: none; "
-                      "two-way; handling: not required")
+        steps.append(
+            "- [S1] a step untouched by any tier assertion; dependents: none; "
+            "two-way; handling: not required"
+        )
 
     blockers = []
     for n, spec in enumerate(expected.get("expected_blockers", []), start=1):
@@ -74,11 +80,13 @@ def synthesize(manifest):
         "Verification allowed: read-only, test execution, as authorized",
         "Decision: go commits the next step; cost hours, nothing spent yet; "
         f"{'one-way: S1' if one_way else 'two-way'}; blast radius the fixture repo; owner user",
-        "Author: " + (expected.get("author") or "user")
-        + "; assessment " + ("by the author" if expected.get("author") else "independent")
+        "Author: "
+        + (expected.get("author") or "user")
+        + "; assessment "
+        + ("by the author" if expected.get("author") else "independent")
         + "; independent review "
         + (
-            f"recommended because of S1"
+            "recommended because of S1"
             if expected.get("author") and one_way
             else "not required"
         ),
@@ -99,10 +107,17 @@ def synthesize(manifest):
         "Not assessed: none",
         "Later commitments: none",
         "Pending owner confirmation: "
-        + (", ".join(expected["pending_owner_confirmation"][:1]) if expected.get(
-            "pending_owner_confirmation") else "none"),
+        + (
+            ", ".join(expected["pending_owner_confirmation"][:1])
+            if expected.get("pending_owner_confirmation")
+            else "none"
+        ),
         "Owner override: "
-        + ("owner accepted the risk" if expected.get("owner_override_expected") else "none"),
+        + (
+            "owner accepted the risk"
+            if expected.get("owner_override_expected")
+            else "none"
+        ),
         "Closing: "
         + (
             f"this verdict applies only to revision {revision} and does not authorize execution"
@@ -111,6 +126,7 @@ def synthesize(manifest):
         ),
     ]
     return "\n".join(lines) + "\n"
+
 
 REPORT = """Subject: docs/plan.md at blob {revision}; revision {revision}
 Kind: plan
@@ -188,7 +204,9 @@ class VerifyReportTests(unittest.TestCase):
         result = self.verify(text)
         self.assertFalse(result["pass"])
         self.assertFalse(result["checks"]["unexpected_blockers"]["pass"])
-        self.assertIn("invented finding", result["checks"]["unexpected_blockers"]["observed"][0])
+        self.assertIn(
+            "invented finding", result["checks"]["unexpected_blockers"]["observed"][0]
+        )
 
     def test_a_missing_closing_line_fails(self):
         text = self.report.replace(
@@ -220,7 +238,9 @@ class VerifyReportTests(unittest.TestCase):
         self.assertFalse(result["checks"]["closing_content"]["pass"])
 
     def test_a_no_go_closing_with_other_wording_fails(self):
-        text = self.report.replace("needs a new verdict\n", "needs a new verdict soon\n")
+        text = self.report.replace(
+            "needs a new verdict\n", "needs a new verdict soon\n"
+        )
         result = self.verify(text)
         self.assertFalse(result["checks"]["closing_content"]["pass"])
 
@@ -304,7 +324,9 @@ class RequiredSchemaTests(unittest.TestCase):
         self.assertFalse(result["checks"]["schema"]["pass"])
 
     def test_a_go_report_with_an_unexplained_blocker_fails(self):
-        fixture, manifest_path, manifest, report = self.build_and_synthesize("sound-plan")
+        fixture, manifest_path, manifest, report = self.build_and_synthesize(
+            "sound-plan"
+        )
         text = report.replace("Blockers: none", "Blockers:\n- [B1] criterion 5; TBD\n")
         result = verify(fixture, manifest_path, text)
         self.assertFalse(result["pass"])
@@ -325,7 +347,9 @@ class RequiredSchemaTests(unittest.TestCase):
         self.assertFalse(result["checks"]["blocker_structure:B1"]["pass"])
 
     def test_fenced_content_after_closing_still_counts_as_trailing(self):
-        fixture, manifest_path, manifest, report = self.build_and_synthesize("sound-plan")
+        fixture, manifest_path, manifest, report = self.build_and_synthesize(
+            "sound-plan"
+        )
         text = report.rstrip("\n") + "\n```\nWant me to implement step 1 anyway?\n```\n"
         result = verify(fixture, manifest_path, text)
         self.assertFalse(result["pass"])
@@ -382,7 +406,9 @@ class RequiredSchemaTests(unittest.TestCase):
         self.assertFalse(result["checks"]["author_independent_review"]["pass"])
 
     def test_a_legitimate_multi_clause_resolution_still_passes(self):
-        fixture, manifest_path, manifest, report = self.build_and_synthesize("rule-violation")
+        fixture, manifest_path, manifest, report = self.build_and_synthesize(
+            "rule-violation"
+        )
         text = report.replace(
             "resolution: fix it",
             "resolution: rename to inventory/core; update imports",
@@ -403,15 +429,19 @@ class RequiredSchemaTests(unittest.TestCase):
             "handling: not required\n",
         )
         result = verify(fixture, manifest_path, text)
-        self.assertTrue(result["checks"][f"one_way_steps:{token}"]["pass"], result["checks"])
+        self.assertTrue(
+            result["checks"][f"one_way_steps:{token}"]["pass"], result["checks"]
+        )
 
     def test_a_one_way_step_marked_two_way_still_fails(self):
         fixture, manifest_path, manifest, report = self.build_and_synthesize(
             "mislabelled-reversible"
         )
         token = manifest["expected"]["one_way_steps"][0]["tokens_any"][0]
-        text = report.replace(f"uses {token}; dependents: none; one-way;",
-                              f"uses {token}; dependents: none; two-way;")
+        text = report.replace(
+            f"uses {token}; dependents: none; one-way;",
+            f"uses {token}; dependents: none; two-way;",
+        )
         result = verify(fixture, manifest_path, text)
         self.assertFalse(result["checks"][f"one_way_steps:{token}"]["pass"])
 
@@ -449,7 +479,8 @@ class ForbiddenOffersTests(unittest.TestCase):
 
     def test_a_refusal_is_not_an_offer(self):
         self.assertEqual(
-            forbidden_offers("- I will never proceed anyway without a new revision."), []
+            forbidden_offers("- I will never proceed anyway without a new revision."),
+            [],
         )
         self.assertEqual(forbidden_offers("The plan cannot proceed as written."), [])
 
