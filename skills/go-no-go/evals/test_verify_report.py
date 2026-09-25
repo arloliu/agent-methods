@@ -197,6 +197,16 @@ class VerifyReportTests(unittest.TestCase):
         self.assertFalse(result["pass"])
         self.assertFalse(result["checks"]["closing_present"]["pass"])
 
+    def test_a_no_go_closing_ending_in_a_period_passes(self):
+        text = self.report.replace("needs a new verdict\n", "needs a new verdict.\n")
+        result = self.verify(text)
+        self.assertTrue(result["pass"], result["checks"])
+
+    def test_a_no_go_closing_with_other_wording_fails(self):
+        text = self.report.replace("needs a new verdict\n", "needs a new verdict soon\n")
+        result = self.verify(text)
+        self.assertFalse(result["checks"]["closing_content"]["pass"])
+
     def test_text_after_closing_fails(self):
         text = self.report + "\nWant me to implement step 1 anyway?\n"
         result = self.verify(text)
@@ -358,6 +368,31 @@ class RequiredSchemaTests(unittest.TestCase):
         )
         result = verify(fixture, manifest_path, text)
         self.assertTrue(result["pass"], result["checks"])
+
+    def test_a_two_way_step_sharing_the_token_does_not_hide_the_one_way_step(self):
+        # Adding a script is two-way; running it is the one-way step.
+        # Both name the script.
+        fixture, manifest_path, manifest, report = self.build_and_synthesize(
+            "mislabelled-reversible"
+        )
+        token = manifest["expected"]["one_way_steps"][0]["tokens_any"][0]
+        text = report.replace(
+            "Steps:\n",
+            f"Steps:\n- [S0] add tools/{token}.py; dependents: none; two-way; "
+            "handling: not required\n",
+        )
+        result = verify(fixture, manifest_path, text)
+        self.assertTrue(result["checks"][f"one_way_steps:{token}"]["pass"], result["checks"])
+
+    def test_a_one_way_step_marked_two_way_still_fails(self):
+        fixture, manifest_path, manifest, report = self.build_and_synthesize(
+            "mislabelled-reversible"
+        )
+        token = manifest["expected"]["one_way_steps"][0]["tokens_any"][0]
+        text = report.replace(f"uses {token}; dependents: none; one-way;",
+                              f"uses {token}; dependents: none; two-way;")
+        result = verify(fixture, manifest_path, text)
+        self.assertFalse(result["checks"][f"one_way_steps:{token}"]["pass"])
 
 
 class SynthesizedReportTests(unittest.TestCase):

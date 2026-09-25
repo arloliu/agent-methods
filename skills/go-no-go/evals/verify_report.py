@@ -184,7 +184,7 @@ def check_closing_content(fields, expected_outcome, subject, checks):
         }
     else:
         checks["closing_content"] = {
-            "pass": value.lower() == CLOSING_NOGO,
+            "pass": re.sub(r"\.$", "", value.lower()) == CLOSING_NOGO,
             "observed": value,
             "expected": CLOSING_NOGO,
         }
@@ -329,21 +329,28 @@ def check_claims_well_formed(lists, checks):
 
 
 def check_step_tiers(lists, expected, checks):
+    """A tier assertion holds when any step naming one of its tokens declares that tier.
+
+    Several steps can name the same token -- adding a script (two-way) and running it
+    (one-way) -- so the first match alone is not necessarily the step under test.
+    """
     for group, wanted in (("one_way_steps", True), ("two_way_steps", False)):
+        tier_wanted = "one-way" if wanted else "two-way"
         for spec in expected.get(group, []):
-            hit = next(
-                (
-                    step
-                    for step in lists["Steps"]
-                    if any(t.lower() in step["text"].lower() for t in spec["tokens_any"])
-                ),
+            hits = [
+                step
+                for step in lists["Steps"]
+                if any(t.lower() in step["text"].lower() for t in spec["tokens_any"])
+            ]
+            match = next(
+                (s for s in hits if declared_one_of(s["text"], TIER_WORDS) == tier_wanted),
                 None,
             )
-            tier = hit and declared_one_of(hit["text"], TIER_WORDS)
+            shown = match or (hits[0] if hits else None)
             checks[f"{group}:{spec['tokens_any'][0]}"] = {
-                "pass": hit is not None and tier == ("one-way" if wanted else "two-way"),
-                "observed": hit and hit["text"],
-                "expected": "one-way" if wanted else "two-way",
+                "pass": match is not None,
+                "observed": shown and shown["text"],
+                "expected": tier_wanted,
             }
 
 
