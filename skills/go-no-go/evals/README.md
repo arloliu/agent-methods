@@ -5,9 +5,10 @@ repository evidence, claim verification and tier, blocker/advisory separation, t
 report completeness, the no-post-verdict-offer rule, read-only discipline, and re-judgment
 discipline.
 Use the [behavioural rubric](behavioral-rubric.md) and [discovery prompts](discovery.md) separately.
-A no-skill baseline arm (4 cases, Sonnet 5 and Haiku 4.5) ran on 2026-09-22 before `SKILL.md`
-existed; results are cited in project memory, not committed, since `reduce_runs.py` (which scrubs
-machine-specific paths for the repository) did not exist yet at that point.
+Executed runs, including the no-skill baseline of 2026-09-22, are recorded in [trials/](trials/)
+with reduced batches under [runs/](runs/).
+They found that a same-message "if go, implement" was acted on in 8 of 16 `preauthorized-go` runs
+despite the skill's rule; where read-only must be guaranteed, use the host's read-only permissions.
 
 ## Build and test
 

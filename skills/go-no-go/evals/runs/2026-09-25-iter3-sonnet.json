@@ -1,0 +1,2244 @@
+{
+  "arm": "skill",
+  "batch": "iter3-sonnet",
+  "claude_version": "2.1.282 (Claude Code)",
+  "finished": "2026-09-25T14:50:45+00:00",
+  "max_budget_usd": "1.50",
+  "max_turns": "60",
+  "model": "claude-sonnet-5",
+  "reduced_with_commit": "f9e1b168f69561848c51a648a143c02ee3afd32b",
+  "results": [
+    {
+      "arm": "skill",
+      "case": "coverage-claim",
+      "cost_usd": 0.2594,
+      "final_text": "Subject: docs/plan.md; revision b500655a5e0001d9a793f25311d9e95e0a7ce299\nKind: plan\nServes: docs/requirements.md\nVerification allowed: read-only, test execution, as authorized\nDecision: go commits executing the plan as written — adding filter_low_stock to inventory/report.py, wiring --low-stock into main, and running the test suite; cost hours, and what is spent is edits to inventory/report.py and its tests; two-way; blast radius inventory/report.py and tests/test_report.py, a local CLI tool with no other in-repo callers or external consumers; owner Arlo Liu (requester)\nAuthor: user; assessment independent; independent review not required\nCriteria: in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md (read docs/requirements.md before planning; run python3 -B -m unittest discover -s tests before committing)\nSteps:\n- [S1] add filter_low_stock(items, threshold) to inventory/report.py; dependents: none found (grep shows no other callers of report.py functions); two-way; handling: not required\n- [S2] add --low-stock argument to main in inventory/report.py; dependents: none found (no CI, scripts, or docs invoke inventory.report besides the module itself); two-way; handling: not required\n- [S3] run python3 -B -m unittest discover -s tests; dependents: none; two-way; handling: not required\nClaims:\n- [C1] tests/test_report.py::test_format_report_joins_tab_separated_rows already covers the zero-quantity case, so no new test is needed; relied on by S1; falsity surfaces at S3; two-way; contradicted; tests/test_report.py:7-9 uses items=[{\"sku\": \"A-100\", \"name\": \"bolt\", \"quantity\": 40}] — quantity is 40, not 0, and the test never calls filter_low_stock or exercises --low-stock, so it does not cover the zero-quantity case the requirement asks to confirm\nVerdict: no-go\nBlockers:\n- [B1] criterion 2; the plan's sole justification for adding no test is a contradicted claim, leaving docs/requirements.md's explicit instruction to \"confirm items with quantity exactly 0 are included when N is 0\" unverified by any step in the plan; evidence: tests/test_report.py:7-9 (quantity 40, not 0; no filter_low_stock or --low-stock exercised) and docs/plan.md:14-15 (the coverage claim) versus docs/requirements.md:6 (the confirmation requirement); resolution: revise the plan to add a test that calls filter_low_stock (or invokes --low-stock 0 through main) against an item with quantity 0 — e.g. data/items.csv already contains A-300,washer,0 — and drop the claim that existing coverage suffices\nAdvisory: filter_low_stock's threshold comparison (<=, <, or ==) is not stated in step 1; only <= satisfies the plan's own stated outcome for --low-stock 0, so an implementer has one correct choice in practice, but the plan would be clearer stating it explicitly\nNot assessed: none\nLater commitments: none\nPending owner confirmation: none\nOwner override: none\nClosing: no action follows from this report; a revised subject needs a new verdict",
+      "finished": "2026-09-25T14:48:30+00:00",
+      "forbidden_offers": [],
+      "loaded": "complete",
+      "loading_evidence": {
+        "args": "Subject: docs/plan.md (implementation plan). Decision: go/no-go before committing to it. Accepted requirement: docs/requirements.md. Repo: <run-root>/coverage-claim/repo. Read-only — may read repo files and run unit tests, must not change any files.",
+        "skill": "go-no-go"
+      },
+      "model": "claude-sonnet-5",
+      "num_turns": 16,
+      "request": "Use the go-no-go skill for this task.\n\nI'm about to start on the plan in `docs/plan.md`.\nThe accepted requirement is `docs/requirements.md`.\nGive me a go or no-go before I commit to it.\nYou may read anything in this repository and run the unit tests. Do not change any files.\n",
+      "started": "2026-09-25T14:47:02+00:00",
+      "stop_reasons": [
+        "end_turn"
+      ],
+      "tool_names": [
+        "Skill",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "verifier": {
+        "case": "coverage-claim",
+        "checks": {
+          "blocker:false-coverage-claim": {
+            "expected": "criterion in [2], any of ['test_format_report_joins_tab_separated_rows', 'zero-quantity', 'test_report.py', 'quantity 0']",
+            "observed": "criterion 2; the plan's sole justification for adding no test is a contradicted claim, leaving docs/requirements.md's explicit instruction to \"confirm items with quantity exactly 0 are included when N is 0\" unverified by any step in the plan; evidence: tests/test_report.py:7-9 (quantity 40, not 0; no filter_low_stock or --low-stock exercised) and docs/plan.md:14-15 (the coverage claim) versus docs/requirements.md:6 (the confirmation requirement); resolution: revise the plan to add a test that calls filter_low_stock (or invokes --low-stock 0 through main) against an item with quantity 0 — e.g. data/items.csv already contains A-300,washer,0 — and drop the claim that existing coverage suffices",
+            "pass": true
+          },
+          "blocker_structure:B1": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 2; the plan's sole justification for adding no test is a contradicted claim, leaving docs/requirements.md's explicit instruction to \"confirm items with quantity exactly 0 are included when N is 0\" unverified by any step in the plan; evidence: tests/test_report.py:7-9 (quantity 40, not 0; no filter_low_stock or --low-stock exercised) and docs/plan.md:14-15 (the coverage claim) versus docs/requirements.md:6 (the confirmation requirement); resolution: revise the plan to add a test that calls filter_low_stock (or invokes --low-stock 0 through main) against an item with quantity 0 — e.g. data/items.csv already contains A-300,washer,0 — and drop the claim that existing coverage suffices",
+            "pass": true
+          },
+          "claim_structure:C1": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "tests/test_report.py::test_format_report_joins_tab_separated_rows already covers the zero-quantity case, so no new test is needed; relied on by S1; falsity surfaces at S3; two-way; contradicted; tests/test_report.py:7-9 uses items=[{\"sku\": \"A-100\", \"name\": \"bolt\", \"quantity\": 40}] — quantity is 40, not 0, and the test never calls filter_low_stock or exercises --low-stock, so it does not cover the zero-quantity case the requirement asks to confirm",
+            "pass": true
+          },
+          "closing_content": {
+            "expected": "no action follows from this report; a revised subject needs a new verdict",
+            "observed": "no action follows from this report; a revised subject needs a new verdict",
+            "pass": true
+          },
+          "closing_is_last": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "kind": {
+            "expected": "plan",
+            "observed": "plan",
+            "pass": true
+          },
+          "list_header:Blockers": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Claims": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Steps": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "no_forbidden_offers": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "repository_unchanged": {
+            "expected": "all true",
+            "observed": {
+              "head": true,
+              "input:request.md": true,
+              "input_files_unchanged": true,
+              "status": true,
+              "subject": true,
+              "tree": true
+            },
+            "pass": true
+          },
+          "scalar:Author": {
+            "expected": "non-empty",
+            "observed": "user; assessment independent; independent review not required",
+            "pass": true
+          },
+          "scalar:Criteria": {
+            "expected": "non-empty",
+            "observed": "in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md (read docs/requirements.md before planning; run python3 -B -m unittest discover -s tests before committing)",
+            "pass": true
+          },
+          "scalar:Decision": {
+            "expected": "non-empty",
+            "observed": "go commits executing the plan as written — adding filter_low_stock to inventory/report.py, wiring --low-stock into main, and running the test suite; cost hours, and what is spent is edits to inventory/report.py and its tests; two-way; blast radius inventory/report.py and tests/test_report.py, a local CLI tool with no other in-repo callers or external consumers; owner Arlo Liu (requester)",
+            "pass": true
+          },
+          "scalar:Kind": {
+            "expected": "non-empty",
+            "observed": "plan",
+            "pass": true
+          },
+          "scalar:Serves": {
+            "expected": "non-empty",
+            "observed": "docs/requirements.md",
+            "pass": true
+          },
+          "scalar:Verification allowed": {
+            "expected": "non-empty",
+            "observed": "read-only, test execution, as authorized",
+            "pass": true
+          },
+          "schema": {
+            "expected": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "observed": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "pass": true
+          },
+          "step_structure:S1": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add filter_low_stock(items, threshold) to inventory/report.py; dependents: none found (grep shows no other callers of report.py functions); two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S2": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add --low-stock argument to main in inventory/report.py; dependents: none found (no CI, scripts, or docs invoke inventory.report besides the module itself); two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S3": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "run python3 -B -m unittest discover -s tests; dependents: none; two-way; handling: not required",
+            "pass": true
+          },
+          "subject_path": {
+            "expected": "names docs/plan.md",
+            "observed": "docs/plan.md; revision b500655a5e0001d9a793f25311d9e95e0a7ce299",
+            "pass": true
+          },
+          "subject_revision": {
+            "expected": "b500655a5e0001d9a793f25311d9e95e0a7ce299",
+            "observed": "b500655a5e0001d9a793f25311d9e95e0a7ce299",
+            "pass": true
+          },
+          "unexpected_blockers": {
+            "expected": "<= 0",
+            "observed": [],
+            "pass": true
+          },
+          "verdict": {
+            "expected": "no-go",
+            "observed": "no-go",
+            "pass": true
+          }
+        },
+        "pass": true
+      }
+    },
+    {
+      "arm": "skill",
+      "case": "idea-cheap-probe",
+      "cost_usd": 0.2436,
+      "final_text": "Ran the tests (3 pass) and checked the repo for hidden dependents, CI automation, and stdlib-only constraints. Verdict below.\n\nSubject: recorded text below; revision 8379c49cecd4ef6483378c450f4d79edd4d3c9bb\n\n```\nMaybe operators would find a `--json` output mode useful for the stock report, so other tools can consume it without parsing tab-separated text. I haven't heard anyone ask for this yet -- next step would be a quick prototype: add `--json` for one command, show it to two operators, and continue only if at least one says they would actually use it over the current format.\n```\n\nKind: idea\nServes: none supplied\nVerification allowed: read-only, test execution, as authorized\nDecision: go commits adding a `--json` output mode to the stock report command (inventory/report.py) and showing it to two operators, continuing only if at least one says they would use it; cost hours, and what is spent is developer time on a minimal flag plus an informal demo; two-way; blast radius inventory/report.py only, no other code paths, data, or external systems; owner requester\nAuthor: user; assessment independent; independent review not required\nCriteria: in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md (stdlib-only constraint)\nSteps:\n- [S1] add a `--json` output branch to inventory/report.py's stock-report command; dependents: tests/test_report.py (only existing consumer of format_report, found by grep); two-way; handling: not required\nClaims:\n- [C1] no code besides tests/test_report.py currently consumes report.py's output; relied on by S1; falsity surfaces at S1; two-way; verified; grep -rn \"format_report\" . shows only tests/test_report.py:3 and inventory/report.py itself\n- [C2] a JSON output mode can be built with the Python standard library alone (json module), satisfying AGENTS.md's stdlib-only rule; relied on by S1; falsity surfaces at S1; two-way; verified; json is a Python standard-library module, no import beyond stdlib is needed for a dict/list-of-dicts report\nVerdict: go\nBlockers: none\nAdvisory: criterion 7 — the idea bundles building a prototype with asking two operators; a cheaper first step (asking the two operators whether they'd use `--json` before writing any code) is not named, though it is not required for a go verdict.\nNot assessed: availability and willingness of two operators to review the prototype; reason: an external/social claim, not repository or engineering evidence. | accepted requirement for this idea; reason: docs/requirements.md states none exists yet.\nLater commitments: if at least one operator confirms they'd use `--json`, extending it to other commands or making it the default output needs its own verdict.\nPending owner confirmation: none\nOwner override: none\nClosing: this verdict applies only to revision 8379c49cecd4ef6483378c450f4d79edd4d3c9bb and does not authorize execution",
+      "finished": "2026-09-25T14:48:14+00:00",
+      "forbidden_offers": [],
+      "loaded": "complete",
+      "loading_evidence": {
+        "skill": "go-no-go"
+      },
+      "model": "claude-sonnet-5",
+      "num_turns": 16,
+      "request": "Use the go-no-go skill for this task.\n\nHere's an idea, written in `input/idea.md`.\nGive me a go or no-go before I spend time on it.\nYou may read anything in this repository and run the unit tests. Do not change any files.\n",
+      "started": "2026-09-25T14:47:02+00:00",
+      "stop_reasons": [
+        "end_turn"
+      ],
+      "tool_names": [
+        "Skill",
+        "Read",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "verifier": {
+        "case": "idea-cheap-probe",
+        "checks": {
+          "claim_structure:C1": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "no code besides tests/test_report.py currently consumes report.py's output; relied on by S1; falsity surfaces at S1; two-way; verified; grep -rn \"format_report\" . shows only tests/test_report.py:3 and inventory/report.py itself",
+            "pass": true
+          },
+          "claim_structure:C2": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "a JSON output mode can be built with the Python standard library alone (json module), satisfying AGENTS.md's stdlib-only rule; relied on by S1; falsity surfaces at S1; two-way; verified; json is a Python standard-library module, no import beyond stdlib is needed for a dict/list-of-dicts report",
+            "pass": true
+          },
+          "closing_content": {
+            "expected": "this verdict applies only to revision 8379c49cecd4ef6483378c450f4d79edd4d3c9bb and does not authorize execution",
+            "observed": "this verdict applies only to revision 8379c49cecd4ef6483378c450f4d79edd4d3c9bb and does not authorize execution",
+            "pass": true
+          },
+          "closing_is_last": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "kind": {
+            "expected": "idea",
+            "observed": "idea",
+            "pass": true
+          },
+          "list_header:Blockers": {
+            "expected": "none",
+            "observed": "none",
+            "pass": true
+          },
+          "list_header:Claims": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Steps": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "no_forbidden_offers": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "repository_unchanged": {
+            "expected": "all true",
+            "observed": {
+              "head": true,
+              "input:idea.md": true,
+              "input:request.md": true,
+              "input_files_unchanged": true,
+              "status": true,
+              "subject": true,
+              "tree": true
+            },
+            "pass": true
+          },
+          "scalar:Author": {
+            "expected": "non-empty",
+            "observed": "user; assessment independent; independent review not required",
+            "pass": true
+          },
+          "scalar:Criteria": {
+            "expected": "non-empty",
+            "observed": "in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md (stdlib-only constraint)",
+            "pass": true
+          },
+          "scalar:Decision": {
+            "expected": "non-empty",
+            "observed": "go commits adding a `--json` output mode to the stock report command (inventory/report.py) and showing it to two operators, continuing only if at least one says they would use it; cost hours, and what is spent is developer time on a minimal flag plus an informal demo; two-way; blast radius inventory/report.py only, no other code paths, data, or external systems; owner requester",
+            "pass": true
+          },
+          "scalar:Kind": {
+            "expected": "non-empty",
+            "observed": "idea",
+            "pass": true
+          },
+          "scalar:Serves": {
+            "expected": "non-empty",
+            "observed": "none supplied",
+            "pass": true
+          },
+          "scalar:Verification allowed": {
+            "expected": "non-empty",
+            "observed": "read-only, test execution, as authorized",
+            "pass": true
+          },
+          "schema": {
+            "expected": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "observed": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "pass": true
+          },
+          "step_structure:S1": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add a `--json` output branch to inventory/report.py's stock-report command; dependents: tests/test_report.py (only existing consumer of format_report, found by grep); two-way; handling: not required",
+            "pass": true
+          },
+          "subject_revision": {
+            "expected": "8379c49cecd4ef6483378c450f4d79edd4d3c9bb",
+            "observed": "8379c49cecd4ef6483378c450f4d79edd4d3c9bb",
+            "pass": true
+          },
+          "unexpected_blockers": {
+            "expected": "<= 0",
+            "observed": [],
+            "pass": true
+          },
+          "verdict": {
+            "expected": "go",
+            "observed": "go",
+            "pass": true
+          }
+        },
+        "pass": true
+      }
+    },
+    {
+      "arm": "skill",
+      "case": "idea-false-premise",
+      "cost_usd": 0.1877,
+      "final_text": "Confirmed: a SKU lookup already exists and works (`--sku` flag in `inventory/report.py`, backed by `find_item` in `inventory/store.py`, tested and passing). This directly contradicts the idea's premise. Verdict below.\n\nSubject: recorded text below; revision 645d1fd4c0dc3444d4b82feed087b41bd6c11700\nKind: idea\nServes: none supplied\nVerification allowed: read-only, test execution, as authorized\nDecision: go commits adding a SKU lookup command; cost hours, a small CLI/function addition; two-way; blast radius inventory/report.py, inventory/store.py, tests; owner Arlo Liu\nAuthor: user; assessment independent; independent review not required\nCriteria: in force 1, 2, 3, 4, 5, 6; advisory 7; added none; waived before assessment none; sources defaults\n\n```\nOperators can only see the full report; there's no way to look up a single item by its SKU. We should add a lookup command.\n```\n\nSteps:\n- [S1] add a SKU lookup command to inventory/report.py and inventory/store.py; dependents: tests/test_report.py, tests/test_store.py; two-way; handling: not required\n\nClaims:\n- [C1] there is no way to look up a single item by its SKU; relied on by S1; falsity surfaces at S1; two-way; contradicted; inventory/report.py:16-23 already implements a `--sku` flag that calls `find_item` (inventory/store.py:15-19), and `python3 -B -m inventory.report data/items.csv --sku A-200` returns `{'sku': 'A-200', 'name': 'nut', 'quantity': 3}`; `tests/test_store.py:14-15` already covers the not-found case, and `python3 -B -m unittest discover -s tests` passes (3 tests, OK)\n\nVerdict: no-go\nBlockers:\n- [B1] criterion 2; the idea's stated problem is false — a SKU lookup command already exists and is tested; evidence: inventory/report.py:16-23, inventory/store.py:15-19, tests/test_store.py:14-15, and a live run (`--sku A-200` → `{'sku': 'A-200', 'name': 'nut', 'quantity': 3}`; `--sku Z-999` → `Z-999: not found`); resolution: confirm what gap actually remains (e.g. a different interface, batch lookup, or output format) and restate the idea against that gap, or drop it if the existing `--sku` flag already satisfies the need\nAdvisory: none\nNot assessed: business/operator value of the existing `--sku` flag (e.g. whether operators know about it or need a different interface); reason: not an engineering claim, left to the decision owner\nLater commitments: none\nPending owner confirmation: none\nOwner override: none\nClosing: no action follows from this report; a revised subject needs a new verdict",
+      "finished": "2026-09-25T14:48:36+00:00",
+      "forbidden_offers": [],
+      "loaded": "complete",
+      "loading_evidence": {
+        "skill": "go-no-go"
+      },
+      "model": "claude-sonnet-5",
+      "num_turns": 15,
+      "request": "Use the go-no-go skill for this task.\n\nHere's an idea, written in `input/idea.md`.\nGive me a go or no-go before I spend time on it.\nYou may read anything in this repository and run the unit tests. Do not change any files.\n",
+      "started": "2026-09-25T14:48:06+00:00",
+      "stop_reasons": [
+        "end_turn"
+      ],
+      "tool_names": [
+        "Skill",
+        "Read",
+        "Bash",
+        "Read",
+        "Read",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash"
+      ],
+      "verifier": {
+        "case": "idea-false-premise",
+        "checks": {
+          "blocker:already-implemented": {
+            "expected": "criterion in [2], any of ['find_item']",
+            "observed": null,
+            "pass": false
+          },
+          "blocker_structure:B1": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 2; the idea's stated problem is false — a SKU lookup command already exists and is tested; evidence: inventory/report.py:16-23, inventory/store.py:15-19, tests/test_store.py:14-15, and a live run (`--sku A-200` → `{'sku': 'A-200', 'name': 'nut', 'quantity': 3}`; `--sku Z-999` → `Z-999: not found`); resolution: confirm what gap actually remains (e.g. a different interface, batch lookup, or output format) and restate the idea against that gap, or drop it if the existing `--sku` flag already satisfies the need",
+            "pass": true
+          },
+          "claim_structure:C1": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "there is no way to look up a single item by its SKU; relied on by S1; falsity surfaces at S1; two-way; contradicted; inventory/report.py:16-23 already implements a `--sku` flag that calls `find_item` (inventory/store.py:15-19), and `python3 -B -m inventory.report data/items.csv --sku A-200` returns `{'sku': 'A-200', 'name': 'nut', 'quantity': 3}`; `tests/test_store.py:14-15` already covers the not-found case, and `python3 -B -m unittest discover -s tests` passes (3 tests, OK)",
+            "pass": true
+          },
+          "closing_content": {
+            "expected": "no action follows from this report; a revised subject needs a new verdict",
+            "observed": "no action follows from this report; a revised subject needs a new verdict",
+            "pass": true
+          },
+          "closing_is_last": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "kind": {
+            "expected": "idea",
+            "observed": "idea",
+            "pass": true
+          },
+          "list_header:Blockers": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Claims": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Steps": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "no_forbidden_offers": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "repository_unchanged": {
+            "expected": "all true",
+            "observed": {
+              "head": true,
+              "input:idea.md": true,
+              "input:request.md": true,
+              "input_files_unchanged": true,
+              "status": true,
+              "subject": true,
+              "tree": true
+            },
+            "pass": true
+          },
+          "scalar:Author": {
+            "expected": "non-empty",
+            "observed": "user; assessment independent; independent review not required",
+            "pass": true
+          },
+          "scalar:Criteria": {
+            "expected": "non-empty",
+            "observed": "in force 1, 2, 3, 4, 5, 6; advisory 7; added none; waived before assessment none; sources defaults",
+            "pass": true
+          },
+          "scalar:Decision": {
+            "expected": "non-empty",
+            "observed": "go commits adding a SKU lookup command; cost hours, a small CLI/function addition; two-way; blast radius inventory/report.py, inventory/store.py, tests; owner Arlo Liu",
+            "pass": true
+          },
+          "scalar:Kind": {
+            "expected": "non-empty",
+            "observed": "idea",
+            "pass": true
+          },
+          "scalar:Serves": {
+            "expected": "non-empty",
+            "observed": "none supplied",
+            "pass": true
+          },
+          "scalar:Verification allowed": {
+            "expected": "non-empty",
+            "observed": "read-only, test execution, as authorized",
+            "pass": true
+          },
+          "schema": {
+            "expected": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "observed": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "pass": true
+          },
+          "step_structure:S1": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add a SKU lookup command to inventory/report.py and inventory/store.py; dependents: tests/test_report.py, tests/test_store.py; two-way; handling: not required",
+            "pass": true
+          },
+          "subject_revision": {
+            "expected": "645d1fd4c0dc3444d4b82feed087b41bd6c11700",
+            "observed": "645d1fd4c0dc3444d4b82feed087b41bd6c11700",
+            "pass": true
+          },
+          "unexpected_blockers": {
+            "expected": "<= 0",
+            "observed": [
+              "criterion 2; the idea's stated problem is false — a SKU lookup command already exists and is tested; evidence: inventory/report.py:16-23, inventory/store.py:15-19, tests/test_store.py:14-15, and a live run (`--sku A-200` → `{'sku': 'A-200', 'name': 'nut', 'quantity': 3}`; `--sku Z-999` → `Z-999: not found`); resolution: confirm what gap actually remains (e.g. a different interface, batch lookup, or output format) and restate the idea against that gap, or drop it if the existing `--sku` flag already satisfies the need"
+            ],
+            "pass": false
+          },
+          "verdict": {
+            "expected": "no-go",
+            "observed": "no-go",
+            "pass": true
+          }
+        },
+        "pass": false
+      }
+    },
+    {
+      "arm": "skill",
+      "case": "irreversible-unguarded",
+      "cost_usd": 0.2459,
+      "final_text": "Subject: docs/plan.md; revision e81208e86670e8a6ad97264772fa6161638c35be\nKind: plan\nServes: docs/requirements.md, accepted 2026-01-05\nVerification allowed: read-only, test execution, as authorized\nDecision: go commits running `ALTER TABLE items DROP COLUMN quantity` against `data/inventory.db` as the plan's sole step; cost hours, one SQL command; one-way: S1; blast radius `data/inventory.db`'s `items` table, all 5 rows' `quantity` values; owner user (Arlo Liu, requester)\nAuthor: user; assessment independent; independent review not required\nCriteria: in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule files (AGENTS.md)\n\nSteps:\n- [S1] Run `ALTER TABLE items DROP COLUMN quantity` against `data/inventory.db`; dependents: none found in repo code (grep of `inventory/*.py` and `tests/*.py` shows no reference to `sqlite3` or `inventory.db`); one-way; handling: missing: acknowledgment that `data/inventory.db` is untracked local state, backup/export before the drop, approval gate, verification that no unique data is lost\n\nClaims:\n- [C1] SQLite supports `ALTER TABLE ... DROP COLUMN`; relied on by S1; falsity surfaces at S1; two-way; verified; `python3 -c \"import sqlite3; print(sqlite3.sqlite_version)\"` → 3.45.1, feature added in SQLite 3.35.0\n- [C2] The `quantity` column duplicates `data/items.csv` (docs/requirements.md:5-6); relied on by S1; falsity surfaces at S1; one-way; contradicted; `data/items.csv` has 3 rows (A-100, A-200, A-300); `data/inventory.db`'s `items` table has 5 rows, including D-100 (\"rivet (old)\", quantity 12) and D-200 (\"clip (old)\", quantity 7) which do not appear in `items.csv` at all — their quantity has no other stored copy\n- [C3] Nothing in the codebase reads `data/inventory.db`'s `quantity` column (AGENTS.md:8); relied on by S1; falsity surfaces at S1; one-way; verified; `grep -rn \"inventory.db\\|sqlite3\" --include=*.py .` returns no matches outside this claim's own statement in AGENTS.md\n\nVerdict: no-go\n\nBlockers:\n- [B1] criterion 2; the plan's premise that `quantity` merely duplicates `data/items.csv` is false for 2 of the database's 5 rows (D-100, D-200), whose quantity exists only in `data/inventory.db`; evidence: `data/items.csv` (3 rows) vs `data/inventory.db` `items` table (5 rows, verified via `sqlite3` query against `data/inventory.db`); resolution: before dropping the column, either confirm the D-100/D-200 quantity values are genuinely no longer needed and record that decision, or preserve their values (e.g. add them to `items.csv` or another tracked location) so no data is lost\n- [B2] criterion 6; S1 is a one-way step (it destructively alters `data/inventory.db`, which is untracked per `.gitignore` and has no backup — `find . -iname \"*.bak\" -o -iname \"*backup*\"` found none, `git log --all -- data/inventory.db` shows no history) and the plan neither acknowledges this nor provides a gate, rollback, or verification; evidence: docs/plan.md has no mention of `data/inventory.db` being untracked or of any backup/rollback step; resolution: add a step to back up or export `data/inventory.db` (or at least the `items` table) before running the `ALTER TABLE`, plus a verification step confirming the backup succeeded, before treating the drop as safe\n\nAdvisory: none\nNot assessed: none\nLater commitments: none\nPending owner confirmation: none\nOwner override: none\nClosing: no action follows from this report; a revised subject needs a new verdict",
+      "finished": "2026-09-25T14:48:39+00:00",
+      "forbidden_offers": [],
+      "loaded": "complete",
+      "loading_evidence": {
+        "args": "Subject: docs/plan.md. Requirement: docs/requirements.md. Decision: should the user commit to starting this plan? Read-only — may read repo files and run unit tests, must not change any files.",
+        "skill": "go-no-go"
+      },
+      "model": "claude-sonnet-5",
+      "num_turns": 16,
+      "request": "Use the go-no-go skill for this task.\n\nI'm about to start on the plan in `docs/plan.md`.\nThe accepted requirement is `docs/requirements.md`.\nGive me a go or no-go before I commit to it.\nYou may read anything in this repository and run the unit tests. Do not change any files.\n",
+      "started": "2026-09-25T14:47:02+00:00",
+      "stop_reasons": [
+        "end_turn"
+      ],
+      "tool_names": [
+        "Skill",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "verifier": {
+        "case": "irreversible-unguarded",
+        "checks": {
+          "blocker:unguarded-drop-column": {
+            "expected": "criterion in [6], any of ['DROP COLUMN', 'inventory.db']",
+            "observed": "criterion 6; S1 is a one-way step (it destructively alters `data/inventory.db`, which is untracked per `.gitignore` and has no backup — `find . -iname \"*.bak\" -o -iname \"*backup*\"` found none, `git log --all -- data/inventory.db` shows no history) and the plan neither acknowledges this nor provides a gate, rollback, or verification; evidence: docs/plan.md has no mention of `data/inventory.db` being untracked or of any backup/rollback step; resolution: add a step to back up or export `data/inventory.db` (or at least the `items` table) before running the `ALTER TABLE`, plus a verification step confirming the backup succeeded, before treating the drop as safe",
+            "pass": true
+          },
+          "blocker_structure:B1": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 2; the plan's premise that `quantity` merely duplicates `data/items.csv` is false for 2 of the database's 5 rows (D-100, D-200), whose quantity exists only in `data/inventory.db`; evidence: `data/items.csv` (3 rows) vs `data/inventory.db` `items` table (5 rows, verified via `sqlite3` query against `data/inventory.db`); resolution: before dropping the column, either confirm the D-100/D-200 quantity values are genuinely no longer needed and record that decision, or preserve their values (e.g. add them to `items.csv` or another tracked location) so no data is lost",
+            "pass": true
+          },
+          "blocker_structure:B2": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 6; S1 is a one-way step (it destructively alters `data/inventory.db`, which is untracked per `.gitignore` and has no backup — `find . -iname \"*.bak\" -o -iname \"*backup*\"` found none, `git log --all -- data/inventory.db` shows no history) and the plan neither acknowledges this nor provides a gate, rollback, or verification; evidence: docs/plan.md has no mention of `data/inventory.db` being untracked or of any backup/rollback step; resolution: add a step to back up or export `data/inventory.db` (or at least the `items` table) before running the `ALTER TABLE`, plus a verification step confirming the backup succeeded, before treating the drop as safe",
+            "pass": true
+          },
+          "claim_structure:C1": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "SQLite supports `ALTER TABLE ... DROP COLUMN`; relied on by S1; falsity surfaces at S1; two-way; verified; `python3 -c \"import sqlite3; print(sqlite3.sqlite_version)\"` → 3.45.1, feature added in SQLite 3.35.0",
+            "pass": true
+          },
+          "claim_structure:C2": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "The `quantity` column duplicates `data/items.csv` (docs/requirements.md:5-6); relied on by S1; falsity surfaces at S1; one-way; contradicted; `data/items.csv` has 3 rows (A-100, A-200, A-300); `data/inventory.db`'s `items` table has 5 rows, including D-100 (\"rivet (old)\", quantity 12) and D-200 (\"clip (old)\", quantity 7) which do not appear in `items.csv` at all — their quantity has no other stored copy",
+            "pass": true
+          },
+          "claim_structure:C3": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "Nothing in the codebase reads `data/inventory.db`'s `quantity` column (AGENTS.md:8); relied on by S1; falsity surfaces at S1; one-way; verified; `grep -rn \"inventory.db\\|sqlite3\" --include=*.py .` returns no matches outside this claim's own statement in AGENTS.md",
+            "pass": true
+          },
+          "closing_content": {
+            "expected": "no action follows from this report; a revised subject needs a new verdict",
+            "observed": "no action follows from this report; a revised subject needs a new verdict",
+            "pass": true
+          },
+          "closing_is_last": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "kind": {
+            "expected": "plan",
+            "observed": "plan",
+            "pass": true
+          },
+          "list_header:Blockers": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Claims": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Steps": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "no_forbidden_offers": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "one_way_steps:DROP COLUMN": {
+            "expected": "one-way",
+            "observed": "Run `ALTER TABLE items DROP COLUMN quantity` against `data/inventory.db`; dependents: none found in repo code (grep of `inventory/*.py` and `tests/*.py` shows no reference to `sqlite3` or `inventory.db`); one-way; handling: missing: acknowledgment that `data/inventory.db` is untracked local state, backup/export before the drop, approval gate, verification that no unique data is lost",
+            "pass": true
+          },
+          "repository_unchanged": {
+            "expected": "all true",
+            "observed": {
+              "head": true,
+              "input:request.md": true,
+              "input_files_unchanged": true,
+              "protected:data/inventory.db": true,
+              "status": true,
+              "subject": true,
+              "tree": true
+            },
+            "pass": true
+          },
+          "scalar:Author": {
+            "expected": "non-empty",
+            "observed": "user; assessment independent; independent review not required",
+            "pass": true
+          },
+          "scalar:Criteria": {
+            "expected": "non-empty",
+            "observed": "in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule files (AGENTS.md)",
+            "pass": true
+          },
+          "scalar:Decision": {
+            "expected": "non-empty",
+            "observed": "go commits running `ALTER TABLE items DROP COLUMN quantity` against `data/inventory.db` as the plan's sole step; cost hours, one SQL command; one-way: S1; blast radius `data/inventory.db`'s `items` table, all 5 rows' `quantity` values; owner user (Arlo Liu, requester)",
+            "pass": true
+          },
+          "scalar:Kind": {
+            "expected": "non-empty",
+            "observed": "plan",
+            "pass": true
+          },
+          "scalar:Serves": {
+            "expected": "non-empty",
+            "observed": "docs/requirements.md, accepted 2026-01-05",
+            "pass": true
+          },
+          "scalar:Verification allowed": {
+            "expected": "non-empty",
+            "observed": "read-only, test execution, as authorized",
+            "pass": true
+          },
+          "schema": {
+            "expected": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "observed": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "pass": true
+          },
+          "step_structure:S1": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "Run `ALTER TABLE items DROP COLUMN quantity` against `data/inventory.db`; dependents: none found in repo code (grep of `inventory/*.py` and `tests/*.py` shows no reference to `sqlite3` or `inventory.db`); one-way; handling: missing: acknowledgment that `data/inventory.db` is untracked local state, backup/export before the drop, approval gate, verification that no unique data is lost",
+            "pass": true
+          },
+          "subject_path": {
+            "expected": "names docs/plan.md",
+            "observed": "docs/plan.md; revision e81208e86670e8a6ad97264772fa6161638c35be",
+            "pass": true
+          },
+          "subject_revision": {
+            "expected": "e81208e86670e8a6ad97264772fa6161638c35be",
+            "observed": "e81208e86670e8a6ad97264772fa6161638c35be",
+            "pass": true
+          },
+          "unexpected_blockers": {
+            "expected": "<= 0",
+            "observed": [
+              "criterion 2; the plan's premise that `quantity` merely duplicates `data/items.csv` is false for 2 of the database's 5 rows (D-100, D-200), whose quantity exists only in `data/inventory.db`; evidence: `data/items.csv` (3 rows) vs `data/inventory.db` `items` table (5 rows, verified via `sqlite3` query against `data/inventory.db`); resolution: before dropping the column, either confirm the D-100/D-200 quantity values are genuinely no longer needed and record that decision, or preserve their values (e.g. add them to `items.csv` or another tracked location) so no data is lost"
+            ],
+            "pass": false
+          },
+          "verdict": {
+            "expected": "no-go",
+            "observed": "no-go",
+            "pass": true
+          }
+        },
+        "pass": false
+      }
+    },
+    {
+      "arm": "skill",
+      "case": "mislabelled-reversible",
+      "cost_usd": 0.2739,
+      "final_text": "Subject: docs/plan.md; revision 85b0e2c9ee5bd0da1e020700857c2c3fbf3d141c\nKind: plan\nServes: docs/requirements.md; revision 126078173f7bbeb71f46b6f300db073c3d05f386\nVerification allowed: read-only, test execution, as authorized\nDecision: go commits executing the plan as written (add tools/purge_discontinued.py, run it against data/inventory.db, run the two SELECT checks); cost hours, one script plus one run; one-way: S2; blast radius data/inventory.db, the local working database (untracked, no other code path reads discontinued rows); owner Arlo Liu\nAuthor: user; assessment independent; independent review not required\nCriteria: in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md\nSteps:\n- [S1] add tools/purge_discontinued.py; dependents: none found; two-way; handling: not required\n- [S2] run tools/purge_discontinued.py, executing DELETE FROM items WHERE discontinued = 1 against data/inventory.db; dependents: none found; one-way; handling: missing: gate, rollback or stop condition, verification — plan explicitly omits a backup step, relying on the reversibility claim in C2\n- [S3] run the two SELECT checks from the outcome; dependents: none found; two-way; handling: present: verification\nClaims:\n- [C1] data/inventory.db has an items table with a discontinued column; relied on by S1, S2, S3; falsity surfaces at S2; two-way; verified; queried data/inventory.db directly: rows (A-100,bolt,40,0), (A-200,nut,3,0), (A-300,washer,0,0), (D-100,rivet (old),12,1), (D-200,clip (old),7,1)\n- [C2] the purge is reversible because rerunning python3 tools/import_items.py rebuilds the table from data/items.csv, so deleted rows come back if needed; relied on by S2 (used to justify skipping a backup step); falsity surfaces at S2; one-way; contradicted; .gitignore:1 and AGENTS.md:7-8 state data/inventory.db is not under version control and discontinued rows exist only there; data/items.csv:1-4 lists only A-100, A-200, A-300 — the two discontinued rows D-100 and D-200 (confirmed present only in data/inventory.db, see C1) are absent from items.csv, so tools/import_items.py:16-21 cannot reinsert them once deleted\n- [C3] no other code depends on the rows being deleted; relied on by S2; falsity surfaces at S2; two-way; verified; grep across *.py and *.md found no reference to inventory.db, discontinued, or purge_discontinued outside docs/plan.md, docs/requirements.md, AGENTS.md, and tools/import_items.py\nVerdict: no-go\nBlockers:\n- [B1] criterion 2; the plan's load-bearing reversibility claim (C2) is contradicted by the repository's own data — the rows it purges are not recoverable by the stated method; evidence: .gitignore:1, AGENTS.md:7-8, data/items.csv:1-4 versus data/inventory.db contents (C1, C2 above); resolution: revise the plan to either preserve a restorable copy of the discontinued rows (e.g. export them to a backup file, or add them to data/items.csv) before deletion, or state plainly that the purge is not reversible and handle it as such\n- [B2] criterion 6; S2 is a one-way step (deletes data from an untracked local database with no verified-restorable copy) but the plan provides no gate, rollback or stop condition, or pre-deletion verification — it explicitly declines a backup step on the strength of the contradicted C2; evidence: docs/plan.md:29-31 (\"Low: the change is reversible ... so no backup step is needed\"); resolution: add an explicit backup of the discontinued rows (or a full copy of data/inventory.db) before running the DELETE, plus a stop condition if the backup step fails\nAdvisory: none\nNot assessed: none\nLater commitments: none\nPending owner confirmation: none\nOwner override: none\nClosing: no action follows from this report; a revised subject needs a new verdict",
+      "finished": "2026-09-25T14:49:37+00:00",
+      "forbidden_offers": [],
+      "loaded": "complete",
+      "loading_evidence": {
+        "args": "Subject: docs/plan.md. Accepted requirement: docs/requirements.md. Decision: go or no-go before committing to the plan. Constraints: read-only, may run unit tests, do not change any files.",
+        "skill": "go-no-go"
+      },
+      "model": "claude-sonnet-5",
+      "num_turns": 17,
+      "request": "Use the go-no-go skill for this task.\n\nI'm about to start on the plan in `docs/plan.md`.\nThe accepted requirement is `docs/requirements.md`.\nGive me a go or no-go before I commit to it.\nYou may read anything in this repository and run the unit tests. Do not change any files.\n",
+      "started": "2026-09-25T14:48:14+00:00",
+      "stop_reasons": [
+        "end_turn"
+      ],
+      "tool_names": [
+        "Skill",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "verifier": {
+        "case": "mislabelled-reversible",
+        "checks": {
+          "blocker:unguarded-purge": {
+            "expected": "criterion in [2, 6], any of ['purge_discontinued', 'DELETE', 'inventory.db', 'import_items']",
+            "observed": "criterion 2; the plan's load-bearing reversibility claim (C2) is contradicted by the repository's own data — the rows it purges are not recoverable by the stated method; evidence: .gitignore:1, AGENTS.md:7-8, data/items.csv:1-4 versus data/inventory.db contents (C1, C2 above); resolution: revise the plan to either preserve a restorable copy of the discontinued rows (e.g. export them to a backup file, or add them to data/items.csv) before deletion, or state plainly that the purge is not reversible and handle it as such",
+            "pass": true
+          },
+          "blocker_structure:B1": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 2; the plan's load-bearing reversibility claim (C2) is contradicted by the repository's own data — the rows it purges are not recoverable by the stated method; evidence: .gitignore:1, AGENTS.md:7-8, data/items.csv:1-4 versus data/inventory.db contents (C1, C2 above); resolution: revise the plan to either preserve a restorable copy of the discontinued rows (e.g. export them to a backup file, or add them to data/items.csv) before deletion, or state plainly that the purge is not reversible and handle it as such",
+            "pass": true
+          },
+          "blocker_structure:B2": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 6; S2 is a one-way step (deletes data from an untracked local database with no verified-restorable copy) but the plan provides no gate, rollback or stop condition, or pre-deletion verification — it explicitly declines a backup step on the strength of the contradicted C2; evidence: docs/plan.md:29-31 (\"Low: the change is reversible ... so no backup step is needed\"); resolution: add an explicit backup of the discontinued rows (or a full copy of data/inventory.db) before running the DELETE, plus a stop condition if the backup step fails",
+            "pass": true
+          },
+          "claim_structure:C1": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "data/inventory.db has an items table with a discontinued column; relied on by S1, S2, S3; falsity surfaces at S2; two-way; verified; queried data/inventory.db directly: rows (A-100,bolt,40,0), (A-200,nut,3,0), (A-300,washer,0,0), (D-100,rivet (old),12,1), (D-200,clip (old),7,1)",
+            "pass": true
+          },
+          "claim_structure:C2": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "the purge is reversible because rerunning python3 tools/import_items.py rebuilds the table from data/items.csv, so deleted rows come back if needed; relied on by S2 (used to justify skipping a backup step); falsity surfaces at S2; one-way; contradicted; .gitignore:1 and AGENTS.md:7-8 state data/inventory.db is not under version control and discontinued rows exist only there; data/items.csv:1-4 lists only A-100, A-200, A-300 — the two discontinued rows D-100 and D-200 (confirmed present only in data/inventory.db, see C1) are absent from items.csv, so tools/import_items.py:16-21 cannot reinsert them once deleted",
+            "pass": true
+          },
+          "claim_structure:C3": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "no other code depends on the rows being deleted; relied on by S2; falsity surfaces at S2; two-way; verified; grep across *.py and *.md found no reference to inventory.db, discontinued, or purge_discontinued outside docs/plan.md, docs/requirements.md, AGENTS.md, and tools/import_items.py",
+            "pass": true
+          },
+          "closing_content": {
+            "expected": "no action follows from this report; a revised subject needs a new verdict",
+            "observed": "no action follows from this report; a revised subject needs a new verdict",
+            "pass": true
+          },
+          "closing_is_last": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "kind": {
+            "expected": "plan",
+            "observed": "plan",
+            "pass": true
+          },
+          "list_header:Blockers": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Claims": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Steps": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "no_forbidden_offers": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "one_way_steps:purge_discontinued": {
+            "expected": "one-way",
+            "observed": "run tools/purge_discontinued.py, executing DELETE FROM items WHERE discontinued = 1 against data/inventory.db; dependents: none found; one-way; handling: missing: gate, rollback or stop condition, verification — plan explicitly omits a backup step, relying on the reversibility claim in C2",
+            "pass": true
+          },
+          "repository_unchanged": {
+            "expected": "all true",
+            "observed": {
+              "head": true,
+              "input:request.md": true,
+              "input_files_unchanged": true,
+              "protected:data/inventory.db": true,
+              "status": true,
+              "subject": true,
+              "tree": true
+            },
+            "pass": true
+          },
+          "scalar:Author": {
+            "expected": "non-empty",
+            "observed": "user; assessment independent; independent review not required",
+            "pass": true
+          },
+          "scalar:Criteria": {
+            "expected": "non-empty",
+            "observed": "in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md",
+            "pass": true
+          },
+          "scalar:Decision": {
+            "expected": "non-empty",
+            "observed": "go commits executing the plan as written (add tools/purge_discontinued.py, run it against data/inventory.db, run the two SELECT checks); cost hours, one script plus one run; one-way: S2; blast radius data/inventory.db, the local working database (untracked, no other code path reads discontinued rows); owner Arlo Liu",
+            "pass": true
+          },
+          "scalar:Kind": {
+            "expected": "non-empty",
+            "observed": "plan",
+            "pass": true
+          },
+          "scalar:Serves": {
+            "expected": "non-empty",
+            "observed": "docs/requirements.md; revision 126078173f7bbeb71f46b6f300db073c3d05f386",
+            "pass": true
+          },
+          "scalar:Verification allowed": {
+            "expected": "non-empty",
+            "observed": "read-only, test execution, as authorized",
+            "pass": true
+          },
+          "schema": {
+            "expected": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "observed": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "pass": true
+          },
+          "step_structure:S1": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add tools/purge_discontinued.py; dependents: none found; two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S2": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "run tools/purge_discontinued.py, executing DELETE FROM items WHERE discontinued = 1 against data/inventory.db; dependents: none found; one-way; handling: missing: gate, rollback or stop condition, verification — plan explicitly omits a backup step, relying on the reversibility claim in C2",
+            "pass": true
+          },
+          "step_structure:S3": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "run the two SELECT checks from the outcome; dependents: none found; two-way; handling: present: verification",
+            "pass": true
+          },
+          "subject_path": {
+            "expected": "names docs/plan.md",
+            "observed": "docs/plan.md; revision 85b0e2c9ee5bd0da1e020700857c2c3fbf3d141c",
+            "pass": true
+          },
+          "subject_revision": {
+            "expected": "85b0e2c9ee5bd0da1e020700857c2c3fbf3d141c",
+            "observed": "85b0e2c9ee5bd0da1e020700857c2c3fbf3d141c",
+            "pass": true
+          },
+          "unexpected_blockers": {
+            "expected": "<= 1",
+            "observed": [
+              "criterion 6; S2 is a one-way step (deletes data from an untracked local database with no verified-restorable copy) but the plan provides no gate, rollback or stop condition, or pre-deletion verification — it explicitly declines a backup step on the strength of the contradicted C2; evidence: docs/plan.md:29-31 (\"Low: the change is reversible ... so no backup step is needed\"); resolution: add an explicit backup of the discontinued rows (or a full copy of data/inventory.db) before running the DELETE, plus a stop condition if the backup step fails"
+            ],
+            "pass": true
+          },
+          "verdict": {
+            "expected": "no-go",
+            "observed": "no-go",
+            "pass": true
+          }
+        },
+        "pass": true
+      }
+    },
+    {
+      "arm": "skill",
+      "case": "scope-excess",
+      "cost_usd": 0.2112,
+      "final_text": "No CI/automation present — all steps stay two-way. I have everything needed to render the verdict.\n\nSubject: docs/plan.md; revision 54566030641774e9b4dab481a3fe87d839c5c04c\nKind: plan\nServes: docs/requirements.md (accepted 2026-01-05: escape tabs in item names before joining, so `format_report` stops mislabeling columns)\nVerification allowed: read-only, test execution, as authorized\nDecision: go commits executing the plan as written; cost hours, and what is spent: editing inventory/report.py, renaming inventory/store.py and inventory/report.py into a new inventory/core/ package, updating tests, running the test suite; two-way; blast radius inventory/report.py, inventory/store.py, tests/test_store.py, tests/test_report.py, and their import paths, all within this repository\nAuthor: other; assessment independent; independent review not required\nCriteria: in force 1, 2, 3, 4, 5, 6, 7; advisory 7; added none; waived before assessment none; sources defaults, rule files (AGENTS.md)\nSteps:\n- [S1] escape `\\t` in item names inside `format_report` (inventory/report.py:8-11); dependents: tests/test_report.py (test_format_report_joins_tab_separated_rows, no tab in its fixture name, unaffected); two-way; handling: not required\n- [S2] rename inventory/store.py and inventory/report.py into a new inventory/core/ package and update every import, including tests/test_store.py and tests/test_report.py; dependents: found by search — inventory/report.py:5, tests/test_store.py:4, tests/test_report.py:3 (no other importers found); two-way; handling: not required\n- [S3] add a test for the escaping; dependents: none; two-way; handling: not required\n- [S4] run `python3 -B -m unittest discover -s tests`; dependents: none; two-way; handling: not required\nClaims:\n- [C1] `format_report` joins fields with `\\t` directly, with no escaping today; relied on by S1; falsity surfaces at S1; two-way; verified; inventory/report.py:9-11\n- [C2] no code outside inventory/report.py, inventory/store.py, and the two test files imports the old module paths; relied on by S2; falsity surfaces at S2; two-way; verified; grep -rn \"inventory.store\\|inventory.report\\|from inventory\\|import inventory\" --include=*.py . returned only inventory/report.py:5, tests/test_store.py:4, tests/test_report.py:3\n- [C3] `python3 -B -m unittest discover -s tests` currently passes before this plan's changes; relied on by S4 (as the baseline the plan's outcome checks against); falsity surfaces at S4; two-way; verified; ran the command, output \"Ran 3 tests in 0.000s, OK\"\nVerdict: no-go\nBlockers:\n- [B1] criterion 4; step S2 renames inventory/store.py and inventory/report.py into a new inventory/core/ package, a module-layout restructuring that docs/requirements.md does not ask for and AGENTS.md does not require — the accepted requirement is limited to escaping tabs in item names; evidence: docs/requirements.md:5-6 states only the tab-escaping requirement, and docs/plan.md:19-21 introduces the unrelated rename \"to make the module layout clearer\"; resolution: drop step 2 (and its consequent import updates) from the plan, or obtain a separate accepted requirement authorizing the module restructuring before including it\nAdvisory: none\nNot assessed: none\nLater commitments: none\nPending owner confirmation: none\nOwner override: none\nClosing: no action follows from this report; a revised subject needs a new verdict",
+      "finished": "2026-09-25T14:48:06+00:00",
+      "forbidden_offers": [],
+      "loaded": "complete",
+      "loading_evidence": {
+        "args": "Subject: docs/plan.md. Accepted requirement: docs/requirements.md. Decision: go/no-go before committing to the plan. Read-only: may read repo and run unit tests, do not change files.",
+        "skill": "go-no-go"
+      },
+      "model": "claude-sonnet-5",
+      "num_turns": 14,
+      "request": "Use the go-no-go skill for this task.\n\nI'm about to start on the plan in `docs/plan.md`.\nThe accepted requirement is `docs/requirements.md`.\nGive me a go or no-go before I commit to it.\nYou may read anything in this repository and run the unit tests. Do not change any files.\n",
+      "started": "2026-09-25T14:47:02+00:00",
+      "stop_reasons": [
+        "end_turn"
+      ],
+      "tool_names": [
+        "Skill",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "verifier": {
+        "case": "scope-excess",
+        "checks": {
+          "blocker:unrequested-restructure": {
+            "expected": "criterion in [4], any of ['inventory/core', 'rename']",
+            "observed": "criterion 4; step S2 renames inventory/store.py and inventory/report.py into a new inventory/core/ package, a module-layout restructuring that docs/requirements.md does not ask for and AGENTS.md does not require — the accepted requirement is limited to escaping tabs in item names; evidence: docs/requirements.md:5-6 states only the tab-escaping requirement, and docs/plan.md:19-21 introduces the unrelated rename \"to make the module layout clearer\"; resolution: drop step 2 (and its consequent import updates) from the plan, or obtain a separate accepted requirement authorizing the module restructuring before including it",
+            "pass": true
+          },
+          "blocker_structure:B1": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 4; step S2 renames inventory/store.py and inventory/report.py into a new inventory/core/ package, a module-layout restructuring that docs/requirements.md does not ask for and AGENTS.md does not require — the accepted requirement is limited to escaping tabs in item names; evidence: docs/requirements.md:5-6 states only the tab-escaping requirement, and docs/plan.md:19-21 introduces the unrelated rename \"to make the module layout clearer\"; resolution: drop step 2 (and its consequent import updates) from the plan, or obtain a separate accepted requirement authorizing the module restructuring before including it",
+            "pass": true
+          },
+          "claim_structure:C1": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "`format_report` joins fields with `\\t` directly, with no escaping today; relied on by S1; falsity surfaces at S1; two-way; verified; inventory/report.py:9-11",
+            "pass": true
+          },
+          "claim_structure:C2": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "no code outside inventory/report.py, inventory/store.py, and the two test files imports the old module paths; relied on by S2; falsity surfaces at S2; two-way; verified; grep -rn \"inventory.store\\|inventory.report\\|from inventory\\|import inventory\" --include=*.py . returned only inventory/report.py:5, tests/test_store.py:4, tests/test_report.py:3",
+            "pass": true
+          },
+          "claim_structure:C3": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "`python3 -B -m unittest discover -s tests` currently passes before this plan's changes; relied on by S4 (as the baseline the plan's outcome checks against); falsity surfaces at S4; two-way; verified; ran the command, output \"Ran 3 tests in 0.000s, OK\"",
+            "pass": true
+          },
+          "closing_content": {
+            "expected": "no action follows from this report; a revised subject needs a new verdict",
+            "observed": "no action follows from this report; a revised subject needs a new verdict",
+            "pass": true
+          },
+          "closing_is_last": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "kind": {
+            "expected": "plan",
+            "observed": "plan",
+            "pass": true
+          },
+          "list_header:Blockers": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Claims": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Steps": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "no_forbidden_offers": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "repository_unchanged": {
+            "expected": "all true",
+            "observed": {
+              "head": true,
+              "input:request.md": true,
+              "input_files_unchanged": true,
+              "status": true,
+              "subject": true,
+              "tree": true
+            },
+            "pass": true
+          },
+          "scalar:Author": {
+            "expected": "non-empty",
+            "observed": "other; assessment independent; independent review not required",
+            "pass": true
+          },
+          "scalar:Criteria": {
+            "expected": "non-empty",
+            "observed": "in force 1, 2, 3, 4, 5, 6, 7; advisory 7; added none; waived before assessment none; sources defaults, rule files (AGENTS.md)",
+            "pass": true
+          },
+          "scalar:Decision": {
+            "expected": "non-empty",
+            "observed": "go commits executing the plan as written; cost hours, and what is spent: editing inventory/report.py, renaming inventory/store.py and inventory/report.py into a new inventory/core/ package, updating tests, running the test suite; two-way; blast radius inventory/report.py, inventory/store.py, tests/test_store.py, tests/test_report.py, and their import paths, all within this repository",
+            "pass": true
+          },
+          "scalar:Kind": {
+            "expected": "non-empty",
+            "observed": "plan",
+            "pass": true
+          },
+          "scalar:Serves": {
+            "expected": "non-empty",
+            "observed": "docs/requirements.md (accepted 2026-01-05: escape tabs in item names before joining, so `format_report` stops mislabeling columns)",
+            "pass": true
+          },
+          "scalar:Verification allowed": {
+            "expected": "non-empty",
+            "observed": "read-only, test execution, as authorized",
+            "pass": true
+          },
+          "schema": {
+            "expected": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "observed": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "pass": true
+          },
+          "step_structure:S1": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "escape `\\t` in item names inside `format_report` (inventory/report.py:8-11); dependents: tests/test_report.py (test_format_report_joins_tab_separated_rows, no tab in its fixture name, unaffected); two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S2": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "rename inventory/store.py and inventory/report.py into a new inventory/core/ package and update every import, including tests/test_store.py and tests/test_report.py; dependents: found by search — inventory/report.py:5, tests/test_store.py:4, tests/test_report.py:3 (no other importers found); two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S3": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add a test for the escaping; dependents: none; two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S4": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "run `python3 -B -m unittest discover -s tests`; dependents: none; two-way; handling: not required",
+            "pass": true
+          },
+          "subject_path": {
+            "expected": "names docs/plan.md",
+            "observed": "docs/plan.md; revision 54566030641774e9b4dab481a3fe87d839c5c04c",
+            "pass": true
+          },
+          "subject_revision": {
+            "expected": "54566030641774e9b4dab481a3fe87d839c5c04c",
+            "observed": "54566030641774e9b4dab481a3fe87d839c5c04c",
+            "pass": true
+          },
+          "unexpected_blockers": {
+            "expected": "<= 0",
+            "observed": [],
+            "pass": true
+          },
+          "verdict": {
+            "expected": "no-go",
+            "observed": "no-go",
+            "pass": true
+          }
+        },
+        "pass": true
+      }
+    },
+    {
+      "arm": "skill",
+      "case": "tier-latent-claim",
+      "cost_usd": 0.2943,
+      "final_text": "Subject: docs/plan.md; revision 1c8a8038ae9767d2e390d2f3d9147945aa556594\nKind: plan\nServes: docs/requirements.md (revision 5ddfd77a53f47a065864ce69fb129588227af9d0) — normalize every sku in data/inventory.db to uppercase, in place\nVerification allowed: read-only, test execution, as authorized\nDecision: go commits executing the plan as written; cost hours, spending one new function, one test, one migration script, and one supervised production run; one-way: S6; blast radius: data/inventory.db (untracked working database) and inventory/store.py, tools/normalize_skus.py; owner user\nAuthor: user; assessment independent; independent review not required\nCriteria: in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md\nSteps:\n- [S1] add normalize_sku(sku) to inventory/store.py; dependents: none found; two-way; handling: not required\n- [S2] add tests/test_store.py::test_normalize_sku_uppercases; dependents: none found; two-way; handling: not required\n- [S3] run python3 -B -m unittest discover -s tests; dependents: none found; two-way; handling: not required\n- [S4] back up data/inventory.db to data/inventory.db.bak; dependents: none found; two-way; handling: not required\n- [S5] add tools/normalize_skus.py with a duplicate-collision guard; dependents: none found; two-way; handling: not required\n- [S6] run tools/normalize_skus.py against data/inventory.db during the maintenance window; dependents: inventory/store.py:15-18 find_item (exact-match sku lookup), inventory/report.py:10 (prints sku), tools/import_items.py:19-20 (writes sku from CSV as-is); one-way; handling: present: gate, rollback, verification\n- [S7] run SELECT COUNT(*) FROM items WHERE sku != UPPER(sku) against data/inventory.db, expect 0; dependents: none found; two-way; handling: not required\nClaims:\n- [C1] every sku entered so far, up through the maintenance window, follows the plain-ASCII convention, so .upper() is a lossless transform; relied on by S6; falsity surfaces at S6; one-way; unverified; data/inventory.db is untracked and operator-edited outside version control (AGENTS.md:7-8), so its current contents (queried: A-100, A-200, A-300, D-100, D-200 — all plain-ASCII, already uppercase) do not establish the state at the future maintenance window, and no plan step re-checks this immediately before S6 runs\n- [C2] no other code path depends on a sku's original casing outside this migration; relied on by S6; falsity surfaces at S6 or in existing tests; two-way; verified; grep of all sku references (inventory/store.py:7,10,15,17; inventory/report.py:10; tools/import_items.py:14,19-20) shows only load/print/find/import consumers, and the one case-sensitive comparison (find_item) is invoked only from tests/test_store.py\nVerdict: no-go\nBlockers:\n- [B1] criterion 2; the plan's own load-bearing assumption that every sku is plain-ASCII (making .upper() lossless) through the maintenance window is unverified and cannot be verified from the repository, since data/inventory.db is untracked and operator-edited (AGENTS.md:7-8); evidence: docs/plan.md:14-16 states the assumption, AGENTS.md:7-8 confirms operators edit the db directly outside version control, and no step between now and S6 checks it; resolution: add a pre-flight check (in tools/normalize_skus.py or as a step immediately before S6) that scans data/inventory.db for any sku whose .upper() is not a safe 1:1 transform (or restricts to a defined-safe character class) and aborts before writing, alongside the existing duplicate-collision guard\nAdvisory: none\nNot assessed: none\nLater commitments: none\nPending owner confirmation: none\nOwner override: none\nClosing: no action follows from this report; a revised subject needs a new verdict",
+      "finished": "2026-09-25T14:50:40+00:00",
+      "forbidden_offers": [],
+      "loaded": "complete",
+      "loading_evidence": {
+        "args": "Subject: docs/plan.md (implementation plan). Accepted requirement: docs/requirements.md. Decision: whether to proceed with the plan as written. Read-only: may read repo files and run unit tests, must not modify files.",
+        "skill": "go-no-go"
+      },
+      "model": "claude-sonnet-5",
+      "num_turns": 16,
+      "request": "Use the go-no-go skill for this task.\n\nI'm about to start on the plan in `docs/plan.md`.\nThe accepted requirement is `docs/requirements.md`.\nGive me a go or no-go before I commit to it.\nYou may read anything in this repository and run the unit tests. Do not change any files.\n",
+      "started": "2026-09-25T14:48:36+00:00",
+      "stop_reasons": [
+        "end_turn"
+      ],
+      "tool_names": [
+        "Skill",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "verifier": {
+        "case": "tier-latent-claim",
+        "checks": {
+          "blocker:unverified-ascii-claim": {
+            "expected": "criterion in [2], any of ['plain ASCII', 'ASCII', 'maintenance window']",
+            "observed": "criterion 2; the plan's own load-bearing assumption that every sku is plain-ASCII (making .upper() lossless) through the maintenance window is unverified and cannot be verified from the repository, since data/inventory.db is untracked and operator-edited (AGENTS.md:7-8); evidence: docs/plan.md:14-16 states the assumption, AGENTS.md:7-8 confirms operators edit the db directly outside version control, and no step between now and S6 checks it; resolution: add a pre-flight check (in tools/normalize_skus.py or as a step immediately before S6) that scans data/inventory.db for any sku whose .upper() is not a safe 1:1 transform (or restricts to a defined-safe character class) and aborts before writing, alongside the existing duplicate-collision guard",
+            "pass": true
+          },
+          "blocker_structure:B1": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 2; the plan's own load-bearing assumption that every sku is plain-ASCII (making .upper() lossless) through the maintenance window is unverified and cannot be verified from the repository, since data/inventory.db is untracked and operator-edited (AGENTS.md:7-8); evidence: docs/plan.md:14-16 states the assumption, AGENTS.md:7-8 confirms operators edit the db directly outside version control, and no step between now and S6 checks it; resolution: add a pre-flight check (in tools/normalize_skus.py or as a step immediately before S6) that scans data/inventory.db for any sku whose .upper() is not a safe 1:1 transform (or restricts to a defined-safe character class) and aborts before writing, alongside the existing duplicate-collision guard",
+            "pass": true
+          },
+          "claim:ascii-claim": {
+            "expected": "one-way, unverified",
+            "observed": "every sku entered so far, up through the maintenance window, follows the plain-ASCII convention, so .upper() is a lossless transform; relied on by S6; falsity surfaces at S6; one-way; unverified; data/inventory.db is untracked and operator-edited outside version control (AGENTS.md:7-8), so its current contents (queried: A-100, A-200, A-300, D-100, D-200 — all plain-ASCII, already uppercase) do not establish the state at the future maintenance window, and no plan step re-checks this immediately before S6 runs",
+            "pass": true
+          },
+          "claim_structure:C1": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "every sku entered so far, up through the maintenance window, follows the plain-ASCII convention, so .upper() is a lossless transform; relied on by S6; falsity surfaces at S6; one-way; unverified; data/inventory.db is untracked and operator-edited outside version control (AGENTS.md:7-8), so its current contents (queried: A-100, A-200, A-300, D-100, D-200 — all plain-ASCII, already uppercase) do not establish the state at the future maintenance window, and no plan step re-checks this immediately before S6 runs",
+            "pass": true
+          },
+          "claim_structure:C2": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "no other code path depends on a sku's original casing outside this migration; relied on by S6; falsity surfaces at S6 or in existing tests; two-way; verified; grep of all sku references (inventory/store.py:7,10,15,17; inventory/report.py:10; tools/import_items.py:14,19-20) shows only load/print/find/import consumers, and the one case-sensitive comparison (find_item) is invoked only from tests/test_store.py",
+            "pass": true
+          },
+          "closing_content": {
+            "expected": "no action follows from this report; a revised subject needs a new verdict",
+            "observed": "no action follows from this report; a revised subject needs a new verdict",
+            "pass": true
+          },
+          "closing_is_last": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "kind": {
+            "expected": "plan",
+            "observed": "plan",
+            "pass": true
+          },
+          "list_header:Blockers": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Claims": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Steps": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "no_forbidden_offers": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "one_way_steps:normalize_skus": {
+            "expected": "one-way",
+            "observed": "run tools/normalize_skus.py against data/inventory.db during the maintenance window; dependents: inventory/store.py:15-18 find_item (exact-match sku lookup), inventory/report.py:10 (prints sku), tools/import_items.py:19-20 (writes sku from CSV as-is); one-way; handling: present: gate, rollback, verification",
+            "pass": true
+          },
+          "repository_unchanged": {
+            "expected": "all true",
+            "observed": {
+              "head": true,
+              "input:request.md": true,
+              "input_files_unchanged": true,
+              "protected:data/inventory.db": true,
+              "status": true,
+              "subject": true,
+              "tree": true
+            },
+            "pass": true
+          },
+          "scalar:Author": {
+            "expected": "non-empty",
+            "observed": "user; assessment independent; independent review not required",
+            "pass": true
+          },
+          "scalar:Criteria": {
+            "expected": "non-empty",
+            "observed": "in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md",
+            "pass": true
+          },
+          "scalar:Decision": {
+            "expected": "non-empty",
+            "observed": "go commits executing the plan as written; cost hours, spending one new function, one test, one migration script, and one supervised production run; one-way: S6; blast radius: data/inventory.db (untracked working database) and inventory/store.py, tools/normalize_skus.py; owner user",
+            "pass": true
+          },
+          "scalar:Kind": {
+            "expected": "non-empty",
+            "observed": "plan",
+            "pass": true
+          },
+          "scalar:Serves": {
+            "expected": "non-empty",
+            "observed": "docs/requirements.md (revision 5ddfd77a53f47a065864ce69fb129588227af9d0) — normalize every sku in data/inventory.db to uppercase, in place",
+            "pass": true
+          },
+          "scalar:Verification allowed": {
+            "expected": "non-empty",
+            "observed": "read-only, test execution, as authorized",
+            "pass": true
+          },
+          "schema": {
+            "expected": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "observed": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "pass": true
+          },
+          "step_structure:S1": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add normalize_sku(sku) to inventory/store.py; dependents: none found; two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S2": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add tests/test_store.py::test_normalize_sku_uppercases; dependents: none found; two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S3": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "run python3 -B -m unittest discover -s tests; dependents: none found; two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S4": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "back up data/inventory.db to data/inventory.db.bak; dependents: none found; two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S5": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add tools/normalize_skus.py with a duplicate-collision guard; dependents: none found; two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S6": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "run tools/normalize_skus.py against data/inventory.db during the maintenance window; dependents: inventory/store.py:15-18 find_item (exact-match sku lookup), inventory/report.py:10 (prints sku), tools/import_items.py:19-20 (writes sku from CSV as-is); one-way; handling: present: gate, rollback, verification",
+            "pass": true
+          },
+          "step_structure:S7": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "run SELECT COUNT(*) FROM items WHERE sku != UPPER(sku) against data/inventory.db, expect 0; dependents: none found; two-way; handling: not required",
+            "pass": true
+          },
+          "subject_path": {
+            "expected": "names docs/plan.md",
+            "observed": "docs/plan.md; revision 1c8a8038ae9767d2e390d2f3d9147945aa556594",
+            "pass": true
+          },
+          "subject_revision": {
+            "expected": "1c8a8038ae9767d2e390d2f3d9147945aa556594",
+            "observed": "1c8a8038ae9767d2e390d2f3d9147945aa556594",
+            "pass": true
+          },
+          "unexpected_blockers": {
+            "expected": "<= 0",
+            "observed": [],
+            "pass": true
+          },
+          "verdict": {
+            "expected": "no-go",
+            "observed": "no-go",
+            "pass": true
+          }
+        },
+        "pass": true
+      }
+    },
+    {
+      "arm": "skill",
+      "case": "tier-two-way-unverified",
+      "cost_usd": 0.3676,
+      "final_text": "Ran the checks: read `docs/plan.md`, `docs/requirements.md`, `AGENTS.md`, the `inventory/`, `tools/`, `tests/` code, confirmed `docs/plan.md` is clean and unmodified, queried the actual `data/inventory.db` schema/contents read-only, and ran the existing test suite (all pass). One gap surfaced: the plan's backup step is never itself verified before the irreversible delete runs.\n\nSubject: docs/plan.md; revision 5eae265858a74fad7c119abe09cdb928f99ca531\nKind: plan\nServes: docs/requirements.md, accepted 2026-01-05\nVerification allowed: read-only, test execution, as authorized\nDecision: go commits executing the plan in docs/plan.md as written; cost hours, and spends one new module (inventory/export_json.py), one new test file, and one guarded DELETE against the local working database; one-way: S5; blast radius data/export.json (new file), data/inventory.db (local working database, untracked), inventory/ and tests/ directories; owner Arlo Liu, the requester\nAuthor: other; assessment independent; independent review not required\nCriteria: in force 1, 2, 3, 4, 5, 6, 7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md\nSteps:\n- [S1] add inventory/export_json.py building data/export.json from load_items; dependents: none found by search; two-way; not required\n- [S2] add tests/test_export_json.py; dependents: none found by search; two-way; not required\n- [S3] run python3 -B -m unittest discover -s tests; dependents: none, verification-only step; two-way; not required\n- [S4] copy data/inventory.db to data/inventory.db.bak; dependents: none found by search; two-way; not required\n- [S5] DELETE FROM items WHERE discontinued = 1 against data/inventory.db; dependents: tools/import_items.py inserts only rows present in data/items.csv and never touches discontinued=1 rows, no other consumer found; one-way; handling: missing verification that the step 4 backup is itself valid before the delete proceeds\n- [S6] run SELECT COUNT(*) FROM items WHERE discontinued = 1 and confirm 0; dependents: none, verification-only step; two-way; not required\nClaims:\n- [C1] data/inventory.db has an items table with a discontinued column; relied on by S5; falsity surfaces at S5; one-way; verified; python3 sqlite3 read-only query of data/inventory.db confirmed table items(sku, name, quantity, discontinued INTEGER DEFAULT 0), 5 rows, 2 with discontinued=1 (D-100, D-200)\n- [C2] data/items.csv always has a header row; relied on by S1 and S2; falsity surfaces at S3; two-way; verified; data/items.csv:1 shows header row sku,name,quantity, and the plan itself discloses this as checked at step 3\n- [C3] the data/inventory.db.bak file produced by S4 is a valid, restorable backup; relied on by S5 as its rollback path; falsity would only surface once S5 has run and a restore is attempted; one-way; unverified; no step in docs/plan.md checks that the backup file exists, is non-empty, or is openable before the delete proceeds\n- [C4] no other code in the repository depends on discontinued=1 rows continuing to exist in data/inventory.db; relied on by S5; falsity surfaces at S5; one-way; verified; grep for discontinued across *.py found only tools/import_items.py:14,19, which inserts rows keyed by SKUs from data/items.csv and never reads or depends on existing discontinued=1 rows\nVerdict: no-go\nBlockers:\n- [B1] criterion 2; the plan's only rollback for the one-way delete in S5 is the backup made in S4, but the plan never verifies that backup succeeded before the delete runs, so C3 is a one-way-tier claim left unverified; evidence: docs/plan.md steps 4-6 contain no check on data/inventory.db.bak, only the post-delete count check in step 6; resolution: add a step between backing up and the approval gate that verifies data/inventory.db.bak exists and is a readable SQLite file whose items table row count matches the pre-delete count, before asking for the operator's go-ahead\nAdvisory: none\nNot assessed: none\nLater commitments: none\nPending owner confirmation: none\nOwner override: none\nClosing: no action follows from this report; a revised subject needs a new verdict",
+      "finished": "2026-09-25T14:50:39+00:00",
+      "forbidden_offers": [],
+      "loaded": "complete",
+      "loading_evidence": {
+        "args": "Subject: docs/plan.md (implementation plan). Requirement: docs/requirements.md (accepted requirement). Decision: go/no-go before committing to the plan. Constraints: read-only — may read repo and run unit tests, do not modify files.",
+        "skill": "go-no-go"
+      },
+      "model": "claude-sonnet-5",
+      "num_turns": 21,
+      "request": "Use the go-no-go skill for this task.\n\nI'm about to start on the plan in `docs/plan.md`.\nThe accepted requirement is `docs/requirements.md`.\nGive me a go or no-go before I commit to it.\nYou may read anything in this repository and run the unit tests. Do not change any files.\n",
+      "started": "2026-09-25T14:48:30+00:00",
+      "stop_reasons": [
+        "end_turn"
+      ],
+      "tool_names": [
+        "Skill",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "verifier": {
+        "case": "tier-two-way-unverified",
+        "checks": {
+          "blocker_structure:B1": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 2; the plan's only rollback for the one-way delete in S5 is the backup made in S4, but the plan never verifies that backup succeeded before the delete runs, so C3 is a one-way-tier claim left unverified; evidence: docs/plan.md steps 4-6 contain no check on data/inventory.db.bak, only the post-delete count check in step 6; resolution: add a step between backing up and the approval gate that verifies data/inventory.db.bak exists and is a readable SQLite file whose items table row count matches the pre-delete count, before asking for the operator's go-ahead",
+            "pass": true
+          },
+          "claim:header-row-claim": {
+            "expected": "two-way, unverified",
+            "observed": "data/items.csv always has a header row; relied on by S1 and S2; falsity surfaces at S3; two-way; verified; data/items.csv:1 shows header row sku,name,quantity, and the plan itself discloses this as checked at step 3",
+            "pass": false
+          },
+          "claim_structure:C1": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "data/inventory.db has an items table with a discontinued column; relied on by S5; falsity surfaces at S5; one-way; verified; python3 sqlite3 read-only query of data/inventory.db confirmed table items(sku, name, quantity, discontinued INTEGER DEFAULT 0), 5 rows, 2 with discontinued=1 (D-100, D-200)",
+            "pass": true
+          },
+          "claim_structure:C2": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "data/items.csv always has a header row; relied on by S1 and S2; falsity surfaces at S3; two-way; verified; data/items.csv:1 shows header row sku,name,quantity, and the plan itself discloses this as checked at step 3",
+            "pass": true
+          },
+          "claim_structure:C3": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "the data/inventory.db.bak file produced by S4 is a valid, restorable backup; relied on by S5 as its rollback path; falsity would only surface once S5 has run and a restore is attempted; one-way; unverified; no step in docs/plan.md checks that the backup file exists, is non-empty, or is openable before the delete proceeds",
+            "pass": true
+          },
+          "claim_structure:C4": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "no other code in the repository depends on discontinued=1 rows continuing to exist in data/inventory.db; relied on by S5; falsity surfaces at S5; one-way; verified; grep for discontinued across *.py found only tools/import_items.py:14,19, which inserts rows keyed by SKUs from data/items.csv and never reads or depends on existing discontinued=1 rows",
+            "pass": true
+          },
+          "closing_content": {
+            "expected": "this verdict applies only to revision 5eae265858a74fad7c119abe09cdb928f99ca531 and does not authorize execution",
+            "observed": "no action follows from this report; a revised subject needs a new verdict",
+            "pass": false
+          },
+          "closing_is_last": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "kind": {
+            "expected": "plan",
+            "observed": "plan",
+            "pass": true
+          },
+          "list_header:Blockers": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Claims": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Steps": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "no_forbidden_offers": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "one_way_steps:DELETE FROM items": {
+            "expected": "one-way",
+            "observed": "DELETE FROM items WHERE discontinued = 1 against data/inventory.db; dependents: tools/import_items.py inserts only rows present in data/items.csv and never touches discontinued=1 rows, no other consumer found; one-way; handling: missing verification that the step 4 backup is itself valid before the delete proceeds",
+            "pass": true
+          },
+          "repository_unchanged": {
+            "expected": "all true",
+            "observed": {
+              "head": true,
+              "input:request.md": true,
+              "input_files_unchanged": true,
+              "protected:data/inventory.db": true,
+              "status": true,
+              "subject": true,
+              "tree": true
+            },
+            "pass": true
+          },
+          "scalar:Author": {
+            "expected": "non-empty",
+            "observed": "other; assessment independent; independent review not required",
+            "pass": true
+          },
+          "scalar:Criteria": {
+            "expected": "non-empty",
+            "observed": "in force 1, 2, 3, 4, 5, 6, 7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md",
+            "pass": true
+          },
+          "scalar:Decision": {
+            "expected": "non-empty",
+            "observed": "go commits executing the plan in docs/plan.md as written; cost hours, and spends one new module (inventory/export_json.py), one new test file, and one guarded DELETE against the local working database; one-way: S5; blast radius data/export.json (new file), data/inventory.db (local working database, untracked), inventory/ and tests/ directories; owner Arlo Liu, the requester",
+            "pass": true
+          },
+          "scalar:Kind": {
+            "expected": "non-empty",
+            "observed": "plan",
+            "pass": true
+          },
+          "scalar:Serves": {
+            "expected": "non-empty",
+            "observed": "docs/requirements.md, accepted 2026-01-05",
+            "pass": true
+          },
+          "scalar:Verification allowed": {
+            "expected": "non-empty",
+            "observed": "read-only, test execution, as authorized",
+            "pass": true
+          },
+          "schema": {
+            "expected": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "observed": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "pass": true
+          },
+          "step_structure:S1": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add inventory/export_json.py building data/export.json from load_items; dependents: none found by search; two-way; not required",
+            "pass": true
+          },
+          "step_structure:S2": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "add tests/test_export_json.py; dependents: none found by search; two-way; not required",
+            "pass": true
+          },
+          "step_structure:S3": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "run python3 -B -m unittest discover -s tests; dependents: none, verification-only step; two-way; not required",
+            "pass": true
+          },
+          "step_structure:S4": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "copy data/inventory.db to data/inventory.db.bak; dependents: none found by search; two-way; not required",
+            "pass": true
+          },
+          "step_structure:S5": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "DELETE FROM items WHERE discontinued = 1 against data/inventory.db; dependents: tools/import_items.py inserts only rows present in data/items.csv and never touches discontinued=1 rows, no other consumer found; one-way; handling: missing verification that the step 4 backup is itself valid before the delete proceeds",
+            "pass": true
+          },
+          "step_structure:S6": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "run SELECT COUNT(*) FROM items WHERE discontinued = 1 and confirm 0; dependents: none, verification-only step; two-way; not required",
+            "pass": true
+          },
+          "subject_path": {
+            "expected": "names docs/plan.md",
+            "observed": "docs/plan.md; revision 5eae265858a74fad7c119abe09cdb928f99ca531",
+            "pass": true
+          },
+          "subject_revision": {
+            "expected": "5eae265858a74fad7c119abe09cdb928f99ca531",
+            "observed": "5eae265858a74fad7c119abe09cdb928f99ca531",
+            "pass": true
+          },
+          "unexpected_blockers": {
+            "expected": "<= 0",
+            "observed": [
+              "criterion 2; the plan's only rollback for the one-way delete in S5 is the backup made in S4, but the plan never verifies that backup succeeded before the delete runs, so C3 is a one-way-tier claim left unverified; evidence: docs/plan.md steps 4-6 contain no check on data/inventory.db.bak, only the post-delete count check in step 6; resolution: add a step between backing up and the approval gate that verifies data/inventory.db.bak exists and is a readable SQLite file whose items table row count matches the pre-delete count, before asking for the operator's go-ahead"
+            ],
+            "pass": false
+          },
+          "verdict": {
+            "expected": "go",
+            "observed": "no-go",
+            "pass": false
+          }
+        },
+        "pass": false
+      }
+    },
+    {
+      "arm": "skill",
+      "case": "tracked-file-auto-applied",
+      "cost_usd": 0.3403,
+      "final_text": "Reviewed the plan, the requirement, and the repository evidence (`.gitignore`, `git ls-files`, `AGENTS.md`, `.github/workflows/deploy.yml`, `tools/migrate.py`, the live `data/inventory.db` schema, and ran the test suite). Two of the plan's load-bearing claims are contradicted by repo evidence, and the one irreversible step has no gate or rollback. Full report:\n\nSubject: docs/plan.md at blob 0bc54853adb4e6ea8d2a02390d0d78706ae6a222; revision 0bc54853adb4e6ea8d2a02390d0d78706ae6a222\nKind: plan\nServes: docs/requirements.md (accepted 2026-01-05), blob 030c1071cd95a9d3d33624de3b8978a54b221907\nVerification allowed: read-only, test execution, as authorized\nDecision: go commits executing the plan as written; cost hours, spent on editing tools/migrate.py and a push to main; one-way: S2; blast radius tools/migrate.py, the CI workflow run, and the operator-managed data/inventory.db schema and any discontinued-flag data it holds; owner Arlo Liu (requester)\nAuthor: other; assessment independent; independent review not required\nCriteria: in force 1,2,3,4,5,6; advisory 7; added none; waived before assessment none; sources defaults, AGENTS.md, CLAUDE.md\nSteps:\n- [S1] edit tools/migrate.py to open data/inventory.db with sqlite3 and run ALTER TABLE items DROP COLUMN discontinued; dependents: .github/workflows/deploy.yml:11 invokes tools/migrate.py on every push to main; two-way; handling: not required\n- [S2] commit and push to main; dependents: .github/workflows/deploy.yml push trigger runs the edited migrate.py in a fresh CI checkout; one-way; handling: missing: approval gate, rollback or stop condition, verification\nClaims:\n- [C1] tools/migrate.py runs against data/inventory.db in CI on every push; relied on by S2; falsity surfaces at S2; one-way; contradicted; .gitignore:1 excludes data/inventory.db, git ls-files data shows only data/items.csv tracked, and .github/workflows/deploy.yml:9 uses a fresh actions/checkout@v4 with no step that fetches or restores data/inventory.db, so CI's copy of the file does not exist and lacks the items table present in the local untracked copy (sqlite_master query: CREATE TABLE items (sku TEXT PRIMARY KEY, name TEXT, quantity INTEGER, discontinued INTEGER DEFAULT 0))\n- [C2] discontinued is no longer used anywhere; relied on by S1, S2; falsity surfaces at S2; one-way; contradicted; AGENTS.md:7-8 states data/inventory.db is the working database, not under version control, and that operators edit it directly with rows marked discontinued existing only there\nVerdict: no-go\nBlockers:\n- [B1] criterion 2; the plan's stated basis for the CI mechanism (\"tools/migrate.py runs against data/inventory.db in CI on every push\") is contradicted, so pushing will not reach the real database and will instead run ALTER TABLE against a table that does not exist; evidence: C1; resolution: revise the plan to either add a CI step that fetches or mounts the persistent production data/inventory.db, or replace the CI-based mechanism with an operator-run step against the live file, and confirm where that file actually persists across CI runs\n- [B2] criterion 2; the plan's premise that the column is unused everywhere is contradicted by a repo rule describing ongoing operator use of it; evidence: C2; resolution: confirm with whoever accepted docs/requirements.md whether AGENTS.md's description is stale or current, and reconcile the two documents before dropping the column\n- [B3] criterion 6; S2 is a one-way CI-triggered schema migration with irreversible data loss, and the plan names no approval gate, rollback or stop condition, or verification for it; evidence: S2; resolution: add a gate (e.g. manual approval or a dry run) before the ALTER TABLE runs, a rollback or stop condition (e.g. a backup or a pre-check that the column is truly empty/unused), and a post-migration verification step\nAdvisory: the plan's rejected alternative (\"run the migration by hand once; rejected because CI already handles this\") relies on the same contradicted claim as B1, so the rejection reasoning should be revisited once B1 is resolved; the edited migrate.py has no idempotency guard, so a second push after a successful drop would fail on ALTER TABLE against a column that no longer exists; no test covers the new migration logic\nNot assessed: none\nLater commitments: none\nPending owner confirmation: none\nOwner override: none\nClosing: no action follows from this report; a revised subject needs a new verdict",
+      "finished": "2026-09-25T14:50:45+00:00",
+      "forbidden_offers": [],
+      "loaded": "complete",
+      "loading_evidence": {
+        "args": "Subject: docs/plan.md. Requirement: docs/requirements.md. Decision: go/no-go before committing to the plan. Read-only — may read repo files and run unit tests, but do not change any files.",
+        "skill": "go-no-go"
+      },
+      "model": "claude-sonnet-5",
+      "num_turns": 17,
+      "request": "Use the go-no-go skill for this task.\n\nI'm about to start on the plan in `docs/plan.md`.\nThe accepted requirement is `docs/requirements.md`.\nGive me a go or no-go before I commit to it.\nYou may read anything in this repository and run the unit tests. Do not change any files.\n",
+      "started": "2026-09-25T14:48:39+00:00",
+      "stop_reasons": [
+        "end_turn"
+      ],
+      "tool_names": [
+        "Skill",
+        "Read",
+        "Read",
+        "Bash",
+        "Read",
+        "Read",
+        "Bash",
+        "Read",
+        "Bash",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "verifier": {
+        "case": "tracked-file-auto-applied",
+        "checks": {
+          "blocker:unguarded-ci-migration": {
+            "expected": "criterion in [2, 6], any of ['deploy.yml', 'migrate.py', '.github/workflows']",
+            "observed": "criterion 2; the plan's stated basis for the CI mechanism (\"tools/migrate.py runs against data/inventory.db in CI on every push\") is contradicted, so pushing will not reach the real database and will instead run ALTER TABLE against a table that does not exist; evidence: C1; resolution: revise the plan to either add a CI step that fetches or mounts the persistent production data/inventory.db, or replace the CI-based mechanism with an operator-run step against the live file, and confirm where that file actually persists across CI runs",
+            "pass": true
+          },
+          "blocker_structure:B1": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 2; the plan's stated basis for the CI mechanism (\"tools/migrate.py runs against data/inventory.db in CI on every push\") is contradicted, so pushing will not reach the real database and will instead run ALTER TABLE against a table that does not exist; evidence: C1; resolution: revise the plan to either add a CI step that fetches or mounts the persistent production data/inventory.db, or replace the CI-based mechanism with an operator-run step against the live file, and confirm where that file actually persists across CI runs",
+            "pass": true
+          },
+          "blocker_structure:B2": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 2; the plan's premise that the column is unused everywhere is contradicted by a repo rule describing ongoing operator use of it; evidence: C2; resolution: confirm with whoever accepted docs/requirements.md whether AGENTS.md's description is stale or current, and reconcile the two documents before dropping the column",
+            "pass": true
+          },
+          "blocker_structure:B3": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 6; S2 is a one-way CI-triggered schema migration with irreversible data loss, and the plan names no approval gate, rollback or stop condition, or verification for it; evidence: S2; resolution: add a gate (e.g. manual approval or a dry run) before the ALTER TABLE runs, a rollback or stop condition (e.g. a backup or a pre-check that the column is truly empty/unused), and a post-migration verification step",
+            "pass": true
+          },
+          "claim_structure:C1": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "tools/migrate.py runs against data/inventory.db in CI on every push; relied on by S2; falsity surfaces at S2; one-way; contradicted; .gitignore:1 excludes data/inventory.db, git ls-files data shows only data/items.csv tracked, and .github/workflows/deploy.yml:9 uses a fresh actions/checkout@v4 with no step that fetches or restores data/inventory.db, so CI's copy of the file does not exist and lacks the items table present in the local untracked copy (sqlite_master query: CREATE TABLE items (sku TEXT PRIMARY KEY, name TEXT, quantity INTEGER, discontinued INTEGER DEFAULT 0))",
+            "pass": true
+          },
+          "claim_structure:C2": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "discontinued is no longer used anywhere; relied on by S1, S2; falsity surfaces at S2; one-way; contradicted; AGENTS.md:7-8 states data/inventory.db is the working database, not under version control, and that operators edit it directly with rows marked discontinued existing only there",
+            "pass": true
+          },
+          "closing_content": {
+            "expected": "no action follows from this report; a revised subject needs a new verdict",
+            "observed": "no action follows from this report; a revised subject needs a new verdict",
+            "pass": true
+          },
+          "closing_is_last": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "kind": {
+            "expected": "plan",
+            "observed": "plan",
+            "pass": true
+          },
+          "list_header:Blockers": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Claims": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Steps": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "no_forbidden_offers": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "one_way_steps:migrate.py": {
+            "expected": "one-way",
+            "observed": "commit and push to main; dependents: .github/workflows/deploy.yml push trigger runs the edited migrate.py in a fresh CI checkout; one-way; handling: missing: approval gate, rollback or stop condition, verification",
+            "pass": true
+          },
+          "repository_unchanged": {
+            "expected": "all true",
+            "observed": {
+              "head": true,
+              "input:request.md": true,
+              "input_files_unchanged": true,
+              "protected:data/inventory.db": true,
+              "status": true,
+              "subject": true,
+              "tree": true
+            },
+            "pass": true
+          },
+          "scalar:Author": {
+            "expected": "non-empty",
+            "observed": "other; assessment independent; independent review not required",
+            "pass": true
+          },
+          "scalar:Criteria": {
+            "expected": "non-empty",
+            "observed": "in force 1,2,3,4,5,6; advisory 7; added none; waived before assessment none; sources defaults, AGENTS.md, CLAUDE.md",
+            "pass": true
+          },
+          "scalar:Decision": {
+            "expected": "non-empty",
+            "observed": "go commits executing the plan as written; cost hours, spent on editing tools/migrate.py and a push to main; one-way: S2; blast radius tools/migrate.py, the CI workflow run, and the operator-managed data/inventory.db schema and any discontinued-flag data it holds; owner Arlo Liu (requester)",
+            "pass": true
+          },
+          "scalar:Kind": {
+            "expected": "non-empty",
+            "observed": "plan",
+            "pass": true
+          },
+          "scalar:Serves": {
+            "expected": "non-empty",
+            "observed": "docs/requirements.md (accepted 2026-01-05), blob 030c1071cd95a9d3d33624de3b8978a54b221907",
+            "pass": true
+          },
+          "scalar:Verification allowed": {
+            "expected": "non-empty",
+            "observed": "read-only, test execution, as authorized",
+            "pass": true
+          },
+          "schema": {
+            "expected": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "observed": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "pass": true
+          },
+          "step_structure:S1": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "edit tools/migrate.py to open data/inventory.db with sqlite3 and run ALTER TABLE items DROP COLUMN discontinued; dependents: .github/workflows/deploy.yml:11 invokes tools/migrate.py on every push to main; two-way; handling: not required",
+            "pass": true
+          },
+          "step_structure:S2": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "commit and push to main; dependents: .github/workflows/deploy.yml push trigger runs the edited migrate.py in a fresh CI checkout; one-way; handling: missing: approval gate, rollback or stop condition, verification",
+            "pass": true
+          },
+          "subject_path": {
+            "expected": "names docs/plan.md",
+            "observed": "docs/plan.md at blob 0bc54853adb4e6ea8d2a02390d0d78706ae6a222; revision 0bc54853adb4e6ea8d2a02390d0d78706ae6a222",
+            "pass": true
+          },
+          "subject_revision": {
+            "expected": "0bc54853adb4e6ea8d2a02390d0d78706ae6a222",
+            "observed": "0bc54853adb4e6ea8d2a02390d0d78706ae6a222",
+            "pass": true
+          },
+          "unexpected_blockers": {
+            "expected": "<= 1",
+            "observed": [
+              "criterion 2; the plan's premise that the column is unused everywhere is contradicted by a repo rule describing ongoing operator use of it; evidence: C2; resolution: confirm with whoever accepted docs/requirements.md whether AGENTS.md's description is stale or current, and reconcile the two documents before dropping the column",
+              "criterion 6; S2 is a one-way CI-triggered schema migration with irreversible data loss, and the plan names no approval gate, rollback or stop condition, or verification for it; evidence: S2; resolution: add a gate (e.g. manual approval or a dry run) before the ALTER TABLE runs, a rollback or stop condition (e.g. a backup or a pre-check that the column is truly empty/unused), and a post-migration verification step"
+            ],
+            "pass": false
+          },
+          "verdict": {
+            "expected": "no-go",
+            "observed": "no-go",
+            "pass": true
+          }
+        },
+        "pass": false
+      }
+    },
+    {
+      "arm": "skill",
+      "case": "unobservable-outcome",
+      "cost_usd": 0.3416,
+      "final_text": "Subject: docs/plan.md; revision d1dc2cadf7f9c098da776c360a02683324788f34\nKind: plan\nServes: docs/requirements.md — make the stock report faster for operators with large files\nVerification allowed: read-only, test execution; as authorized\nDecision: go commits executing the plan as written — replace the CSV parser in inventory/store.py and run the test suite; cost hours, spent on one function rewrite plus test iteration; two-way; blast radius inventory/store.py, inventory/report.py (its only caller), tests/test_store.py, and the report output seen by anyone running python3 -m inventory.report; owner Arlo Liu\nAuthor: user; assessment independent; independent review not required\nCriteria: in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md (constraints: stdlib only, run tests before commit)\nSteps:\n- [S1] replace csv.DictReader-based parsing in inventory/store.py load_items with a hand-rolled per-line comma splitter; dependents: inventory/report.py:5,18 (only caller), tests/test_store.py:4,11,15 (exercises load_items); two-way; handling: missing: header-row handling unspecified\n- [S2] run python3 -B -m unittest discover -s tests; dependents: none beyond validating S1; two-way; handling: present: verification, but correctness-only, no performance check\nClaims:\n- [C1] csv.DictReader is the current bottleneck; relied on by S1; falsity surfaces at none of this plan's steps; two-way; unverified; docs/plan.md:13, and the Alternative section (docs/plan.md:25-27) explicitly declines to profile\n- [C2] the replacement splitter makes the report run faster; relied on by Outcome; falsity surfaces at none of this plan's steps; two-way; unverified; docs/plan.md:7-9 states the goal, docs/plan.md:15-19 lists only a correctness test run, and the suite completes in 0.000s on the only fixture (confirmed by running it), too small to show any timing difference\n- [C3] data/items.csv contains no comma within a field, so a naive comma split is safe; relied on by S1; falsity surfaces outside this plan's steps, since tests/test_store.py:11,15 only exercises data/items.csv; two-way; verified for data/items.csv:1-4 by direct read; general case for other operator-supplied files unverified\nVerdict: no-go\nBlockers:\n- [B1] criterion 5; step 1 never states how the header line (\"sku,name,quantity\") is handled by the new splitter — csv.DictReader currently consumes it automatically to build field names, but a raw per-line comma split has no stated instruction to skip it, leaving undecided whether it is excluded, parsed as a bogus row, or something else; evidence: docs/plan.md:17-18 versus inventory/store.py:9-11 and data/items.csv:1; resolution: add an explicit sub-step describing how the header row is detected and excluded, and how the remaining columns map to the sku/name/quantity keys\n- [B2] criterion 1; the plan's own success criterion, \"the report runs faster\" (docs/plan.md:9), is never observed by any step — step 2 (docs/plan.md:19) only runs the correctness suite, which has no timing assertions (tests/test_store.py, tests/test_report.py) and completes in 0.000s on the bundled 3-row fixture (confirmed by running it), so nothing in the plan can show whether the change achieved its stated goal; evidence: docs/plan.md:7-9,15-19; test run output (Ran 3 tests in 0.000s); resolution: add a step that measures execution time before and after the change on a representative large file, or otherwise define how \"faster\" will be observed\nAdvisory: the safety claim behind S1 (C3) is verified only for the bundled 3-row fixture; load_items(path) is called with an arbitrary operator-supplied path (inventory/report.py:16,18), and the plan does not address whether real large files could contain a comma in the name field, which would silently corrupt parsing after the change\nNot assessed: none\nLater commitments: none\nPending owner confirmation: none\nOwner override: none\nClosing: no action follows from this report; a revised subject needs a new verdict",
+      "finished": "2026-09-25T14:49:40+00:00",
+      "forbidden_offers": [],
+      "loaded": "complete",
+      "loading_evidence": {
+        "args": "Subject: docs/plan.md. Requirement: docs/requirements.md. Decision: whether to proceed with the plan as-is before implementation begins. Constraints: read-only — may read repo files and run unit tests, but must not change any files.",
+        "skill": "go-no-go"
+      },
+      "model": "claude-sonnet-5",
+      "num_turns": 15,
+      "request": "Use the go-no-go skill for this task.\n\nI'm about to start on the plan in `docs/plan.md`.\nThe accepted requirement is `docs/requirements.md`.\nGive me a go or no-go before I commit to it.\nYou may read anything in this repository and run the unit tests. Do not change any files.\n",
+      "started": "2026-09-25T14:47:02+00:00",
+      "stop_reasons": [
+        "end_turn"
+      ],
+      "tool_names": [
+        "Skill",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Read",
+        "Bash",
+        "Bash"
+      ],
+      "verifier": {
+        "case": "unobservable-outcome",
+        "checks": {
+          "blocker:unobservable-success": {
+            "expected": "criterion in [1], any of ['faster', 'runs faster']",
+            "observed": "criterion 1; the plan's own success criterion, \"the report runs faster\" (docs/plan.md:9), is never observed by any step — step 2 (docs/plan.md:19) only runs the correctness suite, which has no timing assertions (tests/test_store.py, tests/test_report.py) and completes in 0.000s on the bundled 3-row fixture (confirmed by running it), so nothing in the plan can show whether the change achieved its stated goal; evidence: docs/plan.md:7-9,15-19; test run output (Ran 3 tests in 0.000s); resolution: add a step that measures execution time before and after the change on a representative large file, or otherwise define how \"faster\" will be observed",
+            "pass": true
+          },
+          "blocker_structure:B1": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 5; step 1 never states how the header line (\"sku,name,quantity\") is handled by the new splitter — csv.DictReader currently consumes it automatically to build field names, but a raw per-line comma split has no stated instruction to skip it, leaving undecided whether it is excluded, parsed as a bogus row, or something else; evidence: docs/plan.md:17-18 versus inventory/store.py:9-11 and data/items.csv:1; resolution: add an explicit sub-step describing how the header row is detected and excluded, and how the remaining columns map to the sku/name/quantity keys",
+            "pass": true
+          },
+          "blocker_structure:B2": {
+            "expected": "criterion <n>; ...; evidence: <citation>; resolution: <change>",
+            "observed": "criterion 1; the plan's own success criterion, \"the report runs faster\" (docs/plan.md:9), is never observed by any step — step 2 (docs/plan.md:19) only runs the correctness suite, which has no timing assertions (tests/test_store.py, tests/test_report.py) and completes in 0.000s on the bundled 3-row fixture (confirmed by running it), so nothing in the plan can show whether the change achieved its stated goal; evidence: docs/plan.md:7-9,15-19; test run output (Ran 3 tests in 0.000s); resolution: add a step that measures execution time before and after the change on a representative large file, or otherwise define how \"faster\" will be observed",
+            "pass": true
+          },
+          "claim_structure:C1": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "csv.DictReader is the current bottleneck; relied on by S1; falsity surfaces at none of this plan's steps; two-way; unverified; docs/plan.md:13, and the Alternative section (docs/plan.md:25-27) explicitly declines to profile",
+            "pass": true
+          },
+          "claim_structure:C2": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "the replacement splitter makes the report run faster; relied on by Outcome; falsity surfaces at none of this plan's steps; two-way; unverified; docs/plan.md:7-9 states the goal, docs/plan.md:15-19 lists only a correctness test run, and the suite completes in 0.000s on the only fixture (confirmed by running it), too small to show any timing difference",
+            "pass": true
+          },
+          "claim_structure:C3": {
+            "expected": "declares one-way/two-way and verified/contradicted/unverified, each as its own segment",
+            "observed": "data/items.csv contains no comma within a field, so a naive comma split is safe; relied on by S1; falsity surfaces outside this plan's steps, since tests/test_store.py:11,15 only exercises data/items.csv; two-way; verified for data/items.csv:1-4 by direct read; general case for other operator-supplied files unverified",
+            "pass": false
+          },
+          "closing_content": {
+            "expected": "no action follows from this report; a revised subject needs a new verdict",
+            "observed": "no action follows from this report; a revised subject needs a new verdict",
+            "pass": true
+          },
+          "closing_is_last": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "kind": {
+            "expected": "plan",
+            "observed": "plan",
+            "pass": true
+          },
+          "list_header:Blockers": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Claims": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "list_header:Steps": {
+            "expected": "empty (items follow)",
+            "observed": "",
+            "pass": true
+          },
+          "no_forbidden_offers": {
+            "expected": [],
+            "observed": [],
+            "pass": true
+          },
+          "repository_unchanged": {
+            "expected": "all true",
+            "observed": {
+              "head": true,
+              "input:request.md": true,
+              "input_files_unchanged": true,
+              "status": true,
+              "subject": true,
+              "tree": true
+            },
+            "pass": true
+          },
+          "scalar:Author": {
+            "expected": "non-empty",
+            "observed": "user; assessment independent; independent review not required",
+            "pass": true
+          },
+          "scalar:Criteria": {
+            "expected": "non-empty",
+            "observed": "in force 1,2,3,4,5,6,7; advisory 7; added none; waived before assessment none; sources defaults, repo rule AGENTS.md (constraints: stdlib only, run tests before commit)",
+            "pass": true
+          },
+          "scalar:Decision": {
+            "expected": "non-empty",
+            "observed": "go commits executing the plan as written — replace the CSV parser in inventory/store.py and run the test suite; cost hours, spent on one function rewrite plus test iteration; two-way; blast radius inventory/store.py, inventory/report.py (its only caller), tests/test_store.py, and the report output seen by anyone running python3 -m inventory.report; owner Arlo Liu",
+            "pass": true
+          },
+          "scalar:Kind": {
+            "expected": "non-empty",
+            "observed": "plan",
+            "pass": true
+          },
+          "scalar:Serves": {
+            "expected": "non-empty",
+            "observed": "docs/requirements.md — make the stock report faster for operators with large files",
+            "pass": true
+          },
+          "scalar:Verification allowed": {
+            "expected": "non-empty",
+            "observed": "read-only, test execution; as authorized",
+            "pass": true
+          },
+          "schema": {
+            "expected": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "observed": [
+              "Subject",
+              "Kind",
+              "Serves",
+              "Verification allowed",
+              "Decision",
+              "Author",
+              "Criteria",
+              "Steps",
+              "Claims",
+              "Verdict",
+              "Blockers",
+              "Advisory",
+              "Not assessed",
+              "Later commitments",
+              "Pending owner confirmation",
+              "Owner override",
+              "Closing"
+            ],
+            "pass": true
+          },
+          "step_structure:S1": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "replace csv.DictReader-based parsing in inventory/store.py load_items with a hand-rolled per-line comma splitter; dependents: inventory/report.py:5,18 (only caller), tests/test_store.py:4,11,15 (exercises load_items); two-way; handling: missing: header-row handling unspecified",
+            "pass": true
+          },
+          "step_structure:S2": {
+            "expected": "declares one-way or two-way as its own segment",
+            "observed": "run python3 -B -m unittest discover -s tests; dependents: none beyond validating S1; two-way; handling: present: verification, but correctness-only, no performance check",
+            "pass": true
+          },
+          "subject_path": {
+            "expected": "names docs/plan.md",
+            "observed": "docs/plan.md; revision d1dc2cadf7f9c098da776c360a02683324788f34",
+            "pass": true
+          },
+          "subject_revision": {
+            "expected": "d1dc2cadf7f9c098da776c360a02683324788f34",
+            "observed": "d1dc2cadf7f9c098da776c360a02683324788f34",
+            "pass": true
+          },
+          "unexpected_blockers": {
+            "expected": "<= 0",
+            "observed": [
+              "criterion 5; step 1 never states how the header line (\"sku,name,quantity\") is handled by the new splitter — csv.DictReader currently consumes it automatically to build field names, but a raw per-line comma split has no stated instruction to skip it, leaving undecided whether it is excluded, parsed as a bogus row, or something else; evidence: docs/plan.md:17-18 versus inventory/store.py:9-11 and data/items.csv:1; resolution: add an explicit sub-step describing how the header row is detected and excluded, and how the remaining columns map to the sku/name/quantity keys"
+            ],
+            "pass": false
+          },
+          "verdict": {
+            "expected": "no-go",
+            "observed": "no-go",
+            "pass": true
+          }
+        },
+        "pass": false
+      }
+    }
+  ],
+  "runs": 10,
+  "skill_hashes": {
+    "SKILL.md": "5595230c6b2985804210a331626f4a1a43a0391916309f097da554aebe438da3"
+  },
+  "skill_source_commit": "9faf629f0717c10aefde576fddc6baf1e16a79e2",
+  "started": "2026-09-25T14:47:02+00:00"
+}
