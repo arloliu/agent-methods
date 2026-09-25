@@ -4,8 +4,8 @@ description: >
   Judge a plan or an idea go or no-go before work is committed to it.
   Use when asked whether a plan is ready to implement, whether to proceed with a design or proposal,
   whether an idea is worth pursuing, or for a go/no-go decision.
-  Records the exact subject and the decision at stake, checks the claims and side effects the subject depends on,
-  and returns a binary verdict in which every blocker cites evidence and a resolution.
+  Load it before asking which plan is meant: it resolves an unnamed subject from the request, the session, or the repository.
+  Records the exact subject and the decision at stake, checks the claims and side effects the subject depends on, and returns a binary verdict in which every blocker cites evidence and a resolution.
   Not for writing or revising a plan, interviewing the user about requirements, reviewing code, or judging a release.
 ---
 
