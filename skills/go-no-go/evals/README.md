@@ -37,6 +37,7 @@ The generated layout is:
   repo/                 # candidate checkout: a small inventory project, its plan, and its tests
   input/
     request.md           # the user request, as written
+    idea.md               # idea-type cases only: the idea's exact text
     prior-verdict.md      # stale-verdict, waive-after-no-go only
     plan-review.md         # review-report-approves only
   manifest.json          # evaluator-only expected outcome and pre-run refs
@@ -58,8 +59,8 @@ a backup is claiming something false.
 ## Scripted cases
 
 Every case commits a small Python project with `AGENTS.md`, `docs/requirements.md`, and either
-`docs/plan.md` (a plan-type subject) or a verbatim idea in the request (an idea-type subject, no
-plan file — its revision is `git hash-object --stdin` of the exact text).
+`docs/plan.md` (a plan-type subject) or an idea in `input/idea.md` that the request points to (an
+idea-type subject, no plan file — its revision is `git hash-object` of that file).
 The manifest records the subject's revision, the criteria and blockers a correct report must cite,
 which steps must be one-way, and (where relevant) the expected `Author`, `Pending owner
 confirmation`, or `Owner override` line.
@@ -94,6 +95,8 @@ confirmation`, or `Owner override` line.
 A defect that can reasonably be filed under either of two criteria (`mislabelled-reversible`,
 `tracked-file-auto-applied`, `omitted-dependent`) lists both as acceptable in its manifest entry;
 `review-report-approves` inherits `missing-symbol`'s.
+Where a trial filed such a defect as one blocker per criterion (`mislabelled-reversible`,
+`tracked-file-auto-applied`), the manifest tolerates one extra blocker.
 Every other case's fixture is controlled so only the planted defect is true: an unexpected blocker
 beyond the manifest's `max_unexpected_blockers` (0 by default) fails the case, for `go` and `no-go`
 alike.

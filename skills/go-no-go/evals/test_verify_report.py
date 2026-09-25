@@ -23,6 +23,9 @@ def synthesize(manifest):
     if "path" in subject:
         subject_line = f"{subject['path']} at blob {revision}; revision {revision}"
         kind = "plan"
+    elif "file" in subject:
+        subject_line = f"{subject['file']} at blob {revision}; revision {revision}"
+        kind = "idea"
     else:
         subject_line = f"recorded text; revision {revision}"
         kind = "idea"
@@ -401,6 +404,15 @@ class RequiredSchemaTests(unittest.TestCase):
         )
         result = verify(fixture, manifest_path, text)
         self.assertTrue(result["checks"][f"one_way_steps:{token}"]["pass"], result["checks"])
+
+    def test_an_idea_subject_that_does_not_name_its_file_fails(self):
+        fixture, manifest_path, manifest, report = self.build_and_synthesize(
+            "idea-cheap-probe"
+        )
+        self.assertTrue(verify(fixture, manifest_path, report)["pass"])
+        text = report.replace(manifest["subject"]["file"] + " at blob", "recorded text at blob")
+        result = verify(fixture, manifest_path, text)
+        self.assertFalse(result["checks"]["subject_file"]["pass"])
 
     def test_a_one_way_step_marked_two_way_still_fails(self):
         fixture, manifest_path, manifest, report = self.build_and_synthesize(

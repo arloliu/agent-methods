@@ -55,7 +55,7 @@ git --no-optional-locks hash-object -- <path>
 The reported revision `<id>` is that `hash-object` output, or the checksum tool's output, copied in full from what this run printed — never recalled, guessed, or shortened; `HEAD` and status are kept in working notes, not in the report.
 Outside a Git directory, use an available checksum tool; with neither, record the subject's exact text in the report and mark the revision `<id>` as unavailable — the verbatim text itself is the identity for later comparison.
 Record an idea exactly as the user stated it; mark the reviewer's own interpretation of it as an assumption.
-An idea's revision `<id>` is `git hash-object --stdin` of that exact text, or another checksum tool's output when Git is unavailable; with no tool at all, mark it `unavailable` and rely on the recorded text.
+An idea's revision `<id>` is `git hash-object -- <file>` when the idea arrives as a file, else `git hash-object --stdin` of its exact text, or another checksum tool's output when Git is unavailable; with no tool at all, mark it `unavailable` and rely on the recorded text.
 
 State the decision: what `go` commits to — the **next commitment** — and its cost, as a rough order of magnitude (`hours`, `days`, `weeks`) plus what is spent, and its **blast radius**: the components, data, users, or external systems it reaches.
 A plan's next commitment defaults to executing it as written; when the owner names a narrower commitment (implementing on a branch, say), later steps go under `Later commitments`, each needing its own verdict.
@@ -65,7 +65,7 @@ Record the accepted requirement the subject serves and what this run is authoriz
 
 ## Declare criteria
 
-Before building the ledger, list the criteria in force and each one's source: user-specified, a repo rule (cited), or the seven defaults.
+Before building the ledger, read the repository's rule files (`AGENTS.md`, `CLAUDE.md`, and the like), then list the criteria in force and each one's source: user-specified, a repo rule (cited), or the seven defaults.
 The owner may add criteria, promote criterion 7 to blocking, or waive criteria 1, 3, 4, 5, 7 — never 2 or 6 — before this revision's first assessment.
 A waiver offered after a finding has surfaced on this revision, whether in an earlier report or this one, is an owner override instead, not a waiver (see After the verdict).
 Record every adjustment with the owner's own words.

@@ -62,11 +62,13 @@ class FixtureTests(unittest.TestCase):
                     )
                     self.assertEqual(subject["revision"], subject["blob"])
                 else:
-                    self.assertIn("text", subject)
+                    idea_file = root / subject["file"]
+                    self.assertEqual(
+                        idea_file.read_text(encoding="utf-8"), subject["text"] + "\n"
+                    )
                     self.assertEqual(
                         subprocess.run(
-                            ["git", "hash-object", "--stdin"],
-                            input=subject["text"],
+                            ["git", "hash-object", "--", str(idea_file)],
                             capture_output=True,
                             text=True,
                             check=True,
@@ -75,8 +77,12 @@ class FixtureTests(unittest.TestCase):
                     )
                 self.assertFalse((root / "input/manifest.json").exists())
                 self.assertFalse((root / "repo/manifest.json").exists())
-                self.assertIn(manifest["expected"]["outcome"], ("go", "no-go", "stop"))
-                self.assertEqual(manifest["expected"]["max_unexpected_blockers"], 0)
+                expected = manifest["expected"]
+                self.assertIn(expected["outcome"], ("go", "no-go", "stop"))
+                # One extra blocker is tolerated only where a single defect fails two
+                # criteria and may be filed as one blocker per criterion.
+                dual = any(len(b["criteria"]) > 1 for b in expected["expected_blockers"])
+                self.assertIn(expected["max_unexpected_blockers"], (0, 1) if dual else (0,))
 
     def test_request_asks_in_plain_words_and_states_the_verification_allowed(self):
         root, _ = self.fixture("sound-plan")

@@ -11,6 +11,7 @@ import json
 import os
 import re
 import socket
+import subprocess
 import sys
 from pathlib import Path
 
@@ -83,6 +84,13 @@ def restate_verifier(entry, root):
     return entry
 
 
+def reducer_commit():
+    """The commit whose verifier restated this batch; comparable only within one contract."""
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True, text=True
+    ).stdout.strip()
+
+
 def reduce_batch(root, destination):
     root = Path(root)
     payload = json.load(open(root / "results.json"))
@@ -99,7 +107,13 @@ def reduce_batch(root, destination):
         if isinstance(payload, dict)
         else {}
     )
-    out = {"batch": root.name, "runs": len(reduced), **header, "results": reduced}
+    out = {
+        "batch": root.name,
+        "runs": len(reduced),
+        **header,
+        "reduced_with_commit": reducer_commit(),
+        "results": reduced,
+    }
     Path(destination).write_text(
         json.dumps(out, indent=2, ensure_ascii=False, sort_keys=True) + "\n", "utf-8"
     )
