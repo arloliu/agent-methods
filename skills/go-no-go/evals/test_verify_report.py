@@ -100,7 +100,7 @@ def synthesize(manifest):
             "pending_owner_confirmation") else "none"),
         "Owner override: "
         + ("owner accepted the risk" if expected.get("owner_override_expected") else "none"),
-        f"Closing: {expected['outcome']}: "
+        "Closing: "
         + (
             f"this verdict applies only to revision {revision} and does not authorize execution"
             if expected["outcome"] == "go"
@@ -128,7 +128,7 @@ Not assessed: none
 Later commitments: none
 Pending owner confirmation: none
 Owner override: none
-Closing: no-go: no action follows from this report; a revised subject needs a new verdict
+Closing: no action follows from this report; a revised subject needs a new verdict
 """
 
 
@@ -189,7 +189,7 @@ class VerifyReportTests(unittest.TestCase):
 
     def test_a_missing_closing_line_fails(self):
         text = self.report.replace(
-            "Closing: no-go: no action follows from this report; "
+            "Closing: no action follows from this report; "
             "a revised subject needs a new verdict\n",
             "",
         )
@@ -201,6 +201,20 @@ class VerifyReportTests(unittest.TestCase):
         text = self.report.replace("needs a new verdict\n", "needs a new verdict.\n")
         result = self.verify(text)
         self.assertTrue(result["pass"], result["checks"])
+
+    def test_a_verdict_label_before_the_closing_sentence_fails(self):
+        text = self.report.replace("Closing: no action", "Closing: no-go: no action")
+        result = self.verify(text)
+        self.assertFalse(result["checks"]["closing_content"]["pass"])
+
+    def test_a_go_closing_with_a_verdict_label_fails(self):
+        fixture, manifest_path, manifest, report = RequiredSchemaTests.build_in(
+            self.root, "sound-plan"
+        )
+        labelled = report.replace("Closing: this verdict", "Closing: go: this verdict")
+        self.assertTrue(verify(fixture, manifest_path, report)["pass"])
+        result = verify(fixture, manifest_path, labelled)
+        self.assertFalse(result["checks"]["closing_content"]["pass"])
 
     def test_a_no_go_closing_with_other_wording_fails(self):
         text = self.report.replace("needs a new verdict\n", "needs a new verdict soon\n")
@@ -248,7 +262,7 @@ Not assessed: none
 Later commitments: none
 Pending owner confirmation: none
 Owner override: none
-Closing: go: this verdict applies only to revision abc123 and does not authorize execution
+Closing: this verdict applies only to revision abc123 and does not authorize execution
 """
         fields, lists, order = parse_report(text)
         self.assertEqual(fields["Steps"], "none")
@@ -264,11 +278,15 @@ class RequiredSchemaTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
 
-    def build_and_synthesize(self, case):
-        fixture = build(case, self.root / case)
+    @staticmethod
+    def build_in(root, case):
+        fixture = build(case, root / case)
         manifest_path = fixture / "manifest.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         return fixture, manifest_path, manifest, synthesize(manifest)
+
+    def build_and_synthesize(self, case):
+        return self.build_in(self.root, case)
 
     def test_a_report_missing_most_required_fields_fails(self):
         fixture, manifest_path, manifest, _ = self.build_and_synthesize("sound-plan")

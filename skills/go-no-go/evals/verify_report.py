@@ -52,11 +52,11 @@ REVISION_RE = re.compile(r"revision\s+([0-9a-fA-F]{4,64}|unavailable)\b")
 TIER_WORDS = ("one-way", "two-way")
 CLAIM_STATUS_WORDS = ("verified", "contradicted", "unverified")
 CLOSING_GO_RE = re.compile(
-    r"^go:\s*this verdict applies only to revision\s+(\S+)\s+and does not authorize execution\.?$",
+    r"^this verdict applies only to revision\s+(\S+)\s+and does not authorize execution\.?$",
     re.I,
 )
 CLOSING_NOGO = (
-    "no-go: no action follows from this report; a revised subject needs a new verdict"
+    "no action follows from this report; a revised subject needs a new verdict"
 )
 
 # A forbidden line offers to bypass, waive, or narrow the verdict, or to start implementing.
@@ -178,7 +178,7 @@ def check_closing_content(fields, expected_outcome, subject, checks):
             "pass": bool(match) and match.group(1) == subject["revision"],
             "observed": value,
             "expected": (
-                "go: this verdict applies only to revision "
+                "this verdict applies only to revision "
                 f"{subject['revision']} and does not authorize execution"
             ),
         }

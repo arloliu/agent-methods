@@ -52,7 +52,7 @@ git --no-optional-locks hash-object -- <path>
 ```
 
 `hash-object` without `-w`: compute only, never write.
-The reported revision `<id>` is that `hash-object` output, or the checksum tool's output; `HEAD` and status are kept in working notes, not in the report.
+The reported revision `<id>` is that `hash-object` output, or the checksum tool's output, copied in full from what this run printed — never recalled, guessed, or shortened; `HEAD` and status are kept in working notes, not in the report.
 Outside a Git directory, use an available checksum tool; with neither, record the subject's exact text in the report and mark the revision `<id>` as unavailable — the verbatim text itself is the identity for later comparison.
 Record an idea exactly as the user stated it; mark the reviewer's own interpretation of it as an assumption.
 An idea's revision `<id>` is `git hash-object --stdin` of that exact text, or another checksum tool's output when Git is unavailable; with no tool at all, mark it `unavailable` and rely on the recorded text.
@@ -153,14 +153,17 @@ Not assessed: <item; reason, or none>
 Later commitments: <commitments that need their own verdict, or none>
 Pending owner confirmation: <a pre-issued instruction to proceed on go, or none>
 Owner override: <recorded decision with the owner's words, or none>
-Closing: <go: this verdict applies only to revision <id> and does not authorize execution | no-go: no action follows from this report; a revised subject needs a new verdict>
+Closing: <the closing sentence for the verdict>
 ```
 
 Replace each entire placeholder, including its brackets, with the selected value; preserve all fixed text outside placeholders, subject to the empty-list and fenced-text conventions stated here.
+Write the report as plain lines in the reply: not inside a code fence, and with no Markdown emphasis, headings, or backticks on labels or values.
+Each marker — `one-way` or `two-way`; `verified`, `contradicted`, or `unverified`; `criterion <number>` — fills its whole `;` segment: a reason or citation goes in a later segment, never in parentheses or after a colon on the marker.
+The closing sentence is `this verdict applies only to revision <id> and does not authorize execution` after `go`, and `no action follows from this report; a revised subject needs a new verdict` after `no-go`.
 Verbatim recorded text that spans multiple lines, or that could be misread as a field label (a line starting `Steps:`, say), goes in a fenced code block below the `Subject` line instead — the line itself then just points to it (`Subject: recorded text below; revision <id>`).
 The same applies to a verbatim quotation in `Criteria: added` or `Owner override`: fence it below the report and point to it from that field.
 `independent review` reads `recommended because of S<n>` only when assessment is by the author and the decision is one-way; otherwise `not required`.
-`Closing` is the report's last line.
+`Closing` is the report's and the reply's last line: no summary, recap, or next step after it.
 After `no-go`, never ask whether to proceed anyway and never offer a way to bypass, waive, or narrow the verdict as a next step — a resolution belongs inside its `- [B<n>]` line, not after `Closing`; after either verdict, do not begin implementation.
 When stopping under [Stop conditions](#stop-conditions) instead, use the minimal template and omit `Verdict` and everything after it:
 
@@ -177,7 +180,7 @@ A request to change the verdict is one of three things: a subject revision re-ju
 "I waive the rollback requirement," "I accept that risk," and plain insistence are all overrides — the verdict stands, with the reason recorded.
 On re-judgment, recheck every earlier blocker against the new revision and reassess every changed section.
 A revision this session's agent wrote in another request gets `Author: this session's agent; assessment by the author`.
-A pre-issued "go, then implement" goes in the `go` report's `Pending owner confirmation`, for the owner to act on after reading the report.
+A pre-issued "go, then implement" goes in the `go` report's `Pending owner confirmation`, for the owner to act on after reading the report; record it and end there — edit nothing, never announce that you are proceeding, and keep `Closing` word for word.
 
 ## Stop conditions
 
