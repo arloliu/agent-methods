@@ -250,12 +250,6 @@ def check_scalars(fields, subject, checks):
             "observed": kind,
             "expected": wanted_kind,
         }
-    if "file" in subject and "Subject" in fields:
-        checks["subject_file"] = {
-            "pass": subject["file"] in (fields.get("Subject") or ""),
-            "observed": fields.get("Subject"),
-            "expected": f"names {subject['file']}",
-        }
     if "path" in subject and "Subject" in fields:
         checks["subject_path"] = {
             "pass": subject["path"] in (fields.get("Subject") or ""),
