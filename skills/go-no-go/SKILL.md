@@ -130,6 +130,7 @@ Never rewrite or add to the subject.
 ## Verdict and report
 
 Zero blockers is `go`, otherwise `no-go`.
+The reply ends at `Closing` even when the same request says to implement on `go`: that instruction only fills `Pending owner confirmation`, and acting on it needs the owner's new request after reading the report.
 Report in the conversation by default; write it to a file only if asked.
 Fill this template exactly, replacing only the placeholders; `Steps`, `Claims`, and `Blockers` write `none` on the header line when empty, otherwise one `- [ID]` line per item after it:
 
@@ -187,4 +188,3 @@ A pre-issued "go, then implement" goes in the `go` report's `Pending owner confi
 Stop without a verdict when the subject cannot be fixed to one piece of text, when the subject and the request disagree about the decision owner, or when the subject belongs to a decision another method owns (a release verdict, say — point to `release-readiness`).
 Missing evidence and an unnamed next commitment are never stop conditions: they produce a blocker or a `Not assessed` entry, and the verdict follows from the declared criteria.
 Every other action stays inside existing authorization: read the subject, the repository, rules, and existing review reports without asking; run a test or other side-effecting check only within existing authorization and its side-effect limits, else the claim stays unverified; write the report to a file only when asked; never modify the subject, start implementation, or make any Git or external write.
-A pre-issued "go, then implement" does not take effect this run either, and needs the owner's separate request after reading the report.
