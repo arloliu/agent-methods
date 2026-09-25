@@ -16,7 +16,8 @@ Nothing here is a reliability rate, and no result transfers to other hosts, mode
 | Batch approval | every batch below was approved as a concrete batch before it ran |
 | Evidence kept | event streams, fixtures, and evaluator manifests under the run roots, outside the repository |
 
-Each reduced batch under [runs/](../runs/) records its `skill_source_commit`, the installed `skill_hashes`, and `reduced_with_commit`.
+Each reduced trial batch under [runs/](../runs/) records its `skill_source_commit`, the installed `skill_hashes`, and `reduced_with_commit`;
+discovery batches record only the installed hash, matched to its commit in the table below.
 The reducer re-verifies every final response with the verifier at `reduced_with_commit` against each run's own on-disk manifest, so counts are comparable only between batches judged under the same report contract.
 In particular, `trial1` was written under the labelled `Closing: go: …` contract that `e8ba64a` replaced, so its reduced `closing_content` results understate it.
 

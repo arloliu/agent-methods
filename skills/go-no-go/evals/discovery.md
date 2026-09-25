@@ -3,7 +3,7 @@
 Test whether requests select [go-no-go](../SKILL.md) for a go/no-go judgment on a plan or an idea.
 Writing or revising a plan, interviewing the user for requirements, reviewing code, and release
 judgments should remain outside it.
-These are written prompts; no model discovery results are claimed.
+Executed results are in the [2026-09-25 trial record](trials/2026-09-25-claude-code.md).
 
 Use a fresh isolated profile and workspace per prompt with fixed skill package hashes.
 Expose only the description through normal discovery; explicit-name controls deliberately name
