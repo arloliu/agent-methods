@@ -127,7 +127,8 @@ Read the diagram from left to right:
 - Add `release-readiness` when the change ships as a version.
 
 `go-no-go` gates the move from Plan and build into implementation.
-Use it on a plan or an idea before committing to its next step, and act on the verdict in a separate request.
+Use it on a plan or an idea before committing to its next step.
+It can run a step you pre-authorize after a `go`, but only one that edits Git-tracked files; otherwise act on the verdict in a separate request.
 
 `progress-check` sits beside this flow rather than inside it.
 Use it before a phase transition or completion claim when the session started background work.
@@ -245,7 +246,7 @@ In that case, use `to-spec` and `to-tickets` before implementation.
 | Handling review | Apply every comment as an instruction. | Assess each finding with `review-feedback` before editing. |
 | Tracking background work | Claim completion while started tasks remain unaccounted for. | Record task handles at launch and run `progress-check` before the next phase. |
 | Cleaning history | Rewrite commits as an automatic finishing step. | Propose exact commit groups and wait for approval. |
-| Gating a plan | Ask for a verdict and implementation in one request. | Ask `go-no-go` for the verdict, read the report, then request implementation separately. |
+| Gating a plan | Pre-authorize a step you are not willing to have run. | Pre-authorize only tracked-file steps, or read the report and request implementation separately. |
 | Checking rules | Run `rules-check` before rewriting history. | Run it after the final commit structure and worktree are stable. |
 
 ### Operational rules

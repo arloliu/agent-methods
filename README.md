@@ -31,7 +31,7 @@ Install only the ones you want.
 
 | Skill | Use it when | Latest release |
 | --- | --- | --- |
-| [go-no-go](#go-no-go) | You need a go or no-go judgment on a plan or an idea before committing to its next step | `go-no-go/v0.1.0` |
+| [go-no-go](#go-no-go) | You need a go or no-go judgment on a plan or an idea before committing to its next step | `go-no-go/v0.2.0` |
 | [history-cleanup](#history-cleanup) | A branch's commit history needs grouping into reviewable commits before a pull request | `history-cleanup/v0.1.3` |
 | [progress-check](#progress-check) | You need to know where a session stands and whether background work is still running or stuck | `progress-check/v0.2.0` |
 | [release-readiness](#release-readiness) | You need to assess, prepare, or publish a release bound to one candidate commit | `release-readiness/v0.2.2` |
@@ -467,7 +467,9 @@ Read the [skill](skills/go-no-go/SKILL.md).
 - Builds a ledger of the subject's steps and load-bearing claims, marks each step one-way or two-way from repository evidence,
   and verifies claims against the code rather than the subject's own narrative.
 - Returns `go` only with zero blockers; every blocker cites a criterion, evidence, and a resolution.
-- Stays read-only: `go` is a recommendation and does not authorize execution.
+- Judges read-only: `go` is a recommendation and does not authorize execution.
+- Runs a step your request pre-authorizes only after a complete `go` report,
+  and only if the step edits nothing but Git-tracked files; after `no-go` nothing runs.
 
 ### Ask for it
 
@@ -486,7 +488,7 @@ Read the [skill](skills/go-no-go/SKILL.md).
 The agent reads the subject, the requirement it serves, and the repository's rules,
 then returns a fixed-template report: subject and revision, decision, criteria, steps, claims, verdict,
 blockers with resolutions, advisories, and what was not assessed.
-The reply ends at the report's `Closing` line.
+The reply ends at the report's `Closing` line, followed only by the outcome of a step you pre-authorized.
 Insisting after a `no-go` is recorded as an owner override; the verdict does not change.
 
 ### Before you act on it
@@ -496,17 +498,20 @@ and that anything listed as unverified or not assessed is acceptable to you.
 
 ### Limits
 
-The skill cannot enforce its own read-only rule.
-In trials, a request that itself said "if it's a go, implement step 1" was acted on in 8 of 16 runs after the report.
-Keep the request to the judgment, or run the skill under your host's read-only permissions, such as Claude Code's plan mode.
+The skill cannot enforce its own boundaries; your host's permissions can.
+In trials, Sonnet ran a pre-authorized tracked-file step and refused a pre-authorized database `DELETE` in every run,
+but Haiku ran that `DELETE` in 11 of 20 runs under every rule text tried, including "never execute".
+Do not pre-authorize a step you are not willing to have run,
+and use your host's read-only permissions, such as Claude Code's plan mode, where a step must not run.
 Market demand, budget, and other non-engineering claims are left to you.
 Writing or revising a plan, interviewing for requirements, reviewing code, and release verdicts are outside its purpose.
 
 ### Validation status
 
-The current evidence includes 24 deterministic fixtures with a report verifier, written discovery prompts and a behavioural rubric,
+The current evidence includes 27 deterministic fixtures with a report verifier, written discovery prompts and a behavioural rubric,
 and executed runs on [Claude Code](skills/go-no-go/evals/trials/2026-09-25-claude-code.md) with Sonnet 5 and Haiku 4.5.
-In the last full round each model ran all 24 cases once; 13 and 12 reports passed the strict verifier,
+The [pre-authorization runs](skills/go-no-go/evals/trials/2026-09-26-claude-code.md) repeated four cases five times per model.
+In the last full round (skill commit `816d2bc`, before `v0.1.0`), each model ran the then 24 cases once; 13 and 12 reports passed the strict verifier,
 and 20 of 24 verdicts were correct for each model.
 Haiku wrote revisions without computing them and never stopped on an ambiguous subject.
 In discovery, Sonnet loaded the skill on 27 of 27 positive prompts and Haiku on 14 of 27.
@@ -525,7 +530,7 @@ Run the fixture tests from the repository root with Git and Python 3.10 or newer
 
 | Skill | Command | What it covers |
 | --- | --- | --- |
-| go-no-go | `python3 -B skills/go-no-go/evals/test_fixtures.py` and `test_verify_report.py` | 24 plan and idea cases with one planted defect each, subject revisions, protected files, and the report verifier |
+| go-no-go | `python3 -B skills/go-no-go/evals/test_fixtures.py` and `test_verify_report.py` | 27 plan and idea cases with one planted defect each, four pre-authorization boundaries, subject revisions, protected files, and the report verifier |
 | history-cleanup | `python3 -B skills/history-cleanup/evals/test_fixtures.py` | fixup chains, non-adjacent corrections, safe and dependent revert pairs, merge boundaries, dirty worktrees, ambiguous bases |
 | progress-check | `python3 -B skills/progress-check/evals/test_fixtures.py` | real worker processes, a held stdin writer, stopping one worker, liveness snapshots, and rejecting bad traces |
 | release-readiness | `python3 -B skills/release-readiness/evals/test_fixtures.py` | version reasoning, stale references, checks on the parent, failing checks, existing and mismatched remote tags, stale approval, partial authorization, overstated notes, failed publication, and the end-state verifier |
@@ -577,7 +582,7 @@ pin an individual skill by its own tag.
 
 | Skill | Latest | Tags |
 | --- | --- | --- |
-| go-no-go | `go-no-go/v0.1.0` | v0.1.0 |
+| go-no-go | `go-no-go/v0.2.0` | v0.1.0, v0.2.0 |
 | history-cleanup | `history-cleanup/v0.1.3` | v0.1.0 … v0.1.3 |
 | progress-check | `progress-check/v0.2.0` | v0.1.0, v0.2.0 |
 | release-readiness | `release-readiness/v0.2.2` | v0.1.0, v0.2.0, v0.2.1, v0.2.2 |
