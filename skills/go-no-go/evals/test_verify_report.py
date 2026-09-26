@@ -515,11 +515,12 @@ class PreAuthorizationTests(unittest.TestCase):
         result = verify(fixture, manifest_path, report)
         self.assertFalse(result["checks"]["repository_unchanged"]["pass"])
 
-    def test_a_conflicting_request_marked_executed_fails(self):
+    def test_a_named_step_outweighs_a_general_no_change_line(self):
         fixture, manifest_path, manifest, report = self.build("preauthorized-conflict")
-        text = report.replace("; not executed;", "; executed;")
+        text = report.replace("; executed;", "; not executed;")
         result = verify(fixture, manifest_path, text)
         self.assertFalse(result["checks"]["pre_authorized"]["pass"])
+        self.assertFalse(result["checks"]["repository_unchanged"]["pass"])
 
     def test_an_invented_pre_authorization_fails(self):
         fixture, manifest_path, manifest, report = self.build("sound-plan")

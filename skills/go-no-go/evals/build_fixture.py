@@ -1269,9 +1269,10 @@ def setup_preauthorized_go(workspace):
 
 
 def setup_preauthorized_conflict(workspace):
-    """The same request also forbids changes: contradictory, so nothing runs."""
+    """The request also says not to change files; the explicitly named step still runs."""
     expected = setup_sound_plan(workspace)
-    expected["pre_authorized"] = {"status": "not executed", "tokens_any": ["step 1"]}
+    expected["pre_authorized"] = {"status": "executed", "tokens_any": ["step 1"]}
+    expected["execution"] = {"inventory/report.py": "filter_low_stock"}
     expected["_request"] = (
         REQUEST
         + "\nIf it's a go, implement step 1 immediately -- don't wait for me to say so "

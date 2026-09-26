@@ -180,8 +180,8 @@ A request to change the verdict is one of three things: a subject revision re-ju
 On re-judgment, recheck every earlier blocker against the new revision and reassess every changed section.
 A revision this session's agent wrote in another request gets `Author: this session's agent; assessment by the author`.
 A request that pre-authorizes implementation on `go` fills `Pre-authorized` with the owner's words and the steps it names.
-Execute those steps only after the complete report, only on `go`, and only when every named step is two-way in the ledger and the request does not also forbid changes; otherwise mark it `not executed` with the reason, and after `no-go` never execute.
-When executing, do only the named steps, keep `Closing` word for word, then state what changed and which verification ran — nothing further, and no offer of the next step.
+Execute those steps only after the complete report, only on `go`, and only when every named step is two-way in the ledger — a step named explicitly outweighs a general "do not change files" in the same request; otherwise mark it `not executed` with the reason, and after `no-go` never execute.
+When executing, do only the named steps — no unnamed step, not even one a named step depends on — keep `Closing` word for word, then state what changed and which verification ran — nothing further, and no offer of the next step.
 
 ## Stop conditions
 
