@@ -32,7 +32,7 @@ Judging is read-only: this skill never edits the subject, the repository, or ext
   The exception is repo automation that applies a change outside version control (a CI-run migration, merge-applied infrastructure, a push-triggered release workflow) — that is one-way.
   A step outside version control whose effect the ledger cannot determine defaults to one-way for want of evidence; it is not the only route to one-way — see Build the ledger for the full rule.
 - Judging is fully read-only: it never touches the subject, the repository, or external state.
-- `go` is a recommendation and does not authorize execution; only the owner's explicit instruction does, and only as [After the verdict](#after-the-verdict) allows: after a complete `go` report, for named two-way steps.
+- `go` is a recommendation and does not authorize execution; only the owner's explicit instruction does, and only as [After the verdict](#after-the-verdict) allows: after a complete `go` report, for named steps that edit only Git-tracked files.
 - The verdict changes only for three reasons: the subject is revised, new evidence changes a claim's status, or the owner changes an accepted requirement or explicit constraint — which only re-opens criteria 3 and 4.
   Waiving a criterion, accepting a risk, or insisting after a finding is recorded as an **owner override**; the verdict does not change.
 - Author disclosure: state whether the reviewer is the subject's author.
@@ -180,7 +180,7 @@ A request to change the verdict is one of three things: a subject revision re-ju
 On re-judgment, recheck every earlier blocker against the new revision and reassess every changed section.
 A revision this session's agent wrote in another request gets `Author: this session's agent; assessment by the author`.
 A request that pre-authorizes implementation on `go` fills `Pre-authorized` with the owner's words and the steps it names.
-Execute those steps only after the complete report, only on `go`, and only when every named step is two-way in the ledger — a step named explicitly outweighs a general "do not change files" in the same request; otherwise mark it `not executed` with the reason, and after `no-go` never execute.
+Execute those steps only after the complete report, only on `go`, and only when every named step only edits files Git already tracks — never a database, an untracked or ignored file, a script or command with side effects, or anything outside the repository, whatever tier the ledger gave it; a step named explicitly outweighs a general "do not change files" in the same request; otherwise mark it `not executed` with the reason, and after `no-go` never execute.
 When executing, do only the named steps — no unnamed step, not even one a named step depends on — keep `Closing` word for word, then state what changed and which verification ran — nothing further, and no offer of the next step.
 
 ## Stop conditions
