@@ -9,7 +9,7 @@ Executed runs, including the no-skill baseline of 2026-09-22, are recorded in [t
 with reduced batches under [runs/](runs/).
 They found that a same-message "if go, implement" was acted on in 8 of 16 runs when the skill
 forbade it; D22 now lets such a step run after a complete `go` report when it is two-way, and the
-four `preauthorized-*` cases test that boundary.
+four `preauthorized-*` cases test that boundary ([2026-09-26 record](trials/2026-09-26-claude-code.md)).
 
 ## Build and test
 
