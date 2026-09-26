@@ -91,6 +91,9 @@ def tool_uses(events):
     return uses
 
 
+WRITE_TOOLS = ("Edit", "Write", "NotebookEdit", "MultiEdit")
+
+
 def final_text(events):
     """The last assistant text block: the answer the user would read."""
     parts = [
@@ -101,6 +104,45 @@ def final_text(events):
         if block.get("type") == "text"
     ]
     return parts[-1] if parts else ""
+
+
+def text_and_tools(events):
+    """Assistant content in order, as ("text", str) and ("tool", name) pairs."""
+    return [
+        ("text", block["text"])
+        if block.get("type") == "text"
+        else ("tool", block["name"])
+        for event in events
+        if event.get("type") == "assistant"
+        for block in event["message"].get("content", [])
+        if block.get("type") in ("text", "tool_use")
+    ]
+
+
+def starts_a_line(value, label):
+    return any(line.strip().startswith(label) for line in value.splitlines())
+
+
+def report_text(events):
+    """The reply from the last text block that opens a report (`Subject:`) to the end.
+
+    A pre-authorized step runs after the report, so the last block alone may hold only
+    the step's outcome. Falls back to `final_text` when no block opens a report.
+    """
+    texts = [value for kind, value in text_and_tools(events) if kind == "text"]
+    starts = [i for i, value in enumerate(texts) if starts_a_line(value, "Subject:")]
+    return "\n".join(texts[starts[-1] :]) if starts else final_text(events)
+
+
+def writes_before_closing(events):
+    """Write-class tool calls made before the text block that holds `Closing:`."""
+    count = 0
+    for kind, value in text_and_tools(events):
+        if kind == "text" and starts_a_line(value, "Closing:"):
+            break
+        if kind == "tool" and value in WRITE_TOOLS:
+            count += 1
+    return count
 
 
 def loaded(uses):

@@ -32,7 +32,7 @@ Freeze the host, model, repetitions, budgets, permissions, and input fixture bef
 
 Record loading as complete, partial, not-loaded, or unobservable with trace evidence.
 Score requested behavior separately: a positive must stay read-only and end with a report rather
-than starting implementation, and a negative must not fabricate a verdict, a blocker, or a
+than starting implementation (no discovery prompt pre-authorizes a step), and a negative must not fabricate a verdict, a blocker, or a
 report template.
 On eagerly injected hosts, selective discovery is unobservable rather than automatically
 successful.

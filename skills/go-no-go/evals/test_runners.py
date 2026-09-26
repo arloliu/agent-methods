@@ -20,10 +20,12 @@ from common import (  # noqa: E402
     loaded,
     prompt_set,
     refuse_git_tree,
+    report_text,
     required_path,
     resolve_profile,
     select,
     tool_uses,
+    writes_before_closing,
 )
 
 EVENTS = [
@@ -49,6 +51,26 @@ EVENTS = [
 ]
 
 
+def assistant(*blocks):
+    return {"type": "assistant", "message": {"content": list(blocks)}}
+
+
+def text(value):
+    return {"type": "text", "text": value}
+
+
+def tool(name):
+    return {"type": "tool_use", "name": name, "input": {}}
+
+
+REPORT_THEN_EXECUTION = [
+    assistant(text("Reading the plan."), tool("Read")),
+    assistant(text("Subject: docs/plan.md; revision abc\nVerdict: go\nClosing: done")),
+    assistant(tool("Edit")),
+    assistant(text("Step 1 done.")),
+]
+
+
 class RunnerHelperTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory(prefix="go-no-go-runners-")
@@ -58,6 +80,19 @@ class RunnerHelperTests(unittest.TestCase):
     def test_final_text_is_the_last_assistant_text_block(self):
         self.assertEqual(final_text(EVENTS), "Verdict: go")
         self.assertEqual(final_text([]), "")
+
+    def test_report_text_runs_from_the_report_to_the_end(self):
+        self.assertEqual(
+            report_text(REPORT_THEN_EXECUTION),
+            "Subject: docs/plan.md; revision abc\nVerdict: go\nClosing: done\nStep 1 done.",
+        )
+        self.assertEqual(report_text(EVENTS), "Verdict: go")
+
+    def test_writes_before_closing_counts_only_writes_before_the_report_ends(self):
+        self.assertEqual(writes_before_closing(REPORT_THEN_EXECUTION), 0)
+        early = [assistant(tool("Edit")), *REPORT_THEN_EXECUTION]
+        self.assertEqual(writes_before_closing(early), 1)
+        self.assertEqual(writes_before_closing([assistant(tool("Write"))]), 1)
 
     def test_tool_uses_lists_calls_in_order(self):
         self.assertEqual(

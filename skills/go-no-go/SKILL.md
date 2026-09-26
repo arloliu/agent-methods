@@ -14,7 +14,7 @@ description: >
 Judge one fixed subject — a plan or an idea — `go` or `no-go` before the user commits to its next step.
 A **blocker** is a finding that fails a declared criterion, cites evidence, and names a resolution; zero blockers is `go`, one or more is `no-go`.
 There is no conditional or partial `go`.
-Read-only throughout: this skill never edits the subject, the repository, or external state, and a `go` verdict recommends — it does not authorize execution.
+Judging is read-only: this skill never edits the subject, the repository, or external state while it judges, and a `go` verdict recommends — it does not authorize execution.
 
 ## Invariants
 
@@ -31,9 +31,8 @@ Read-only throughout: this skill never edits the subject, the repository, or ext
   Changes that stay inside version control default to two-way.
   The exception is repo automation that applies a change outside version control (a CI-run migration, merge-applied infrastructure, a push-triggered release workflow) — that is one-way.
   A step outside version control whose effect the ledger cannot determine defaults to one-way for want of evidence; it is not the only route to one-way — see Build the ledger for the full rule.
-- Fully read-only, and execution ends at the report: never touches the subject, the repository, or external state.
-  A request that says "if go, implement" does not take effect this run — it goes in the report as pending owner confirmation.
-- `go` is a recommendation; it does not authorize execution.
+- Judging is fully read-only: it never touches the subject, the repository, or external state.
+- `go` is a recommendation and does not authorize execution; only the owner's explicit instruction does, and only as [After the verdict](#after-the-verdict) allows: after a complete `go` report, for named two-way steps.
 - The verdict changes only for three reasons: the subject is revised, new evidence changes a claim's status, or the owner changes an accepted requirement or explicit constraint — which only re-opens criteria 3 and 4.
   Waiving a criterion, accepting a risk, or insisting after a finding is recorded as an **owner override**; the verdict does not change.
 - Author disclosure: state whether the reviewer is the subject's author.
@@ -130,7 +129,6 @@ Never rewrite or add to the subject.
 ## Verdict and report
 
 Zero blockers is `go`, otherwise `no-go`.
-The reply ends at `Closing` even when the same request says to implement on `go`: that instruction only fills `Pending owner confirmation`, and acting on it needs the owner's new request after reading the report.
 Report in the conversation by default; write it to a file only if asked.
 Fill this template exactly, replacing only the placeholders; `Steps`, `Claims`, and `Blockers` write `none` on the header line when empty, otherwise one `- [ID]` line per item after it:
 
@@ -152,7 +150,7 @@ Blockers:
 Advisory: <findings, or none>
 Not assessed: <item; reason, or none>
 Later commitments: <commitments that need their own verdict, or none>
-Pending owner confirmation: <a pre-issued instruction to proceed on go, or none>
+Pre-authorized: <the owner's words; steps <S<n>>; <executed | not executed>; <reason>, or none>
 Owner override: <recorded decision with the owner's words, or none>
 Closing: <the closing sentence for the verdict>
 ```
@@ -164,8 +162,8 @@ The closing sentence is `this verdict applies only to revision <id> and does not
 Verbatim recorded text that spans multiple lines, or that could be misread as a field label (a line starting `Steps:`, say), goes in a fenced code block below the `Subject` line instead — the line itself then just points to it (`Subject: recorded text below; revision <id>`).
 The same applies to a verbatim quotation in `Criteria: added` or `Owner override`: fence it below the report and point to it from that field.
 `independent review` reads `recommended because of S<n>` only when assessment is by the author and the decision is one-way; otherwise `not required`.
-`Closing` is the report's and the reply's last line: no summary, recap, or next step after it.
-After `no-go`, never ask whether to proceed anyway and never offer a way to bypass, waive, or narrow the verdict as a next step — a resolution belongs inside its `- [B<n>]` line, not after `Closing`; after either verdict, do not begin implementation.
+`Closing` is the report's last line; the reply ends there too, except for the outcome of a step executed under `Pre-authorized`.
+After `no-go`, never ask whether to proceed anyway and never offer a way to bypass, waive, or narrow the verdict as a next step — a resolution belongs inside its `- [B<n>]` line, not after `Closing`; after either verdict, begin no implementation beyond a step executed under `Pre-authorized`.
 When stopping under [Stop conditions](#stop-conditions) instead, use the minimal template and omit `Verdict` and everything after it:
 
 ```text
@@ -181,10 +179,12 @@ A request to change the verdict is one of three things: a subject revision re-ju
 "I waive the rollback requirement," "I accept that risk," and plain insistence are all overrides — the verdict stands, with the reason recorded.
 On re-judgment, recheck every earlier blocker against the new revision and reassess every changed section.
 A revision this session's agent wrote in another request gets `Author: this session's agent; assessment by the author`.
-A pre-issued "go, then implement" goes in the `go` report's `Pending owner confirmation`, for the owner to act on after reading the report; record it and end there — edit nothing, never announce that you are proceeding, and keep `Closing` word for word.
+A request that pre-authorizes implementation on `go` fills `Pre-authorized` with the owner's words and the steps it names.
+Execute those steps only after the complete report, only on `go`, and only when every named step is two-way in the ledger and the request does not also forbid changes; otherwise mark it `not executed` with the reason, and after `no-go` never execute.
+When executing, do only the named steps, keep `Closing` word for word, then state what changed and which verification ran — nothing further, and no offer of the next step.
 
 ## Stop conditions
 
 Stop without a verdict when the subject cannot be fixed to one piece of text, when the subject and the request disagree about the decision owner, or when the subject belongs to a decision another method owns (a release verdict, say — point to `release-readiness`).
 Missing evidence and an unnamed next commitment are never stop conditions: they produce a blocker or a `Not assessed` entry, and the verdict follows from the declared criteria.
-Every other action stays inside existing authorization: read the subject, the repository, rules, and existing review reports without asking; run a test or other side-effecting check only within existing authorization and its side-effect limits, else the claim stays unverified; write the report to a file only when asked; never modify the subject, start implementation, or make any Git or external write.
+Every other action stays inside existing authorization: read the subject, the repository, rules, and existing review reports without asking; run a test or other side-effecting check only within existing authorization and its side-effect limits, else the claim stays unverified; write the report to a file only when asked; never modify the subject, start implementation beyond a step executed under `Pre-authorized`, or make any Git or external write.

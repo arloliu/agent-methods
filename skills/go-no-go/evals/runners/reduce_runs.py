@@ -80,13 +80,15 @@ def restate_verifier(entry, root):
         root.parent / (root.name + "-evaluator") / f"{entry.get('case')}.json"
     )
     if (
-        not entry.get("final_text")
+        not (entry.get("report_text") or entry.get("final_text"))
         or not workdir.is_dir()
         or not manifest_path.is_file()
     ):
         return entry
-    entry["verifier"] = verify(workdir, manifest_path, entry["final_text"])
-    entry["forbidden_offers"] = forbidden_offers(entry["final_text"])
+    # Batches before `report_text` existed verify their last text block, as they ran.
+    text = entry.get("report_text") or entry["final_text"]
+    entry["verifier"] = verify(workdir, manifest_path, text)
+    entry["forbidden_offers"] = forbidden_offers(text)
     return entry
 
 

@@ -31,9 +31,11 @@ from common import (  # noqa: E402
     loaded,
     now,
     refuse_git_tree,
+    report_text,
     required_path,
     resolve_profile,
     tool_uses,
+    writes_before_closing,
 )
 from verify_report import verify  # noqa: E402
 
@@ -127,6 +129,7 @@ def run_case(model, case, root, evaluator, profile):
         request,
     )
     answer = final_text(events)
+    reply = report_text(events)
     uses = tool_uses(events)
     state, evidence = loaded(uses)
     results = [e for e in events if e.get("type") == "result"]
@@ -139,13 +142,15 @@ def run_case(model, case, root, evaluator, profile):
         "workdir": str(workdir),
         "request": request,
         "final_text": answer,
+        "report_text": reply,
+        "writes_before_closing": writes_before_closing(events),
         "loaded": state,
         "loading_evidence": evidence,
         "tool_names": [use["name"] for use in uses],
         "num_turns": sum(r.get("num_turns") or 0 for r in results),
         "cost_usd": round(sum(r.get("total_cost_usd") or 0 for r in results), 4),
         "stop_reasons": [r.get("stop_reason") or r.get("subtype") for r in results],
-        "verifier": verify(fixture, manifest_path, answer),
+        "verifier": verify(fixture, manifest_path, reply),
     }
     (workdir / "record.json").write_text(
         json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
